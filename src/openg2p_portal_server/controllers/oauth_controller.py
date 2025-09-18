@@ -1,11 +1,16 @@
 import orjson
-from fastapi import Request
-from openg2p_fastapi_auth.controllers.oauth_controller import OAuthController as BaseOAuthController
+from typing import Optional, Dict, Any
+
+from fastapi import Request, Response
+from openg2p_fastapi_auth.controllers.oauth_controller import (
+    OAuthController as BaseOAuthController,
+)
 from openg2p_fastapi_common.utils import cookie_utils
 
 from ..config import Settings
 from ..models.orm.auth_oauth_provider_orm import AuthOauthProviderORM
 from ..models.orm.user_login_orm import UserLoginORM
+from ..models.orm.user_orm import UserORM
 
 from ..services.user_service import UserService
 
@@ -21,7 +26,7 @@ class OAuthController(BaseOAuthController):
         super().__init__(**kwargs)
         self.user_service = UserService.get_component()
 
-    async def oauth_callback(self, request: Request):
+    async def oauth_callback(self, request: Request) -> Response:
         """
         Handles the OAuth callback after a user has authenticated with an OAuth provider.
         """
@@ -42,12 +47,12 @@ class OAuthController(BaseOAuthController):
         )
 
         # Fetch ID type configuration for the OAuth provider
-        id_type_config = await AuthOauthProviderORM.get_auth_id_type_config(
+        id_type_config: Optional[Dict[str, Any]] = await AuthOauthProviderORM.get_auth_id_type_config(
             id=auth_provider_id
         )
 
         # Create the user if not already present
-        user = await self.user_service.check_and_create_user(
+        user: UserORM = await self.user_service.check_and_create_user(
             userinfo_dict, id_type_config=id_type_config
         )
 
@@ -56,7 +61,7 @@ class OAuthController(BaseOAuthController):
             user_id=user.id,
             auth_provider_id=id_type_config.get("auth_provider_id"),
             id_type=id_type_config.get("g2p_id_type"),
-            user_type=user.user_type
+            user_type=user.user_type,
         )
 
         return res
