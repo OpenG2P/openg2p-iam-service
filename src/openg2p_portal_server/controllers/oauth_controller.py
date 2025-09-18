@@ -56,6 +56,7 @@ class OAuthController(BaseOAuthController):
             user_id=user.id,
             auth_provider_id=id_type_config.get("auth_provider_id"),
             id_type=id_type_config.get("g2p_id_type"),
+            user_type=user.user_type
         )
 
         return res
