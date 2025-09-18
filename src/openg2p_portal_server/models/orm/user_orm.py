@@ -4,7 +4,7 @@ import json
 
 from openg2p_fastapi_common.context import dbengine
 from openg2p_fastapi_common.models import BaseORMModelWithId
-from sqlalchemy import Date, DateTime, String, Text, select, text
+from sqlalchemy import Date, DateTime, String, Text, select, text, ForeignKey
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -32,6 +32,12 @@ class UserORM(BaseORMModelWithId):
 
     create_date: Mapped[datetime] = mapped_column(DateTime(), default=datetime.utcnow)
     write_date: Mapped[datetime] = mapped_column(DateTime(), default=datetime.utcnow)
+
+    auth_provider_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("auth_oauth_provider.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
 
     def set_address(self, address_dict: dict):
         """Store address as JSON string."""

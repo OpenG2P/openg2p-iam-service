@@ -91,6 +91,7 @@ class AuthOauthProviderORM(BaseORMModel):
                     "token_map": ap.token_map,
                     "date_format": ap.date_format,
                     "company_id": ap.company_id,
+                    "auth_provider_id": ap.id,
                 }
                 auth_id_type_config_cache.get()[iss_id] = id_type_config
         return id_type_config

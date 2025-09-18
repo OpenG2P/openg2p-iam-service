@@ -54,6 +54,7 @@ class UserService(BaseService):
                 ),
                 "phone_number": validation.get("phone"),
                 "user_type": id_type_config.get("user_type"),
+                "auth_provider_id": id_type_config.get("auth_provider_id"),
                 "active": True,
             }
 
