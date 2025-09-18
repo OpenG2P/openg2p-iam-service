@@ -1,0 +1,44 @@
+from datetime import datetime
+from typing import Optional
+
+from openg2p_fastapi_common.context import dbengine
+from openg2p_fastapi_common.models import BaseORMModelWithId
+from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.orm import Mapped, mapped_column
+
+
+class UserLoginORM(BaseORMModelWithId):
+    __tablename__ = "user_logins"
+
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+    )
+    auth_provider_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("auth_oauth_provider.id", ondelete="SET NULL"), nullable=True
+    )
+    id_type: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
+    user_type: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
+    login_time: Mapped[datetime] = mapped_column(DateTime(), default=datetime.utcnow)
+
+    @classmethod
+    async def create_login_record(
+        cls, user_id: int, auth_provider_id: int, id_type: str, user_type: str
+    ) -> "UserLoginORM":
+        """
+        Create a login record for the user.
+        """
+        async_session_maker = async_sessionmaker(dbengine.get(), expire_on_commit=False)
+        async with async_session_maker() as session:
+            login = cls(
+                user_id=user_id,
+                auth_provider_id=auth_provider_id,
+                id_type=id_type,
+                user_type=user_type,
+                login_time=datetime.utcnow(),
+                active=True,
+            )
+            session.add(login)
+            await session.commit()
+            await session.refresh(login)
+            return login
