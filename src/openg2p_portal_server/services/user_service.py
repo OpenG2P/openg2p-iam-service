@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 
-import orjson
 from openg2p_fastapi_common.context import dbengine
 from openg2p_fastapi_common.errors.http_exceptions import InternalServerError
 from openg2p_fastapi_common.service import BaseService
@@ -11,7 +10,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from ..config import Settings
 from ..context import user_fields_cache
-from ..models.orm.auth_oauth_provider import AuthOauthProviderORM
+from ..models.orm.auth_oauth_provider_orm import AuthOauthProviderORM
 from ..models.orm.user_orm import UserORM
 
 _config = Settings.get_config(strict=False)
@@ -36,7 +35,7 @@ class UserService(BaseService):
 
         async_session_maker = async_sessionmaker(dbengine.get(), expire_on_commit=False)
         async with async_session_maker() as session:
-            stmt = select(UserORM).filter(UserORM.individual_id == validation["individual_id"])
+            stmt = select(UserORM).filter(UserORM.user_unique_id == validation["user_unique_id"])
             result = await session.execute(stmt)
             user = result.scalar()
 
@@ -45,7 +44,8 @@ class UserService(BaseService):
 
             user_dict = {
                 "name": validation.get("name", ""),
-                "individual_id": validation["individual_id"],
+                "user_unique_id": validation["user_unique_id"],
+                "id_type": id_type_config.get("g2p_id_type"),
                 "user_id": validation["user_id"],
                 "email": validation.get("email"),
                 "gender": self.create_user_process_gender(validation.get("gender")),
@@ -58,9 +58,6 @@ class UserService(BaseService):
                 "active": True,
             }
 
-            address = validation.get("address")
-            if address and isinstance(address, dict):
-                user_dict["address"] = orjson.dumps(address).decode()
 
             try:
                 user = UserORM(**user_dict)

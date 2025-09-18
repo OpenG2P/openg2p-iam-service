@@ -6,9 +6,9 @@ from openg2p_fastapi_auth.models.credentials import AuthCredentials
 from openg2p_fastapi_common.errors.http_exceptions import UnauthorizedError
 
 from ..dependencies import JwtBearerAuth
-from ..models.orm.auth_oauth_provider import AuthOauthProviderORM
+from ..models.orm.auth_oauth_provider_orm import AuthOauthProviderORM
 from ..models.orm.user_orm import UserORM
-from ..models.profile import GetProfile
+from ..models.user_profile import GetUserProfile
 from ..services.user_service import UserService
 
 
@@ -25,7 +25,7 @@ class AuthController(BaseAuthController):
         self.router.add_api_route(
             "/profile",
             self.get_profile,
-            responses={200: {"model": GetProfile}},
+            responses={200: {"model": GetUserProfile}},
             methods=["GET"],
         )
 
@@ -49,20 +49,16 @@ class AuthController(BaseAuthController):
         user_data = await UserORM.get_user_by_id(auth.user_id)
 
         # Deserialize address if stored as JSON string
-        address = None
-        if user_data.address:
-            import orjson
-            address = orjson.loads(user_data.address)
 
-        return GetProfile(
+        return GetUserProfile(
             id=user_data.id,
             name=user_data.name,
-            individual_id=user_data.individual_id,
+            user_unique_id=user_data.user_unique_id,
+            id_type=user_data.id_type,
             email=user_data.email,
             gender=user_data.gender,
             birthdate=user_data.birthdate,
             phone_number=user_data.phone_number,
-            address=address,
             user_type=user_data.user_type,
         )
 

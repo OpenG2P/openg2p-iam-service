@@ -4,18 +4,18 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
-class Profile(BaseModel):
+class UserProfile(BaseModel):
     model_config = ConfigDict()
 
     name: str
-    individual_id: str
+    user_unique_id: str
+    id_type: str
     email: Optional[str] = None
     gender: Optional[str] = None
     birthdate: Optional[date] = None
     phone_number: Optional[str] = None
-    address: Optional[dict] = None
     user_type: Optional[str] = None
 
 
-class GetProfile(Profile):
+class GetUserProfile(UserProfile):
     id: Optional[int] = None

@@ -10,7 +10,7 @@ from openg2p_fastapi_auth.models.provider_auth_parameters import (
 )
 from openg2p_fastapi_common.context import dbengine
 from openg2p_fastapi_common.models import BaseORMModel
-from sqlalchemy import and_, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -38,11 +38,10 @@ class AuthOauthProviderORM(BaseORMModel):
     enable_pkce: Mapped[Optional[str]] = mapped_column()
     code_verifier: Mapped[Optional[str]] = mapped_column()
     date_format: Mapped[Optional[str]] = mapped_column()
-    company_id: Mapped[Optional[int]] = mapped_column()
     token_map: Mapped[str] = mapped_column()
     extra_authorize_params: Mapped[Optional[str]] = mapped_column()
     g2p_portal_oauth_callback_url: Mapped[Optional[str]] = mapped_column()
-    g2p_id_type: Mapped[Optional[int]] = mapped_column()
+    g2p_id_type: Mapped[Optional[str]] = mapped_column()
 
     @classmethod
     async def get_by_id(cls, id: int) -> "AuthOauthProviderORM":
@@ -90,7 +89,6 @@ class AuthOauthProviderORM(BaseORMModel):
                     "g2p_id_type": ap.g2p_id_type,
                     "token_map": ap.token_map,
                     "date_format": ap.date_format,
-                    "company_id": ap.company_id,
                     "auth_provider_id": ap.id,
                 }
                 auth_id_type_config_cache.get()[iss_id] = id_type_config

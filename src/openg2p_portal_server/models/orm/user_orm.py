@@ -1,10 +1,9 @@
 from datetime import date, datetime
 from typing import Optional
-import json
 
 from openg2p_fastapi_common.context import dbengine
 from openg2p_fastapi_common.models import BaseORMModelWithId
-from sqlalchemy import Date, DateTime, String, Text, select, text, ForeignKey
+from sqlalchemy import Date, DateTime, String, ForeignKey, select, text
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -22,13 +21,15 @@ class UserORM(BaseORMModelWithId):
     gender: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
     email: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
     phone_number: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
-    individual_id: Mapped[str] = mapped_column(String(), unique=True, nullable=False)
+    
+    user_unique_id: Mapped[str] = mapped_column(String(), unique=True, nullable=False)
+    id_type: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
+
+
     user_id: Mapped[Optional[str]] = mapped_column(String(), unique=True, nullable=True)
     user_type: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
 
     birthdate: Mapped[Optional[date]] = mapped_column(Date(), nullable=True)
-
-    address: Mapped[Optional[str]] = mapped_column(Text(), nullable=True)
 
     create_date: Mapped[datetime] = mapped_column(DateTime(), default=datetime.utcnow)
     write_date: Mapped[datetime] = mapped_column(DateTime(), default=datetime.utcnow)
@@ -37,25 +38,6 @@ class UserORM(BaseORMModelWithId):
         ForeignKey("auth_oauth_provider.id", ondelete="SET NULL"),
         nullable=True,
     )
-
-
-    def set_address(self, address_dict: dict):
-        """Store address as JSON string."""
-        self.address = json.dumps(address_dict)
-
-    def get_address(self) -> Optional[dict]:
-        """Return address as dictionary."""
-        if self.address:
-            return json.loads(self.address)
-        return None
-
-    # @classmethod
-    # async def get_user(cls, id: int):
-    #     async_session_maker = async_sessionmaker(dbengine.get())
-    #     async with async_session_maker() as session:
-    #         stmt = select(cls).filter(cls.id == id)
-    #         result = await session.execute(stmt)
-    #     return result.scalar()
 
     @classmethod
     async def get_user_by_id(cls, user_id: int):
@@ -66,10 +48,10 @@ class UserORM(BaseORMModelWithId):
         return result.scalar_one_or_none()
 
     @classmethod
-    async def get_user_by_individual_id(cls, individual_id: str):
+    async def get_user_by_user_unique_id(cls, user_unique_id: str):
         async_session_maker = async_sessionmaker(dbengine.get())
         async with async_session_maker() as session:
-            stmt = select(cls).filter(cls.individual_id == individual_id)
+            stmt = select(cls).filter(cls.user_unique_id == user_unique_id)
             result = await session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -80,7 +62,6 @@ class UserORM(BaseORMModelWithId):
             stmt = select(cls).filter(cls.user_id == user_id)
             result = await session.execute(stmt)
         return result.scalar_one_or_none()
-    
 
     @classmethod
     async def get_user_fields(cls):

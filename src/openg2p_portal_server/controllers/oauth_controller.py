@@ -4,7 +4,9 @@ from openg2p_fastapi_auth.controllers.oauth_controller import OAuthController as
 from openg2p_fastapi_common.utils import cookie_utils
 
 from ..config import Settings
-from ..models.orm.auth_oauth_provider import AuthOauthProviderORM
+from ..models.orm.auth_oauth_provider_orm import AuthOauthProviderORM
+from ..models.orm.user_login_orm import UserLoginORM
+
 from ..services.user_service import UserService
 
 _config = Settings.get_config()
@@ -45,8 +47,15 @@ class OAuthController(BaseOAuthController):
         )
 
         # Create the user if not already present
-        await self.user_service.check_and_create_user(
+        user = await self.user_service.check_and_create_user(
             userinfo_dict, id_type_config=id_type_config
+        )
+
+        # Create a login record for the user.
+        await UserLoginORM.create_login_record(
+            user_id=user.id,
+            auth_provider_id=id_type_config.get("auth_provider_id"),
+            id_type=id_type_config.get("g2p_id_type"),
         )
 
         return res

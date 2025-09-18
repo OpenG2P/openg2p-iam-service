@@ -7,7 +7,7 @@ from openg2p_fastapi_auth.models.credentials import AuthCredentials as OriginalA
 from openg2p_fastapi_common.errors.http_exceptions import InternalServerError, UnauthorizedError
 
 from .models.credentials import AuthCredentials
-from .models.orm.auth_oauth_provider import AuthOauthProviderORM
+from .models.orm.auth_oauth_provider_orm import AuthOauthProviderORM
 from .models.orm.user_orm import UserORM
 
 
