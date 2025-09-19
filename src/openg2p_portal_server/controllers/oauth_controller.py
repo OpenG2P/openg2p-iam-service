@@ -44,15 +44,6 @@ class OAuthController(BaseOAuthController):
         res = await super().oauth_callback(request)
         _logger.debug("Base OAuth callback completed")
 
-        # # Retrieve user info from the auth provider using tokens from cookies
-        # userinfo_dict = await self.auth_controller.get_oauth_validation_data(
-        #     auth=cookie_utils.get_response_cookies(res, "X-Access-Token")[-1],
-        #     id_token=cookie_utils.get_response_cookies(res, "X-ID-Token")[-1],
-        #     provider=await self.auth_controller.get_login_provider_db_by_id(
-        #         auth_provider_id
-        #     ),
-        # )
-
         # Retrieve user info from the auth provider using tokens from cookies
         access_token = cookie_utils.get_response_cookies(res, "X-Access-Token")[-1]
         id_token = cookie_utils.get_response_cookies(res, "X-ID-Token")[-1]
