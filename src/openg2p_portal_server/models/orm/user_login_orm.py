@@ -21,7 +21,9 @@ class UserLoginORM(BaseORMModelWithId):
         ForeignKey("auth_oauth_provider.id", ondelete="SET NULL"),
         nullable=True,
     )
-    id_type: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
+    provider_unique_id_type: Mapped[Optional[str]] = mapped_column(
+        String(), nullable=True
+    )
     user_type: Mapped[Optional[str]] = mapped_column(
         SQLEnum(UserType, name="user_type_enum"),
         nullable=True,
@@ -30,7 +32,11 @@ class UserLoginORM(BaseORMModelWithId):
 
     @classmethod
     async def create_login_record(
-        cls, user_id: int, auth_provider_id: int, id_type: str, user_type: str
+        cls,
+        user_id: int,
+        auth_provider_id: int,
+        provider_unique_id_type: str,
+        user_type: str,
     ) -> Optional["UserLoginORM"]:
         """
         Create a login record for the user.
@@ -40,7 +46,7 @@ class UserLoginORM(BaseORMModelWithId):
             login = cls(
                 user_id=user_id,
                 auth_provider_id=auth_provider_id,
-                id_type=id_type,
+                provider_unique_id_type=provider_unique_id_type,
                 user_type=user_type,
                 login_time=datetime.utcnow(),
                 active=True,

@@ -77,7 +77,7 @@ class OAuthController(BaseOAuthController):
         await UserLoginORM.create_login_record(
             user_id=user.id,
             auth_provider_id=id_type_config.get("auth_provider_id"),
-            id_type=id_type_config.get("g2p_id_type"),
+            provider_unique_id_type=id_type_config.get("g2p_id_type"),
             user_type=user.user_type,
         )
 

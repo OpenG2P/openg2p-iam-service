@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..user_schemas import UserCreate
+from ..user_schemas import UserData
 
 
 class UserType(Enum):
@@ -27,8 +27,12 @@ class UserORM(BaseORMModelWithId):
     email: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
     phone_number: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
 
-    unique_user_id: Mapped[str] = mapped_column(String(), unique=True, nullable=False)
-    id_type: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
+    provider_unique_id: Mapped[str] = mapped_column(
+        String(), unique=True, nullable=False
+    )
+    provider_unique_id_type: Mapped[Optional[str]] = mapped_column(
+        String(), nullable=True
+    )
 
     user_id: Mapped[Optional[str]] = mapped_column(String(), unique=True, nullable=True)
     user_type: Mapped[Optional[UserType]] = mapped_column(
@@ -52,12 +56,12 @@ class UserORM(BaseORMModelWithId):
         return result.scalar_one_or_none()
 
     @classmethod
-    async def get_user_by_unique_user_id(
-        cls, unique_user_id: str
+    async def get_user_by_provider_unique_id(
+        cls, provider_unique_id: str
     ) -> Optional["UserORM"]:
         async_session_maker = async_sessionmaker(dbengine.get())
         async with async_session_maker() as session:
-            stmt = select(cls).filter(cls.unique_user_id == unique_user_id)
+            stmt = select(cls).filter(cls.provider_unique_id == provider_unique_id)
             result = await session.execute(stmt)
         return result.scalar_one_or_none()
 
@@ -70,10 +74,10 @@ class UserORM(BaseORMModelWithId):
         return result.scalar_one_or_none()
 
     @classmethod
-    async def create_user(cls, user_create: UserCreate) -> Optional["UserORM"]:
+    async def create_user(cls, user_data: UserData) -> Optional["UserORM"]:
         async_session_maker = async_sessionmaker(dbengine.get(), expire_on_commit=False)
         async with async_session_maker() as session:
-            user: UserORM = cls(**user_create.model_dump(), active=True)
+            user: UserORM = cls(**user_data.model_dump(), active=True)
             session.add(user)
             try:
                 await session.commit()

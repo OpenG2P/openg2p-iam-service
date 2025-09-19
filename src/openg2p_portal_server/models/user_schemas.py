@@ -7,8 +7,8 @@ class UserBase(BaseModel):
     model_config = ConfigDict()
 
     name: str
-    unique_user_id: str
-    id_type: str
+    provider_unique_id: str
+    provider_unique_id_type: str
     email: Optional[str] = None
     gender: Optional[str] = None
     birthdate: Optional[date] = None
@@ -16,7 +16,7 @@ class UserBase(BaseModel):
     user_type: Optional[str] = None
 
 
-class UserCreate(UserBase):
+class UserData(UserBase):
     auth_provider_id: Optional[int] = None
     user_id: Optional[str] = None
 

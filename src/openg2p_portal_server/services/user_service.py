@@ -8,7 +8,7 @@ from ..config import Settings
 from ..context import user_fields_cache
 from ..models.orm.auth_oauth_provider_orm import AuthOauthProviderORM
 from ..models.orm.user_orm import UserORM
-from ..models.user_schemas import UserCreate
+from ..models.user_schemas import UserData
 from ..utils.user_utils import create_user_process_gender, create_user_process_birthdate
 
 
@@ -24,7 +24,7 @@ class UserService(BaseService):
         self, validation: dict, id_type_config: dict = None
     ) -> UserORM:
         """
-        Checks if a user exists based on unique_user_id, creates if not.
+        Checks if a user exists based on provider_unique_id, creates if not.
         """
         _logger.info("Checking and creating user")
         if not (id_type_config and id_type_config.get("g2p_id_type")):
@@ -43,20 +43,20 @@ class UserService(BaseService):
         )
 
         _logger.debug(
-            f"Looking up user by unique_user_id: {validation['unique_user_id']}"
+            f"Looking up user by provider_unique_id: {validation['provider_unique_id']}"
         )
-        existing_user: UserORM = await UserORM.get_user_by_unique_user_id(
-            validation["unique_user_id"]
+        existing_user: UserORM = await UserORM.get_user_by_provider_unique_id(
+            validation["provider_unique_id"]
         )
         if existing_user:
             _logger.info("User already exists - fetched successfully")
             return existing_user
 
         _logger.debug("User not found, creating new user")
-        user_create: UserCreate = UserCreate(
+        user_data: UserData = UserData(
             name=validation.get("name", ""),
-            unique_user_id=validation["unique_user_id"],
-            id_type=id_type_config.get("g2p_id_type"),
+            provider_unique_id=validation["provider_unique_id"],
+            provider_unique_id_type=id_type_config.get("g2p_id_type"),
             user_id=validation.get("user_id"),
             email=validation.get("email"),
             gender=create_user_process_gender(validation.get("gender")),
@@ -68,7 +68,7 @@ class UserService(BaseService):
             auth_provider_id=id_type_config.get("auth_provider_id"),
         )
 
-        user: UserORM = await UserORM.create_user(user_create=user_create)
+        user: UserORM = await UserORM.create_user(user_data=user_data)
 
         _logger.info("User created successfully")
         return user
