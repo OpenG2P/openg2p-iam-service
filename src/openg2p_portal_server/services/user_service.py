@@ -26,21 +26,33 @@ class UserService(BaseService):
         """
         Checks if a user exists based on unique_user_id, creates if not.
         """
+        _logger.info("Checking and creating user")
         if not (id_type_config and id_type_config.get("g2p_id_type")):
+            _logger.error(
+                "Invalid Auth Provider Configuration. ID Type not configured."
+            )
             raise InternalServerError(
                 message="Invalid Auth Provider Configuration. ID Type not configured."
             )
 
+        _logger.debug(
+            f"Mapping validation response with token_map: {id_type_config['token_map']}"
+        )
         validation: Dict[str, Any] = AuthOauthProviderORM.map_validation_response(
             validation, id_type_config["token_map"]
         )
 
+        _logger.debug(
+            f"Looking up user by unique_user_id: {validation['unique_user_id']}"
+        )
         existing_user: UserORM = await UserORM.get_user_by_unique_user_id(
             validation["unique_user_id"]
         )
         if existing_user:
+            _logger.info("User already exists - fetched successfully")
             return existing_user
 
+        _logger.debug("User not found, creating new user")
         user_create: UserCreate = UserCreate(
             name=validation.get("name", ""),
             unique_user_id=validation["unique_user_id"],
@@ -57,12 +69,19 @@ class UserService(BaseService):
         )
 
         user: UserORM = await UserORM.create_user(user_create=user_create)
+
+        _logger.info("User created successfully")
         return user
 
     async def get_user_fields(self) -> List[str]:
+        _logger.info("Fetching user fields")
         fields: List[str] = user_fields_cache.get()
         if fields:
             return fields
+
+        _logger.debug("Fetching user fields from database")
         fields = await UserORM.get_user_fields()
         user_fields_cache.set(fields)
+
+        _logger.info("User fields fetched successfully")
         return fields
