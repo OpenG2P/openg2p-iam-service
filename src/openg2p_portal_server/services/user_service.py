@@ -1,17 +1,16 @@
 import logging
-from datetime import datetime
+from typing import List, Dict, Any
 
-from openg2p_fastapi_common.context import dbengine
 from openg2p_fastapi_common.errors.http_exceptions import InternalServerError
 from openg2p_fastapi_common.service import BaseService
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from ..config import Settings
 from ..context import user_fields_cache
 from ..models.orm.auth_oauth_provider_orm import AuthOauthProviderORM
 from ..models.orm.user_orm import UserORM
+from ..models.user_schemas import UserData
+from ..utils.user_utils import create_user_process_gender, create_user_process_birthdate
+
 
 _config = Settings.get_config(strict=False)
 _logger = logging.getLogger(_config.logging_default_logger_name)
@@ -23,64 +22,66 @@ class UserService(BaseService):
 
     async def check_and_create_user(
         self, validation: dict, id_type_config: dict = None
-    ):
-        if not (id_type_config and id_type_config.get("g2p_id_type", None)):
+    ) -> UserORM:
+        """
+        Checks if a user exists based on provider_unique_id, creates if not.
+        """
+        _logger.info("Checking and creating user")
+        if not (id_type_config and id_type_config.get("g2p_id_type")):
+            _logger.error(
+                "Invalid Auth Provider Configuration. ID Type not configured."
+            )
             raise InternalServerError(
                 message="Invalid Auth Provider Configuration. ID Type not configured."
             )
 
-        validation = AuthOauthProviderORM.map_validation_response(
+        _logger.debug(
+            f"Mapping validation response with token_map: {id_type_config['token_map']}"
+        )
+        validation: Dict[str, Any] = AuthOauthProviderORM.map_validation_response(
             validation, id_type_config["token_map"]
         )
 
-        async_session_maker = async_sessionmaker(dbengine.get(), expire_on_commit=False)
-        async with async_session_maker() as session:
-            stmt = select(UserORM).filter(UserORM.user_unique_id == validation["user_unique_id"])
-            result = await session.execute(stmt)
-            user = result.scalar()
+        _logger.debug(
+            f"Looking up user by provider_unique_id: {validation['provider_unique_id']}"
+        )
+        existing_user: UserORM = await UserORM.get_user_by_provider_unique_id(
+            validation["provider_unique_id"]
+        )
+        if existing_user:
+            _logger.info("User already exists - fetched successfully")
+            return existing_user
 
-            if user:
-                return user
+        _logger.debug("User not found, creating new user")
+        user_data: UserData = UserData(
+            name=validation.get("name", ""),
+            provider_unique_id=validation["provider_unique_id"],
+            provider_unique_id_type=id_type_config.get("g2p_id_type"),
+            user_id=validation.get("user_id"),
+            email=validation.get("email"),
+            gender=create_user_process_gender(validation.get("gender")),
+            birthdate=create_user_process_birthdate(
+                validation.get("birthdate"), date_format=id_type_config["date_format"]
+            ),
+            phone_number=validation.get("phone"),
+            user_type=id_type_config.get("user_type"),
+            auth_provider_id=id_type_config.get("auth_provider_id"),
+        )
 
-            user_dict = {
-                "name": validation.get("name", ""),
-                "user_unique_id": validation["user_unique_id"],
-                "id_type": id_type_config.get("g2p_id_type"),
-                "user_id": validation["user_id"],
-                "email": validation.get("email"),
-                "gender": self.create_user_process_gender(validation.get("gender")),
-                "birthdate": self.create_user_process_birthdate(
-                    validation.get("birthdate"), date_format=id_type_config["date_format"]
-                ),
-                "phone_number": validation.get("phone"),
-                "user_type": id_type_config.get("user_type"),
-                "auth_provider_id": id_type_config.get("auth_provider_id"),
-                "active": True,
-            }
+        user: UserORM = await UserORM.create_user(user_data=user_data)
 
+        _logger.info("User created successfully")
+        return user
 
-            try:
-                user = UserORM(**user_dict)
-                session.add(user)
-                await session.commit()
-                return user
-            except IntegrityError as e:
-                raise InternalServerError(
-                    message=f"Could not create user. {repr(e)}"
-                ) from e
-
-    def create_user_process_gender(self, gender):
-        return gender.capitalize() if gender else None
-
-    def create_user_process_birthdate(self, birthdate, date_format="%Y/%m/%d"):
-        if not birthdate:
-            return None
-        return datetime.strptime(birthdate, date_format).date()
-
-    async def get_user_fields(self):
-        fields = user_fields_cache.get()
+    async def get_user_fields(self) -> List[str]:
+        _logger.info("Fetching user fields")
+        fields: List[str] = user_fields_cache.get()
         if fields:
             return fields
+
+        _logger.debug("Fetching user fields from database")
         fields = await UserORM.get_user_fields()
         user_fields_cache.set(fields)
+
+        _logger.info("User fields fetched successfully")
         return fields

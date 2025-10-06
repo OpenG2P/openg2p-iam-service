@@ -1,10 +1,15 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from fastapi import Request
 from fastapi.security import HTTPAuthorizationCredentials
 from openg2p_fastapi_auth.dependencies import JwtBearerAuth as BaseJwtBearerAuth
-from openg2p_fastapi_auth.models.credentials import AuthCredentials as OriginalAuthCredentials
-from openg2p_fastapi_common.errors.http_exceptions import InternalServerError, UnauthorizedError
+from openg2p_fastapi_auth.models.credentials import (
+    AuthCredentials as OriginalAuthCredentials,
+)
+from openg2p_fastapi_common.errors.http_exceptions import (
+    InternalServerError,
+    UnauthorizedError,
+)
 
 from .models.credentials import AuthCredentials
 from .models.orm.auth_oauth_provider_orm import AuthOauthProviderORM
@@ -19,21 +24,21 @@ class JwtBearerAuth(BaseJwtBearerAuth):
         if not res:
             return None
 
-        id_type_config = await AuthOauthProviderORM.get_auth_id_type_config(iss=res.iss)
+        id_type_config: Optional[Dict[str, Any]] = (
+            await AuthOauthProviderORM.get_auth_id_type_config(iss=res.iss)
+        )
         if not (id_type_config and id_type_config.get("g2p_id_type", None)):
             raise InternalServerError(
                 message="Unauthorized. Invalid Auth Provider. ID Type not configured."
             )
 
-        mapped_res = AuthOauthProviderORM.map_validation_response(
+        mapped_res: Dict[str, Any] = AuthOauthProviderORM.map_validation_response(
             res.model_dump(), id_type_config["token_map"]
         )
 
-        user = await UserORM.get_user_by_user_id(mapped_res.get("user_id"))
+        user: UserORM = await UserORM.get_user_by_user_id(mapped_res.get("user_id"))
         if not user:
-            raise UnauthorizedError(
-                message="Unauthorized. User Not Found."
-            )
+            raise UnauthorizedError(message="Unauthorized. User Not Found.")
 
-        new_res = AuthCredentials(user_id=user.id, **res.model_dump())
+        new_res: AuthCredentials = AuthCredentials(user_id=user.id, **res.model_dump())
         return new_res

@@ -1,5 +1,5 @@
 import base64
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 import orjson
 from openg2p_fastapi_auth.models.login_provider import LoginProviderTypes
@@ -44,24 +44,26 @@ class AuthOauthProviderORM(BaseORMModel):
     g2p_id_type: Mapped[Optional[str]] = mapped_column()
 
     @classmethod
-    async def get_by_id(cls, id: int) -> "AuthOauthProviderORM":
+    async def get_by_id(cls, id: int) -> Optional["AuthOauthProviderORM"]:
         async_session_maker = async_sessionmaker(dbengine.get())
         async with async_session_maker() as session:
             return await session.get(cls, id)
 
     @classmethod
     async def get_all(cls) -> List["AuthOauthProviderORM"]:
-        response = []
         async_session_maker = async_sessionmaker(dbengine.get())
+        all_providers: List[AuthOauthProviderORM] = []
+
         async with async_session_maker() as session:
             stmt = select(cls).order_by(cls.id.asc())
             result = await session.execute(stmt)
-            response = list(result.scalars())
-        return response
+            all_providers = list(result.scalars())
+        return all_providers
 
     @classmethod
-    async def get_auth_provider_from_iss(cls, iss: str) -> "AuthOauthProviderORM":
-        response = None
+    async def get_auth_provider_from_iss(
+        cls, iss: str
+    ) -> Optional["AuthOauthProviderORM"]:
         async_session_maker = async_sessionmaker(dbengine.get())
         async with async_session_maker() as session:
             stmt = (
@@ -70,26 +72,30 @@ class AuthOauthProviderORM(BaseORMModel):
                 .order_by(cls.id.asc())
             )
             result = await session.execute(stmt)
-            response = result.scalar()
-        return response
+            auth_provider: Optional[AuthOauthProviderORM] = result.scalar()
+        return auth_provider
 
     @classmethod
-    async def get_auth_id_type_config(cls, id: int = None, iss: str = None):
+    async def get_auth_id_type_config(
+        cls, id: int = None, iss: str = None
+    ) -> Optional[Dict[str, Any]]:
         iss_id = id if id else iss
-        id_type_config = auth_id_type_config_cache.get().get(iss_id, None)
+        id_type_config: Optional[Dict[str, Any]] = auth_id_type_config_cache.get().get(
+            iss_id, None
+        )
         if not id_type_config:
-            ap = None
+            auth_provider: Optional[AuthOauthProviderORM] = None
             if id:
-                ap = await cls.get_by_id(id)
+                auth_provider = await cls.get_by_id(id)
             elif iss:
-                ap = await cls.get_auth_provider_from_iss(iss)
+                auth_provider = await cls.get_auth_provider_from_iss(iss)
 
-            if ap and ap.g2p_id_type:
+            if auth_provider and auth_provider.g2p_id_type:
                 id_type_config = {
-                    "g2p_id_type": ap.g2p_id_type,
-                    "token_map": ap.token_map,
-                    "date_format": ap.date_format,
-                    "auth_provider_id": ap.id,
+                    "g2p_id_type": auth_provider.g2p_id_type,
+                    "token_map": auth_provider.token_map,
+                    "date_format": auth_provider.date_format,
+                    "auth_provider_id": auth_provider.id,
                 }
                 auth_id_type_config_cache.get()[iss_id] = id_type_config
         return id_type_config
@@ -118,13 +124,17 @@ class AuthOauthProviderORM(BaseORMModel):
                 client_id=self.client_id,
                 client_secret=self.client_secret,
                 client_assertion_type=OauthClientAssertionType[
-                    "client_secret"
-                    if self.client_authentication_method.startswith("client_secret")
-                    else self.client_authentication_method
+                    (
+                        "client_secret"
+                        if self.client_authentication_method.startswith("client_secret")
+                        else self.client_authentication_method
+                    )
                 ],
-                client_assertion_jwk=base64.b64decode(self.client_private_key)
-                if self.client_private_key
-                else None,
+                client_assertion_jwk=(
+                    base64.b64decode(self.client_private_key)
+                    if self.client_private_key
+                    else None
+                ),
                 client_assertion_jwk_aud=self.jwt_assertion_aud,
                 response_type=response_type,
                 redirect_uri=self.g2p_portal_oauth_callback_url or "",
@@ -139,8 +149,8 @@ class AuthOauthProviderORM(BaseORMModel):
         )
 
     @classmethod
-    def map_validation_response(cls, req: dict, mapping: str = None):
-        res = {}
+    def map_validation_response(cls, req: dict, mapping: str = None) -> Dict[str, Any]:
+        res: Dict[str, Any] = {}
         mapping = mapping.strip() if mapping else ""
         if mapping:
             if mapping.endswith("*:*"):
