@@ -64,6 +64,7 @@ class UserService(BaseService):
                 validation.get("birthdate"), date_format=id_type_config["date_format"]
             ),
             phone_number=validation.get("phone"),
+            picture=validation.get("picture"),
             user_type=id_type_config.get("user_type"),
             auth_provider_id=id_type_config.get("auth_provider_id"),
         )

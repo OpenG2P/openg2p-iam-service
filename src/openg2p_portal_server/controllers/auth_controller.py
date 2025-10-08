@@ -72,12 +72,7 @@ class AuthController(BaseAuthController):
 
         _logger.debug(f"User found: {user}")
         
-        # Get departments for the user
-        departments = await DepartmentORM.get_all_active()
-        department_responses = [DepartmentResponse.model_validate(dept) for dept in departments]
-        
         user_response: UserResponse = UserResponse.model_validate(user)
-        user_response.departments = department_responses
 
         _logger.info("User profile fetched successfully")
         return user_response
