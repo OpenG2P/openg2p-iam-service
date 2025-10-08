@@ -32,7 +32,6 @@ class UserData(UserBase):
 
 class UserResponse(UserBase):
     id: int
-    departments: List[DepartmentResponse] = []
     
     class Config:
         from_attributes = True
