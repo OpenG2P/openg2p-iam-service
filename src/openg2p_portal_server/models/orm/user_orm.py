@@ -26,6 +26,7 @@ class UserORM(BaseORMModelWithId):
     gender: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     email: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     phone_number: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    profile_image_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     provider_unique_id: Mapped[str] = mapped_column(
         String, unique=True, nullable=False
