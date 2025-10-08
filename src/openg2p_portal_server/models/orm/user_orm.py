@@ -22,19 +22,19 @@ class UserType(Enum):
 class UserORM(BaseORMModelWithId):
     __tablename__ = "users"
 
-    name: Mapped[str] = mapped_column(String(), nullable=False)
-    gender: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
-    email: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
-    phone_number: Mapped[Optional[str]] = mapped_column(String(), nullable=True)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    gender: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    email: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    phone_number: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     provider_unique_id: Mapped[str] = mapped_column(
-        String(), unique=True, nullable=False
+        String, unique=True, nullable=False
     )
     provider_unique_id_type: Mapped[Optional[str]] = mapped_column(
-        String(), nullable=True
+        String, nullable=True
     )
 
-    user_id: Mapped[Optional[str]] = mapped_column(String(), unique=True, nullable=True)
+    user_id: Mapped[Optional[str]] = mapped_column(String, unique=True, nullable=True)
     user_type: Mapped[Optional[UserType]] = mapped_column(
         SQLEnum(UserType, name="user_type_enum"),
         nullable=True,

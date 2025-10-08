@@ -10,7 +10,7 @@ from openg2p_fastapi_auth.models.provider_auth_parameters import (
 )
 from openg2p_fastapi_common.context import dbengine
 from openg2p_fastapi_common.models import BaseORMModel
-from sqlalchemy import select
+from sqlalchemy import select, String, Integer, LargeBinary, Boolean
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -20,28 +20,28 @@ from ...context import auth_id_type_config_cache
 class AuthOauthProviderORM(BaseORMModel):
     __tablename__ = "auth_oauth_provider"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column()
-    flow: Mapped[Optional[str]] = mapped_column()
-    body: Mapped[Optional[str]] = mapped_column()
-    image_icon_url: Mapped[Optional[str]] = mapped_column()
-    client_id: Mapped[Optional[str]] = mapped_column()
-    client_authentication_method: Mapped[str] = mapped_column()
-    client_secret: Mapped[Optional[str]] = mapped_column()
-    client_private_key: Mapped[Optional[bytes]] = mapped_column()
-    auth_endpoint: Mapped[str] = mapped_column()
-    validation_endpoint: Mapped[Optional[str]] = mapped_column()
-    token_endpoint: Mapped[Optional[str]] = mapped_column()
-    jwks_uri: Mapped[Optional[str]] = mapped_column()
-    jwt_assertion_aud: Mapped[Optional[str]] = mapped_column()
-    scope: Mapped[Optional[str]] = mapped_column()
-    enable_pkce: Mapped[Optional[str]] = mapped_column()
-    code_verifier: Mapped[Optional[str]] = mapped_column()
-    date_format: Mapped[Optional[str]] = mapped_column()
-    token_map: Mapped[str] = mapped_column()
-    extra_authorize_params: Mapped[Optional[str]] = mapped_column()
-    g2p_portal_oauth_callback_url: Mapped[Optional[str]] = mapped_column()
-    g2p_id_type: Mapped[Optional[str]] = mapped_column()
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String)
+    flow: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    body: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    image_icon_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    client_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    client_authentication_method: Mapped[str] = mapped_column(String)
+    client_secret: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    client_private_key: Mapped[Optional[bytes]] = mapped_column(LargeBinary(), nullable=True)
+    auth_endpoint: Mapped[str] = mapped_column(String)
+    validation_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    token_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    jwks_uri: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    jwt_assertion_aud: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    scope: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    enable_pkce: Mapped[Optional[bool]] = mapped_column(Boolean(), nullable=True)
+    code_verifier: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    date_format: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    token_map: Mapped[str] = mapped_column(String)
+    extra_authorize_params: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    g2p_portal_oauth_callback_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    g2p_id_type: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     @classmethod
     async def get_by_id(cls, id: int) -> Optional["AuthOauthProviderORM"]:
