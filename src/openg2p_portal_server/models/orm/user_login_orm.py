@@ -22,7 +22,7 @@ class UserLoginORM(BaseORMModelWithId):
         nullable=True,
     )
     provider_unique_id_type: Mapped[Optional[str]] = mapped_column(
-        String(), nullable=True
+        String, nullable=True
     )
     user_type: Mapped[Optional[str]] = mapped_column(
         SQLEnum(UserType, name="user_type_enum"),

@@ -13,7 +13,8 @@ from openg2p_fastapi_auth.models.orm.login_provider import LoginProvider
 from ..dependencies import JwtBearerAuth
 from ..models.orm.auth_oauth_provider_orm import AuthOauthProviderORM
 from ..models.orm.user_orm import UserORM
-from ..models.user_schemas import UserResponse
+from ..models.orm.department_orm import DepartmentORM
+from ..models.user_schemas import UserResponse, DepartmentResponse
 from ..services.user_service import UserService
 from ..config import Settings
 
@@ -36,6 +37,14 @@ class AuthController(BaseAuthController):
             "/profile",
             self.get_profile,
             responses={200: {"model": UserResponse}},
+            methods=["GET"],
+        )
+        
+        # Register GET /departments endpoint
+        self.router.add_api_route(
+            "/departments",
+            self.get_departments,
+            responses={200: {"model": List[DepartmentResponse]}},
             methods=["GET"],
         )
 
@@ -62,10 +71,29 @@ class AuthController(BaseAuthController):
         user: UserORM = await UserORM.get_user_by_id(auth.user_id)
 
         _logger.debug(f"User found: {user}")
+        
+        # Get departments for the user
+        departments = await DepartmentORM.get_all_active()
+        department_responses = [DepartmentResponse.model_validate(dept) for dept in departments]
+        
         user_response: UserResponse = UserResponse.model_validate(user)
+        user_response.departments = department_responses
 
         _logger.info("User profile fetched successfully")
         return user_response
+
+    async def get_departments(self) -> List[DepartmentResponse]:
+        """
+        Returns all active departments.
+        """
+        _logger.info("Retrieving all active departments")
+        departments = await DepartmentORM.get_all_active()
+        
+        _logger.debug(f"Fetched {len(departments)} active departments")
+        department_responses = [DepartmentResponse.model_validate(dept) for dept in departments]
+        
+        _logger.info("All departments retrieved successfully")
+        return department_responses
 
     async def get_login_providers_db(self) -> List[LoginProvider]:
         """
@@ -78,8 +106,8 @@ class AuthController(BaseAuthController):
 
         _logger.debug(f"Fetched {len(auth_providers)} auth providers from DB")
         login_providers: List[LoginProvider] = [
-            provider.map_auth_provider_to_login_provider()
-            for provider in auth_providers
+            auth_provider.map_auth_provider_to_login_provider()
+            for auth_provider in auth_providers
         ]
 
         _logger.info("All login providers retrieved successfully")

@@ -12,6 +12,7 @@ from .controllers.auth_controller import AuthController
 from .controllers.oauth_controller import OAuthController
 from .services.user_service import UserService
 from .models.orm.user_orm import UserORM
+from .models.orm.department_orm import DepartmentORM
 
 
 class Initializer(Initializer):
@@ -27,5 +28,6 @@ class Initializer(Initializer):
 
         async def migrate():
             await UserORM.create_migrate()
+            await DepartmentORM.create_migrate()
 
         asyncio.run(migrate())

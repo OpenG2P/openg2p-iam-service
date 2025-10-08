@@ -2,12 +2,16 @@
 
 # ruff: noqa: I001
 
-from openg2p_portal_server.app import (
-    Initializer as BeneficiaryPortalInitializer,
+
+from src.openg2p_portal_server.app import (
+    Initializer
 )
 from openg2p_fastapi_common.ping import PingInitializer
 
-main_init = BeneficiaryPortalInitializer()
+initializer = Initializer()
 PingInitializer()
 
-main_init.main()
+app = initializer.return_app()
+
+if __name__ == "__main__":
+    initializer.main()
