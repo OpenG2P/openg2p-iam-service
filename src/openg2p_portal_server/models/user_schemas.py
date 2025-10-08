@@ -19,7 +19,7 @@ class UserBase(BaseModel):
     gender: Optional[str] = None
     birthdate: Optional[date] = None
     phone_number: Optional[str] = None
-    image_icon_url: Optional[str] = None
+    picture: Optional[str] = None
     provider_unique_id: str
     provider_unique_id_type: str
     user_type: Optional[str] = None
@@ -32,7 +32,6 @@ class UserData(UserBase):
 
 class UserResponse(UserBase):
     id: int
-    departments: List[DepartmentResponse] = []
     
     class Config:
         from_attributes = True
