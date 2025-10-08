@@ -3,7 +3,7 @@
 # ruff: noqa: I001
 
 
-from src.openg2p_portal_server.app import (
+from openg2p_portal_server.app import (
     Initializer
 )
 from openg2p_fastapi_common.ping import PingInitializer
