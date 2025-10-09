@@ -1,4 +1,4 @@
-FROM python:3.12.11-alpine3.22
+FROM bitnami/python:3.10.13-debian-11-r24
 
 ARG container_user=openg2p
 ARG container_user_group=openg2p
