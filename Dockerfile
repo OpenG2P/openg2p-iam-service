@@ -12,9 +12,6 @@ RUN python3 -m pip install  \
     git+https://github.com/openg2p/openg2p-fastapi-common@1.1\#subdirectory=openg2p-fastapi-auth \
     ./src
 
-# Dynamic deps from workflow (optional)
-COPY adapters.requirements.txt /tmp/adapters.requirements.txt
-RUN if [ -s /tmp/adapters.requirements.txt ]; then pip install --no-cache-dir -r /tmp/adapters.requirements.txt; fi
 
 RUN apk del --no-network .build-deps
 
