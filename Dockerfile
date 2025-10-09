@@ -7,6 +7,8 @@ RUN apk add --no-cache --virtual .build-deps gcc libc-dev linux-headers make \
 
 WORKDIR /app
 
+COPY ./src /app/src
+
 RUN python3 -m pip install  \
     git+https://github.com/openg2p/openg2p-fastapi-common@1.1\#subdirectory=openg2p-fastapi-common \
     git+https://github.com/openg2p/openg2p-fastapi-common@1.1\#subdirectory=openg2p-fastapi-auth \
@@ -21,5 +23,4 @@ ENV PORTAL_HOST=0.0.0.0
 ENV PORTAL_PORT=8000
 ENV PORTAL_ORKER_TYPE=gunicorn
 
-CMD python3 main.py migrate; \
-    gunicorn "main:app" --workers ${PORTAL_NO_OF_WORKERS} --worker-class uvicorn.workers.UvicornWorker --bind ${PORTAL_HOST}:${PORTAL_PORT}
+CMD ["sh", "-c", "python3 main.py migrate; gunicorn 'main:app' --workers ${PORTAL_NO_OF_WORKERS} --worker-class uvicorn.workers.UvicornWorker --bind ${PORTAL_HOST}:${PORTAL_PORT}"]
