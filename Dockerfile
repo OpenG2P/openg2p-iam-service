@@ -28,4 +28,4 @@ RUN python3 -m pip install  \
 USER ${container_user}
 
 CMD python3 main.py migrate; \
-    gunicorn "main:app" --workers ${EXAMPLE_BANK_NO_OF_WORKERS} --worker-class uvicorn.workers.UvicornWorker --bind ${EXAMPLE_BANK_HOST}:${EXAMPLE_BANK_PORT}
+    gunicorn "main:app" --workers ${PORTAL_NO_OF_WORKERS} --worker-class uvicorn.workers.UvicornWorker --bind ${PORTAL_HOST}:${PORTAL_PORT}
