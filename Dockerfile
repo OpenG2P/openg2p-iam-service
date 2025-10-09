@@ -44,5 +44,3 @@ ENV PORTAL_WORKER_TYPE=gunicorn
 # Run DB migrations, then start the API
 CMD python3 main.py migrate; \
     gunicorn "main:app" --workers ${PORTAL_NO_OF_WORKERS} --worker-class uvicorn.workers.UvicornWorker --bind ${PORTAL_HOST}:${PORTAL_PORT}
-
-

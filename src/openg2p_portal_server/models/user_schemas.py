@@ -1,12 +1,12 @@
 from datetime import date
-from typing import Optional, List
+from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
 class DepartmentResponse(BaseModel):
     code: str
     name: str
-    
+
     class Config:
         from_attributes = True
 
@@ -32,6 +32,6 @@ class UserData(UserBase):
 
 class UserResponse(UserBase):
     id: int
-    
+
     class Config:
         from_attributes = True

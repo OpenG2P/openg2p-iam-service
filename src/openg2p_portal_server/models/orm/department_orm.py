@@ -26,9 +26,8 @@ class DepartmentORM(BaseORMModelWithId):
         async_session_maker = async_sessionmaker(dbengine.get(), expire_on_commit=False)
         async with async_session_maker() as session:
             from sqlalchemy import select
-            result = await session.execute(
-                select(cls).where(cls.active == True)
-            )
+
+            result = await session.execute(select(cls).where(cls.active is True))
             return result.scalars().all()
 
     @classmethod
@@ -39,7 +38,8 @@ class DepartmentORM(BaseORMModelWithId):
         async_session_maker = async_sessionmaker(dbengine.get(), expire_on_commit=False)
         async with async_session_maker() as session:
             from sqlalchemy import select
+
             result = await session.execute(
-                select(cls).where(cls.code == code, cls.active == True)
+                select(cls).where(cls.code == code, cls.active is True)
             )
             return result.scalar_one_or_none()

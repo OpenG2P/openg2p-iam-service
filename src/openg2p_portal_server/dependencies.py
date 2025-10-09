@@ -24,9 +24,9 @@ class JwtBearerAuth(BaseJwtBearerAuth):
         if not res:
             return None
 
-        id_type_config: Optional[Dict[str, Any]] = (
-            await AuthOauthProviderORM.get_auth_id_type_config(iss=res.iss)
-        )
+        id_type_config: Optional[
+            Dict[str, Any]
+        ] = await AuthOauthProviderORM.get_auth_id_type_config(iss=res.iss)
         if not (id_type_config and id_type_config.get("g2p_id_type", None)):
             raise InternalServerError(
                 message="Unauthorized. Invalid Auth Provider. ID Type not configured."
