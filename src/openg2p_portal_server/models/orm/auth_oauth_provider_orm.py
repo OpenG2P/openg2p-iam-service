@@ -28,7 +28,9 @@ class AuthOauthProviderORM(BaseORMModel):
     client_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     client_authentication_method: Mapped[str] = mapped_column(String)
     client_secret: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    client_private_key: Mapped[Optional[bytes]] = mapped_column(LargeBinary(), nullable=True)
+    client_private_key: Mapped[Optional[bytes]] = mapped_column(
+        LargeBinary(), nullable=True
+    )
     auth_endpoint: Mapped[str] = mapped_column(String)
     validation_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     token_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
@@ -40,7 +42,9 @@ class AuthOauthProviderORM(BaseORMModel):
     date_format: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     token_map: Mapped[str] = mapped_column(String)
     extra_authorize_params: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    g2p_portal_oauth_callback_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    g2p_portal_oauth_callback_url: Mapped[Optional[str]] = mapped_column(
+        String, nullable=True
+    )
     g2p_id_type: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     @classmethod

@@ -12,6 +12,8 @@ from .controllers.auth_controller import AuthController
 from .controllers.oauth_controller import OAuthController
 from .services.user_service import UserService
 from .models.orm.user_orm import UserORM
+from .models.orm.auth_oauth_provider_orm import AuthOauthProviderORM
+from .models.orm.user_login_orm import UserLoginORM
 from .models.orm.department_orm import DepartmentORM
 
 
@@ -27,7 +29,9 @@ class Initializer(Initializer):
         super().migrate_database(args)
 
         async def migrate():
+            await AuthOauthProviderORM.create_migrate()
             await UserORM.create_migrate()
+            await UserLoginORM.create_migrate()
             await DepartmentORM.create_migrate()
 
         asyncio.run(migrate())

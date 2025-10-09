@@ -3,9 +3,7 @@
 # ruff: noqa: I001
 
 
-from openg2p_portal_server.app import (
-    Initializer
-)
+from openg2p_portal_server.app import Initializer
 from openg2p_fastapi_common.ping import PingInitializer
 
 initializer = Initializer()

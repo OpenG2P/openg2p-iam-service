@@ -39,7 +39,7 @@ class AuthController(BaseAuthController):
             responses={200: {"model": UserResponse}},
             methods=["GET"],
         )
-        
+
         # Register GET /departments endpoint
         self.router.add_api_route(
             "/departments",
@@ -71,7 +71,7 @@ class AuthController(BaseAuthController):
         user: UserORM = await UserORM.get_user_by_id(auth.user_id)
 
         _logger.debug(f"User found: {user}")
-        
+
         user_response: UserResponse = UserResponse.model_validate(user)
 
         _logger.info("User profile fetched successfully")
@@ -83,10 +83,12 @@ class AuthController(BaseAuthController):
         """
         _logger.info("Retrieving all active departments")
         departments = await DepartmentORM.get_all_active()
-        
+
         _logger.debug(f"Fetched {len(departments)} active departments")
-        department_responses = [DepartmentResponse.model_validate(dept) for dept in departments]
-        
+        department_responses = [
+            DepartmentResponse.model_validate(dept) for dept in departments
+        ]
+
         _logger.info("All departments retrieved successfully")
         return department_responses
 
@@ -95,9 +97,9 @@ class AuthController(BaseAuthController):
         Returns all login providers configured in the database.
         """
         _logger.info("Retrieving all login providers from database")
-        auth_providers: List[AuthOauthProviderORM] = (
-            await AuthOauthProviderORM.get_all()
-        )
+        auth_providers: List[
+            AuthOauthProviderORM
+        ] = await AuthOauthProviderORM.get_all()
 
         _logger.debug(f"Fetched {len(auth_providers)} auth providers from DB")
         login_providers: List[LoginProvider] = [
@@ -113,17 +115,17 @@ class AuthController(BaseAuthController):
         Returns a login provider by its ID.
         """
         _logger.info(f"Retrieving login provider by ID {id}")
-        auth_provider: Optional[AuthOauthProviderORM] = (
-            await AuthOauthProviderORM.get_by_id(id)
-        )
+        auth_provider: Optional[
+            AuthOauthProviderORM
+        ] = await AuthOauthProviderORM.get_by_id(id)
 
         if not auth_provider:
             _logger.error(f"No login provider found for ID {id}")
             return None
 
-        login_provider: Optional[LoginProvider] = (
-            auth_provider.map_auth_provider_to_login_provider()
-        )
+        login_provider: Optional[
+            LoginProvider
+        ] = auth_provider.map_auth_provider_to_login_provider()
 
         _logger.info(f"Retrieved login provider by ID {id} successfully")
         return login_provider
@@ -133,17 +135,17 @@ class AuthController(BaseAuthController):
         Returns a login provider by its issuer (iss).
         """
         _logger.info(f"Retrieving login provider by issuer '{iss}'")
-        auth_provider: Optional[AuthOauthProviderORM] = (
-            await AuthOauthProviderORM.get_auth_provider_from_iss(iss)
-        )
+        auth_provider: Optional[
+            AuthOauthProviderORM
+        ] = await AuthOauthProviderORM.get_auth_provider_from_iss(iss)
 
         if not auth_provider:
             _logger.error(f"No login provider found for issuer '{iss}'")
             return None
 
-        login_provider: Optional[LoginProvider] = (
-            auth_provider.map_auth_provider_to_login_provider()
-        )
+        login_provider: Optional[
+            LoginProvider
+        ] = auth_provider.map_auth_provider_to_login_provider()
 
         _logger.info(f"Retrieved login provider by issuer '{iss}' successfully")
         return login_provider

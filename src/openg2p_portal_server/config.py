@@ -23,4 +23,3 @@ class Settings(AuthSettings, Settings):
 
     openapi_version: str = __version__
     db_dbname: Optional[str] = "openg2pdb"
-

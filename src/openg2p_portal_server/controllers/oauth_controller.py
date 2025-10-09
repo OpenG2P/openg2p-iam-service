@@ -31,7 +31,8 @@ class OAuthController(BaseOAuthController):
 
     async def oauth_callback(self, request: Request) -> Response:
         """
-        Handles the OAuth callback after a user has authenticated with an OAuth provider.
+        Handles the OAuth callback after a user has authenticated with
+        an OAuth provider.
         """
         _logger.info("OAuth callback")
         query_params = request.query_params
@@ -60,9 +61,9 @@ class OAuthController(BaseOAuthController):
         _logger.debug(f"Userinfo received: {userinfo_dict}")
 
         # Fetch ID type configuration for the OAuth provider
-        id_type_config: Optional[Dict[str, Any]] = (
-            await AuthOauthProviderORM.get_auth_id_type_config(id=auth_provider_id)
-        )
+        id_type_config: Optional[
+            Dict[str, Any]
+        ] = await AuthOauthProviderORM.get_auth_id_type_config(id=auth_provider_id)
         _logger.debug(f"ID type config fetched: {id_type_config}")
 
         # Create the user if not already present

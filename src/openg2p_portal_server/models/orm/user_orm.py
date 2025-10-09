@@ -28,9 +28,7 @@ class UserORM(BaseORMModelWithId):
     phone_number: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     picture: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
-    provider_unique_id: Mapped[str] = mapped_column(
-        String, unique=True, nullable=False
-    )
+    provider_unique_id: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     provider_unique_id_type: Mapped[Optional[str]] = mapped_column(
         String, nullable=True
     )
