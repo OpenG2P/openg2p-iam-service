@@ -23,4 +23,4 @@ ENV PORTAL_HOST=0.0.0.0
 ENV PORTAL_PORT=8000
 ENV PORTAL_ORKER_TYPE=gunicorn
 
-CMD ["sh", "-c", "python3 main.py migrate; gunicorn 'main:app' --workers ${PORTAL_NO_OF_WORKERS} --worker-class uvicorn.workers.UvicornWorker --bind ${PORTAL_HOST}:${PORTAL_PORT}"]
+CMD ["sh", "-c", "python3 src/main.py migrate; gunicorn 'src.main:app' --workers ${PORTAL_NO_OF_WORKERS} --worker-class uvicorn.workers.UvicornWorker --bind ${PORTAL_HOST}:${PORTAL_PORT}"]
