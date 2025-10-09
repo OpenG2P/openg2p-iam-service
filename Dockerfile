@@ -12,7 +12,7 @@ COPY . /app/src
 RUN python3 -m pip install  \
     git+https://github.com/openg2p/openg2p-fastapi-common@1.1\#subdirectory=openg2p-fastapi-common \
     git+https://github.com/openg2p/openg2p-fastapi-common@1.1\#subdirectory=openg2p-fastapi-auth \
-    .
+    ./src
 
 
 RUN apk del --no-network .build-deps
