@@ -7,11 +7,11 @@ from sqlalchemy import DateTime, ForeignKey, Integer, String, Enum as SQLEnum
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..orm.user_orm import UserType
+from openg2p_fastapi_auth_models.schemas import UserType
 
 
-class UserLoginORM(BaseORMModelWithId):
-    __tablename__ = "user_logins"
+class UserLoginLog(BaseORMModelWithId):
+    __tablename__ = "user_login_logs"
 
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
@@ -37,7 +37,7 @@ class UserLoginORM(BaseORMModelWithId):
         auth_provider_id: int,
         provider_unique_id_type: str,
         user_type: str,
-    ) -> Optional["UserLoginORM"]:
+    ) -> Optional["UserLoginLog"]:
         """
         Create a login record for the user.
         """

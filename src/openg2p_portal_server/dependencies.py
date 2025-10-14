@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any
 from fastapi import Request
 from fastapi.security import HTTPAuthorizationCredentials
 from openg2p_fastapi_auth.dependencies import JwtBearerAuth as BaseJwtBearerAuth
-from openg2p_fastapi_auth.models.credentials import (
+from openg2p_fastapi_auth_models.schemas import (
     AuthCredentials as OriginalAuthCredentials,
 )
 from openg2p_fastapi_common.errors.http_exceptions import (

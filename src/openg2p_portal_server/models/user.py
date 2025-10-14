@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..user_schemas import UserData
+from ..schemas import UserProfile
 
 
 class UserType(Enum):
@@ -19,7 +19,7 @@ class UserType(Enum):
     AGENCY = "agency"
 
 
-class UserORM(BaseORMModelWithId):
+class User(BaseORMModelWithId):
     __tablename__ = "users"
 
     name: Mapped[str] = mapped_column(String, nullable=False)
@@ -41,13 +41,13 @@ class UserORM(BaseORMModelWithId):
 
     birthdate: Mapped[Optional[date]] = mapped_column(Date(), nullable=True)
 
-    auth_provider_id: Mapped[Optional[int]] = mapped_column(
+    login_provider_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("auth_oauth_provider.id", ondelete="SET NULL"),
         nullable=True,
     )
 
     @classmethod
-    async def get_user_by_id(cls, user_id: int) -> Optional["UserORM"]:
+    async def get_user_by_id(cls, user_id: int) -> Optional["User"]:
         async_session_maker = async_sessionmaker(dbengine.get())
         async with async_session_maker() as session:
             stmt = select(cls).filter(cls.id == user_id)
@@ -57,7 +57,7 @@ class UserORM(BaseORMModelWithId):
     @classmethod
     async def get_user_by_provider_unique_id(
         cls, provider_unique_id: str
-    ) -> Optional["UserORM"]:
+    ) -> Optional["User"]:
         async_session_maker = async_sessionmaker(dbengine.get())
         async with async_session_maker() as session:
             stmt = select(cls).filter(cls.provider_unique_id == provider_unique_id)
@@ -65,7 +65,7 @@ class UserORM(BaseORMModelWithId):
         return result.scalar_one_or_none()
 
     @classmethod
-    async def get_user_by_user_id(cls, user_id: str) -> Optional["UserORM"]:
+    async def get_user_by_user_id(cls, user_id: str) -> Optional["User"]:
         async_session_maker = async_sessionmaker(dbengine.get())
         async with async_session_maker() as session:
             stmt = select(cls).filter(cls.user_id == user_id)
@@ -73,10 +73,10 @@ class UserORM(BaseORMModelWithId):
         return result.scalar_one_or_none()
 
     @classmethod
-    async def create_user(cls, user_data: UserData) -> Optional["UserORM"]:
+    async def create_user(cls, user_profile: UserProfile) -> Optional["User"]:
         async_session_maker = async_sessionmaker(dbengine.get(), expire_on_commit=False)
         async with async_session_maker() as session:
-            user: UserORM = cls(**user_data.model_dump(), active=True)
+            user: User = cls(**user_profile.model_dump(), active=True)
             session.add(user)
             try:
                 await session.commit()
