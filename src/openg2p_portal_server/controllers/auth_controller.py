@@ -3,27 +3,33 @@ import hashlib
 import logging
 import secrets
 import urllib.parse
-from typing import Annotated
+from typing import Any, Dict, Optional, Annotated
+from datetime import datetime, timedelta, timezone
 
 import httpx
 import orjson
-from fastapi import Depends, HTTPException, Response, status
+from fastapi import Depends, HTTPException, Response, status, Request
+from fastapi.datastructures import QueryParams
 from fastapi.responses import RedirectResponse
 from jose import jwt
 from openg2p_fastapi_common.controller import BaseController
-from openg2p_fastapi_common.errors.http_exceptions import InternalServerError
+from openg2p_fastapi_common.errors.http_exceptions import (
+    InternalServerError,
+    UnauthorizedError,
+)
 from openg2p_fastapi_auth.dependencies import JwtBearerAuth
 from openg2p_fastapi_auth.auth.factory import AuthFactory
 from openg2p_fastapi_auth_models.schemas import (
     LoginProviderHttpResponse,
     LoginProviderResponse,
-    OauthProviderParameters,
     LoginProviderTypes,
     UserProfile,
     AuthCredentials,
+    OauthClientAssertionType,
+    OauthProviderParameters,
 )
 from openg2p_fastapi_auth_models.models import LoginProvider
-
+from ..models import UserLoginLog, User
 from ..config import Settings
 
 
@@ -32,6 +38,19 @@ _logger = logging.getLogger(_config.logging_default_logger_name)
 
 
 class AuthController(BaseController):
+    """
+    Step-1 --> UI calls API - get_login_providers (to get a list of all available login providers) - ESignet & Keycloak
+    Step-2 --> UI lists these options
+    Step-3 --> User chooses one of the Login Providers
+    Step-4 --> UI calls the "get_login_provider_redirect_url" -- for the chosen Login Provider, UI also provides the portal-server callback URL for this API call
+    Step-5 --> User authenticates himself in the chosen login provider
+    Step-6 --> Login Provider provides a temporary token
+    Step-7 --> Control returns back to the UI, the UI sends this temporary token to the portal-server Callback URL specified (/callback)
+    Step-8 --> portal-server now calls the Login Provider with Client ID and Secret to exchange the temporary token for the Access Token & Refresh Token
+    Step-9 --> Login Provider issues the Access & Refresh Token
+    Step-10 --> portal-server - registers the token with the request cookies
+    """
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.router.prefix += "/auth"
@@ -59,10 +78,15 @@ class AuthController(BaseController):
             self.get_login_provider_redirect,
             methods=["GET"],
         )
+        self.router.add_api_route(
+            "/callback",
+            self.oauth_callback,
+            methods=["GET"],
+        )
 
     async def get_user_profile(
         self,
-        auth: Annotated[AuthCredentials, Depends(AuthFactory.get_component())],
+        auth: Annotated[AuthCredentials, Depends(AuthFactory())],
         online: bool = True,
     ):
         """
@@ -282,3 +306,200 @@ class AuthController(BaseController):
                 "G2P-AUT-502",
                 f"Error fetching userinfo. {repr(e)}",
             ) from e
+
+    async def oauth_callback(self, request: Request):
+        """
+        Oauth2 Redirect Url. Auth Server will redirect to this URL after the Authentication is successful.
+
+        Internal Errors:
+        - Code: G2P-AUT-401. HTTP: 401. Message: Login Provider Id not received.
+        """
+        state = orjson.loads(request.query_params.get("state", "{}"))
+        login_provider_id = state.get("p", None)
+        if not login_provider_id:
+            raise UnauthorizedError("G2P-AUT-401", "Login Provider Id not received")
+
+        login_provider = await self.auth_controller.get_login_provider_db_by_id(
+            login_provider_id
+        )
+
+        res = await self.get_tokens(login_provider, request.query_params)
+
+        config_dict = _config.model_dump()
+        access_token: str = res["access_token"]
+        id_token: str = res["id_token"]
+        expires_in = None
+        if config_dict.get("auth_cookie_set_expires", False):
+            expires_in = res.get("expires_in", None)
+            if expires_in:
+                expires_in = datetime.now(tz=timezone.utc) + timedelta(
+                    seconds=expires_in
+                )
+        # Check and Create User If Not Exists
+        userinfo_dict = await self.auth_controller.get_oauth_validation_data(
+            auth=access_token,
+            id_token=id_token,
+            provider=login_provider,
+        )
+
+        id_type_config: Optional[
+            Dict[str, Any]
+        ] = await LoginProvider.get_auth_id_type_config(id=login_provider_id)
+
+        user: User = await self.user_service.check_and_create_user(
+            userinfo_dict, id_type_config=id_type_config
+        )
+        await UserLoginLog.create_login_record(
+            user_id=user.id,
+            login_provider_id=id_type_config.get("login_provider_id"),
+            provider_unique_id_type=id_type_config.get("g2p_id_type"),
+            user_type=user.user_type,
+        )
+
+        response = RedirectResponse(state.get("r", "/"))
+        response.set_cookie(
+            "X-Access-Token",
+            access_token,
+            max_age=config_dict.get("auth_cookie_max_age", None),
+            expires=expires_in,
+            path=config_dict.get("auth_cookie_path", "/"),
+            httponly=config_dict.get("auth_cookie_httponly", True),
+            secure=config_dict.get("auth_cookie_secure", True),
+        )
+        response.set_cookie(
+            "X-ID-Token",
+            id_token,
+            max_age=config_dict.get("auth_cookie_max_age", None),
+            expires=expires_in,
+            path=config_dict.get("auth_cookie_path", "/"),
+            httponly=config_dict.get("auth_cookie_httponly", True),
+            secure=config_dict.get("auth_cookie_secure", True),
+        )
+
+        return response
+
+    async def get_tokens(
+        self, login_provider: LoginProvider, query_params: QueryParams, **kw
+    ):
+        if login_provider.type == LoginProviderTypes.oauth2_auth_code:
+            auth_parameters = OauthProviderParameters.model_validate(
+                login_provider.authorization_parameters
+            )
+            token_request_data = {
+                "client_id": auth_parameters.client_id,
+                "grant_type": "authorization_code",
+                "redirect_uri": auth_parameters.redirect_uri,
+                "code": query_params.get("code"),
+            }
+            if auth_parameters.enable_pkce:
+                token_request_data["code_verifier"] = auth_parameters.code_verifier
+
+            token_auth = None
+            if auth_parameters.client_assertion_type.name.startswith("private_key_jwt"):
+                await self.update_client_assertion(
+                    auth_parameters, token_request_data, **kw
+                )
+            elif (
+                auth_parameters.client_assertion_type
+                == OauthClientAssertionType.client_secret_basic
+            ):
+                token_auth = (auth_parameters.client_id, auth_parameters.client_secret)
+            elif (
+                auth_parameters.client_assertion_type
+                == OauthClientAssertionType.client_secret
+            ):
+                token_request_data["client_secret"] = auth_parameters.client_secret
+            try:
+                res = httpx.post(
+                    auth_parameters.token_endpoint,
+                    auth=token_auth,
+                    data=orjson.loads(orjson.dumps(token_request_data)),
+                )
+                res.raise_for_status()
+                res = res.json()
+                return res
+            except Exception as e:
+                _logger.exception(
+                    "Error while fetching token from token endpoint, %s",
+                    auth_parameters.token_endpoint,
+                )
+                raise UnauthorizedError(
+                    message="Unauthorized. Failed to get token from Oauth Server"
+                ) from e
+        else:
+            raise NotImplementedError()
+
+    async def update_client_assertion(
+        self, auth_parameters: OauthProviderParameters, token_request_data: dict, **kw
+    ):
+        if (
+            auth_parameters.client_assertion_type
+            == OauthClientAssertionType.private_key_jwt
+            or auth_parameters.client_assertion_type
+            == OauthClientAssertionType.private_key_jwt_legacy
+        ):
+            iat = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+            exp = iat + timedelta(hours=1)
+            client_assertion_type = (
+                "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+            )
+            client_assertion = jwt.encode(
+                {
+                    "iss": auth_parameters.client_id,
+                    "sub": auth_parameters.client_id,
+                    "aud": auth_parameters.client_assertion_jwt_aud
+                    or auth_parameters.token_endpoint,
+                    "iat": int(iat.timestamp()),
+                    "exp": int(exp.timestamp()),
+                },
+                auth_parameters.client_assertion_jwk,
+                algorithm="RS256",
+            )
+        elif (
+            auth_parameters.client_assertion_type
+            == OauthClientAssertionType.private_key_jwt_keymanager
+        ):
+            client_assertion_type = (
+                "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+            )
+            client_assertion = await self.generate_client_assertion_keymanager(
+                auth_parameters, **kw
+            )
+        else:
+            raise NotImplementedError()
+        token_request_data.update(
+            {
+                "client_assertion_type": client_assertion_type,
+                "client_assertion": client_assertion,
+            }
+        )
+
+    async def generate_client_assertion_keymanager(
+        self, auth_parameters: OauthProviderParameters, **kw
+    ):
+        app_id_ref_id = auth_parameters.client_assertion_jwk_keymanager
+        if ":" in app_id_ref_id:
+            km_app_id = auth_parameters.client_assertion_jwk_keymanager.split(":")[
+                0
+            ].strip()
+            km_ref_id = auth_parameters.client_assertion_jwk_keymanager.split(":")[
+                1
+            ].strip()
+        else:
+            km_app_id = app_id_ref_id
+            km_ref_id = ""
+        iat = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        exp = iat + timedelta(hours=1)
+        return await self.keymanager_helper.create_jwt_token(
+            {
+                "iss": auth_parameters.client_id,
+                "sub": auth_parameters.client_id,
+                "aud": auth_parameters.client_assertion_jwt_aud
+                or auth_parameters.token_endpoint,
+                "iat": int(iat.timestamp()),
+                "exp": int(exp.timestamp()),
+            },
+            km_app_id=km_app_id,
+            km_ref_id=km_ref_id,
+            **kw,
+        )
