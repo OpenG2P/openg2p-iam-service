@@ -82,7 +82,7 @@ class OAuthController(BaseController):
         id_type_config: Optional[
             Dict[str, Any]
         ] = await LoginProvider.get_auth_id_type_config(id=login_provider_id)
-        
+
         user: User = await self.user_service.check_and_create_user(
             userinfo_dict, id_type_config=id_type_config
         )
@@ -112,7 +112,7 @@ class OAuthController(BaseController):
             httponly=config_dict.get("auth_cookie_httponly", True),
             secure=config_dict.get("auth_cookie_secure", True),
         )
-    
+
         return response
 
     async def get_tokens(

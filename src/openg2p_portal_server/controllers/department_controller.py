@@ -24,14 +24,13 @@ class DepartmentController(BaseController):
         super().__init__(**kwargs)
         self._user_service = UserService.get_component()
 
-
         self.router.add_api_route(
             "/departments",
             self.get_departments,
             responses={200: {"model": List[DepartmentResponse]}},
             methods=["POST"],
         )
-    
+
     async def get_departments(self, auth: Depends) -> List[DepartmentResponse]:
         """
         Returns all active departments.

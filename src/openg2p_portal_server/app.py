@@ -15,7 +15,6 @@ from .services.user_service import UserService
 from .models import User, UserLoginLog, Department
 
 
-
 class Initializer(AuthInitializer):
     def initialize(self, **kwargs):
         super().initialize()

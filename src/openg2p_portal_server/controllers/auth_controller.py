@@ -20,7 +20,7 @@ from openg2p_fastapi_auth_models.schemas import (
     OauthProviderParameters,
     LoginProviderTypes,
     UserProfile,
-    AuthCredentials
+    AuthCredentials,
 )
 from openg2p_fastapi_auth_models.models import LoginProvider
 

@@ -3,7 +3,6 @@ from typing import List, Dict, Any
 
 from openg2p_fastapi_common.errors.http_exceptions import InternalServerError
 from openg2p_fastapi_common.service import BaseService
-from openg2p_portal_server.schemas.user import UserProfile
 
 from ..config import Settings
 from ..context import user_fields_cache
