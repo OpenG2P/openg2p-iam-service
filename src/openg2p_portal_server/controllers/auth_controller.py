@@ -55,7 +55,7 @@ class AuthController(BaseController):
             methods=["GET"],
         )
         self.router.add_api_route(
-            "/getLoginProviderRedirect/{id}",
+            "/get_login_provider_redirect/{id}",
             self.get_login_provider_redirect,
             methods=["GET"],
         )
