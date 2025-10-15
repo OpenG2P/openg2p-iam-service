@@ -42,7 +42,7 @@ class User(BaseORMModelWithId):
     birthdate: Mapped[Optional[date]] = mapped_column(Date(), nullable=True)
 
     login_provider_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("auth_oauth_provider.id", ondelete="SET NULL"),
+        ForeignKey("login_providers.id", ondelete="SET NULL"),
         nullable=True,
     )
 

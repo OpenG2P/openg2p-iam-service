@@ -16,9 +16,9 @@ class UserLoginLog(BaseORMModelWithId):
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    auth_provider_id: Mapped[Optional[int]] = mapped_column(
+    login_provider_id: Mapped[Optional[int]] = mapped_column(
         Integer,
-        ForeignKey("auth_oauth_provider.id", ondelete="SET NULL"),
+        ForeignKey("login_providers.id", ondelete="SET NULL"),
         nullable=True,
     )
     provider_unique_id_type: Mapped[Optional[str]] = mapped_column(
