@@ -213,21 +213,7 @@ class AuthController(BaseController):
             )
 
     async def get_login_providers_db(self) -> list[LoginProvider]:
-        if _config.login_providers_list:
-            lp_fields = LoginProvider.__mapper__.columns.keys()
-            filtered_lps = []
-            for lp in _config.login_providers_list:
-                filtered_lps.append(
-                    {
-                        lp_key: lp_val
-                        for lp_key, lp_val in lp.items()
-                        if lp_key in lp_fields
-                    }
-                )
-            return [LoginProvider(**lp) for lp in filtered_lps]
-        if await LoginProvider.table_exists_cached():
-            return await LoginProvider.get_all()
-        return []
+        return await LoginProvider.get_all()
 
     async def get_login_provider_db_by_id(self, id: int) -> LoginProvider:
         if _config.login_providers_list:
