@@ -7,18 +7,18 @@ from sqlalchemy import DateTime, ForeignKey, Integer, String, Enum as SQLEnum
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..orm.user_orm import UserType
+from ..models import UserType
 
 
-class UserLoginORM(BaseORMModelWithId):
-    __tablename__ = "user_logins"
+class UserLoginLog(BaseORMModelWithId):
+    __tablename__ = "user_login_logs"
 
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
-    auth_provider_id: Mapped[Optional[int]] = mapped_column(
+    login_provider_id: Mapped[Optional[int]] = mapped_column(
         Integer,
-        ForeignKey("auth_oauth_provider.id", ondelete="SET NULL"),
+        ForeignKey("login_providers.id", ondelete="SET NULL"),
         nullable=True,
     )
     provider_unique_id_type: Mapped[Optional[str]] = mapped_column(
@@ -34,10 +34,10 @@ class UserLoginORM(BaseORMModelWithId):
     async def create_login_record(
         cls,
         user_id: int,
-        auth_provider_id: int,
+        login_provider_id: int,
         provider_unique_id_type: str,
         user_type: str,
-    ) -> Optional["UserLoginORM"]:
+    ) -> Optional["UserLoginLog"]:
         """
         Create a login record for the user.
         """
@@ -45,7 +45,7 @@ class UserLoginORM(BaseORMModelWithId):
         async with async_session_maker() as session:
             login = cls(
                 user_id=user_id,
-                auth_provider_id=auth_provider_id,
+                login_provider_id=login_provider_id,
                 provider_unique_id_type=provider_unique_id_type,
                 user_type=user_type,
                 login_time=datetime.utcnow(),

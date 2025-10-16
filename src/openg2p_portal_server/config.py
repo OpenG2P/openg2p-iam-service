@@ -1,25 +1,67 @@
-from typing import Optional
+from datetime import datetime, timezone
 
-from openg2p_fastapi_auth.config import Settings as AuthSettings
-from openg2p_fastapi_common.config import Settings
+from openg2p_fastapi_auth.config import Settings as BaseSettings
+from pydantic import BaseModel, model_validator
 from pydantic_settings import SettingsConfigDict
 
-from . import __version__
+
+class ApiAuthSettings(BaseModel):
+    enabled: bool = False
+    issuers: list[str] | None = None
+    audiences: list[str] | None = None
+    claim_name: str | None = None
+    claim_values: list[str] | None = None
+    id_token_verify_at_hash: bool | None = None
 
 
-class Settings(AuthSettings, Settings):
+class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_prefix="portal_", env_file=".env", extra="allow"
+        env_prefix="portal_", env_file=".env", extra="allow", env_nested_delimiter="__"
     )
 
-    openapi_title: str = "OpenG2P Portal Server API"
-    openapi_description: str = """
-    This module implements OpenG2P Portal Server APIs.
+    login_providers_list: list[dict] = []
+    login_providers_list_pkce_code_verifier: str | None = None
 
-    ***********************************
-    Further details goes here
-    ***********************************
-    """
+    auth_enabled: bool = True
 
-    openapi_version: str = __version__
-    db_dbname: Optional[str] = "openg2pdb"
+    auth_default_issuers: list[str] = []
+    auth_default_audiences: list[str] = []
+    auth_default_jwks_urls: list[str] = []
+
+    auth_cookie_max_age: int | None = None
+    auth_cookie_set_expires: bool = False
+    auth_cookie_path: str = "/"
+    auth_cookie_httponly: bool = True
+    auth_cookie_secure: bool = True
+
+    auth_default_id_token_verify_at_hash: bool = True
+
+    auth_api_get_profile: ApiAuthSettings = ApiAuthSettings(enabled=True)
+
+    @model_validator(mode="after")
+    def validate_login_providers_list(self):
+        if self.login_providers_list:
+            code_verifier = self.login_providers_list_pkce_code_verifier
+            self.login_providers_list.sort(key=lambda x: x.get("id"))
+
+            from openg2p_fastapi_auth_models.schemas import LoginProviderTypes
+
+            for lp in self.login_providers_list:
+                if "type" in lp:
+                    lp["type"] = LoginProviderTypes[lp["type"]]
+
+                lp_auth_params = lp.get("authorization_parameters")
+                if code_verifier and lp_auth_params:
+                    lp_auth_params["code_verifier"] = code_verifier
+                if not lp.get("created_at"):
+                    lp["created_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
+
+            if not self.auth_default_issuers:
+                self.auth_default_issuers = [
+                    lp.get("iss") for lp in self.login_providers_list
+                ]
+            if not self.auth_default_jwks_urls:
+                self.auth_default_jwks_urls = [
+                    lp.get("jwks_url") for lp in self.login_providers_list
+                ]
+        return self
