@@ -122,8 +122,8 @@ class AuthController(BaseController):
                     id=lp.id,
                     name=lp.name,
                     type=lp.type,
-                    displayName=lp.login_button_text,
-                    displayIconUrl=lp.login_button_image_url,
+                    displayName=lp.body,
+                    displayIconUrl=lp.image_icon_url,
                 )
                 for lp in login_providers
             ],
