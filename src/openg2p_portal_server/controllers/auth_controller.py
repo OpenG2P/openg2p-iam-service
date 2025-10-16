@@ -106,7 +106,6 @@ class AuthController(BaseController):
             "email": user.email,
             "gender": user.gender,
             "birthdate": user.birthdate,
-            "address": None,  # Not available in User model
             "user_type": user.user_type.value if user.user_type else None,
             "login_provider_id": user.login_provider_id,
             "user_id": user.user_id,

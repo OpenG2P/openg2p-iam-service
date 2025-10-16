@@ -9,7 +9,6 @@ class UserProfile(BaseModel):
     email: str | None = None
     gender: str | None = None
     birthdate: date | None = None
-    address: dict | None = None
     user_type: Optional[str] = None
     login_provider_id: Optional[int] = None
     user_id: Optional[str] = None
