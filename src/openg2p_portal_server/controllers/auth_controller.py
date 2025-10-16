@@ -99,7 +99,21 @@ class AuthController(BaseController):
           Else it will return the information present in ID Token and Access token.
         """
         user: User = await User.get_user_by_user_id(auth.sub)
-        user_profile: UserProfile = UserProfile.model_validate(user)
+        # Convert SQLAlchemy model to dict and map fields for UserProfile
+        user_data = {
+            "name": user.name,
+            "picture": user.picture,
+            "email": user.email,
+            "gender": user.gender,
+            "birthdate": user.birthdate,
+            "address": None,  # Not available in User model
+            "user_type": user.user_type.value if user.user_type else None,
+            "login_provider_id": user.login_provider_id,
+            "user_id": user.user_id,
+            "provider_unique_id": user.provider_unique_id,
+            "provider_unique_id_type": user.provider_unique_id_type,
+        }
+        user_profile: UserProfile = UserProfile.model_validate(user_data)
         return user_profile
 
     async def logout(self, response: Response):
@@ -263,7 +277,6 @@ class AuthController(BaseController):
                     else auth.iss
                 )
             login_provider = await self.get_login_provider_db_by_iss(iss)
-        login_provider = await self.get_login_provider_db_by_iss(iss)
         provider_data = {
             "auth_endpoint": login_provider.auth_endpoint,
             "token_endpoint": login_provider.token_endpoint,
@@ -311,7 +324,7 @@ class AuthController(BaseController):
         auth_params = OauthProviderParameters.model_validate(provider_data)
         try:
             response = httpx.get(
-                auth_params.validate_endpoint,
+                auth_params.validation_endpoint,
                 headers={"Authorization": f"Bearer {access_token}"},
             )
             response.raise_for_status()
@@ -501,17 +514,15 @@ class AuthController(BaseController):
             or auth_parameters.client_assertion_type
             == OauthClientAssertionType.private_key_jwt_legacy
         ):
-            iat = datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            exp = iat + timedelta(hours=1)
-            client_assertion_type = auth_parameters.client_assertion_type
+            client_assertion_type = auth_parameters.client_assertion_type.value
             client_assertion = jwt.encode(
                 {
                     "iss": auth_parameters.client_id,
                     "sub": auth_parameters.client_id,
                     "aud": auth_parameters.client_assertion_jwt_aud
                     or auth_parameters.token_endpoint,
-                    "iat": int(iat.timestamp()),
-                    "exp": int(exp.timestamp()),
+                    "exp": datetime.utcnow() + timedelta(hours=1),
+                    "iat": datetime.utcnow(),
                 },
                 auth_parameters.client_assertion_jwk,
                 algorithm="RS256",
