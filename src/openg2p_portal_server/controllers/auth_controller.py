@@ -23,14 +23,16 @@ from openg2p_fastapi_auth_models.schemas import (
     LoginProviderHttpResponse,
     LoginProviderResponse,
     LoginProviderTypes,
-    UserProfile,
     AuthCredentials,
     OauthClientAssertionType,
     OauthProviderParameters,
 )
 from openg2p_fastapi_auth_models.models import LoginProvider
+
 from ..models import UserLoginLog, User
 from ..config import Settings
+from ..services import UserService
+from ..schemas import UserProfile
 
 
 _config = Settings.get_config(strict=False)
@@ -55,6 +57,7 @@ class AuthController(BaseController):
         super().__init__(**kwargs)
         self.router.prefix += "/auth"
         self.router.tags += ["auth"]
+        self.user_service = UserService.get_component()
 
         self.router.add_api_route(
             "/get_user_profile",
@@ -87,7 +90,6 @@ class AuthController(BaseController):
     async def get_user_profile(
         self,
         auth: Annotated[AuthCredentials, Depends(AuthFactory())],
-        online: bool = True,
     ):
         """
         Get Profile Data of the authenticated user/entity.
@@ -96,18 +98,9 @@ class AuthController(BaseController):
         - If online is true, the server will try to userinfo from original Authorization Server.
           Else it will return the information present in ID Token and Access token.
         """
-        if online:
-            provider = await self.get_login_provider_db_by_iss(auth.iss)
-            if provider:
-                if provider.type == LoginProviderTypes.oauth2_auth_code:
-                    return UserProfile.model_validate(
-                        await self.get_oauth_validation_data(
-                            auth, iss=auth.iss, provider=provider, combine=True
-                        )
-                    )
-                else:
-                    raise NotImplementedError()
-        return UserProfile.model_validate(auth.model_dump())
+        user: User = await User.get_user_by_user_id(auth.sub)
+        user_profile: UserProfile = UserProfile.model_validate(user)
+        return user_profile
 
     async def logout(self, response: Response):
         """
@@ -158,14 +151,32 @@ class AuthController(BaseController):
                 detail="Login Provider ID Not Found",
             )
 
-        if login_provider.type == LoginProviderTypes.oauth2_auth_code:
-            auth_parameters = OauthProviderParameters.model_validate(
-                login_provider.authorization_parameters
-            )
+        if login_provider.type == LoginProviderTypes.oauth2_auth_code.value:
+            # Convert SQLAlchemy model to dict and map fields for OauthProviderParameters
+            provider_data = {
+                "auth_endpoint": login_provider.auth_endpoint,
+                "token_endpoint": login_provider.token_endpoint,
+                "validation_endpoint": login_provider.validation_endpoint,
+                "jwks_uri": login_provider.jwks_uri,
+                "client_id": login_provider.client_id,
+                "client_secret": login_provider.client_secret,
+                "oauth_callback_url": login_provider.oauth_callback_url,
+                "scope": login_provider.scope or "openid profile email",
+                "enable_pkce": login_provider.enable_pkce,
+                "code_verifier": login_provider.code_verifier or "",
+                "extra_authorize_params": orjson.loads(
+                    login_provider.extra_authorize_params or "{}"
+                ),
+                # Set defaults for missing fields
+                "response_type": "code",
+                "code_challenge": "",
+                "code_challenge_method": "S256",
+            }
+            auth_parameters = OauthProviderParameters.model_validate(provider_data)
             authorize_query_params = {
                 "client_id": auth_parameters.client_id,
                 "response_type": auth_parameters.response_type,
-                "redirect_uri": auth_parameters.redirect_uri,
+                "redirect_uri": auth_parameters.oauth_callback_url,
                 "scope": auth_parameters.scope,
                 "nonce": secrets.token_urlsafe(),
                 "state": orjson.dumps(
@@ -185,9 +196,9 @@ class AuthController(BaseController):
                     }
                 )
 
-            authorize_query_params.update(auth_parameters.extra_authorize_parameters)
+            authorize_query_params.update(auth_parameters.extra_authorize_params)
             return RedirectResponse(
-                f"{auth_parameters.authorize_endpoint}?{urllib.parse.urlencode(authorize_query_params)}"
+                f"{auth_parameters.auth_endpoint}?{urllib.parse.urlencode(authorize_query_params)}"
             )
         else:
             raise NotImplementedError()
@@ -195,10 +206,10 @@ class AuthController(BaseController):
     async def pkce_get_or_generate_code_verifier(
         self, login_provider: LoginProvider
     ) -> str:
-        code_verifier = login_provider.authorization_parameters.get("code_verifier")
+        code_verifier = login_provider.code_verifier
         if not code_verifier:
             code_verifier = secrets.token_urlsafe(32)
-            login_provider.authorization_parameters["code_verifier"] = code_verifier
+            login_provider.code_verifier = code_verifier
             await login_provider.update_to_db()
         return code_verifier
 
@@ -240,22 +251,64 @@ class AuthController(BaseController):
         auth: str | AuthCredentials,
         id_token: str = None,
         iss: str = None,
-        provider: LoginProvider = None,
+        login_provider: LoginProvider = None,
         combine=True,
     ) -> dict:
         access_token = auth.credentials if isinstance(auth, AuthCredentials) else auth
-        if not provider:
+        if not login_provider:
             if not iss:
                 iss = (
                     jwt.get_unverified_claims(access_token)["iss"]
                     if isinstance(auth, str)
                     else auth.iss
                 )
-            provider = await self.get_login_provider_db_by_iss(iss)
-        # TODO: Check if provider is None
-        auth_params = OauthProviderParameters.model_validate(
-            provider.authorization_parameters
-        )
+            login_provider = await self.get_login_provider_db_by_iss(iss)
+        login_provider = await self.get_login_provider_db_by_iss(iss)
+        provider_data = {
+            "auth_endpoint": login_provider.auth_endpoint,
+            "token_endpoint": login_provider.token_endpoint,
+            "validation_endpoint": login_provider.validation_endpoint,
+            "jwks_uri": login_provider.jwks_uri,
+            "client_id": login_provider.client_id,
+            "client_secret": login_provider.client_secret,
+            "oauth_callback_url": login_provider.oauth_callback_url,
+            "scope": login_provider.scope or "openid profile email",
+            "enable_pkce": login_provider.enable_pkce,
+            "code_verifier": login_provider.code_verifier or "",
+            "extra_authorize_params": orjson.loads(
+                login_provider.extra_authorize_params or "{}"
+            ),
+            # Set defaults for missing fields
+            "client_assertion_type": OauthClientAssertionType[
+                (
+                    "client_secret"
+                    if login_provider.client_authentication_method.startswith(
+                        "client_secret"
+                    )
+                    else login_provider.client_authentication_method
+                )
+            ],
+            "client_assertion_jwt_aud": login_provider.jwt_assertion_aud,
+            # "client_assertion_jwk": login_provider.jwks_uri,
+            "response_type": "code",
+            "code_challenge": (
+                base64.urlsafe_b64encode(
+                    hashlib.sha256(
+                        login_provider.code_verifier.encode("ascii")
+                    ).digest()
+                )
+                .rstrip(b"=")
+                .decode()
+            ),
+            "code_challenge_method": "S256",
+            "client_assertion_jwk": (
+                base64.b64decode(login_provider.client_private_key)
+                if login_provider.client_private_key
+                else None
+            ),
+        }
+
+        auth_params = OauthProviderParameters.model_validate(provider_data)
         try:
             response = httpx.get(
                 auth_params.validate_endpoint,
@@ -291,9 +344,7 @@ class AuthController(BaseController):
         if not login_provider_id:
             raise UnauthorizedError("G2P-AUT-401", "Login Provider Id not received")
 
-        login_provider = await self.auth_controller.get_login_provider_db_by_id(
-            login_provider_id
-        )
+        login_provider = await self.get_login_provider_db_by_id(login_provider_id)
 
         res = await self.get_tokens(login_provider, request.query_params)
 
@@ -308,10 +359,10 @@ class AuthController(BaseController):
                     seconds=expires_in
                 )
         # Check and Create User If Not Exists
-        userinfo_dict = await self.auth_controller.get_oauth_validation_data(
+        userinfo_dict = await self.get_oauth_validation_data(
             auth=access_token,
             id_token=id_token,
-            provider=login_provider,
+            login_provider=login_provider,
         )
 
         id_type_config: Optional[
@@ -353,14 +404,54 @@ class AuthController(BaseController):
     async def get_tokens(
         self, login_provider: LoginProvider, query_params: QueryParams, **kw
     ):
-        if login_provider.type == LoginProviderTypes.oauth2_auth_code:
-            auth_parameters = OauthProviderParameters.model_validate(
-                login_provider.authorization_parameters
-            )
+        if login_provider.type == LoginProviderTypes.oauth2_auth_code.value:
+            provider_data = {
+                "auth_endpoint": login_provider.auth_endpoint,
+                "token_endpoint": login_provider.token_endpoint,
+                "validation_endpoint": login_provider.validation_endpoint,
+                "jwks_uri": login_provider.jwks_uri,
+                "client_id": login_provider.client_id,
+                "client_secret": login_provider.client_secret,
+                "oauth_callback_url": login_provider.oauth_callback_url,
+                "scope": login_provider.scope or "openid profile email",
+                "enable_pkce": login_provider.enable_pkce,
+                "code_verifier": login_provider.code_verifier or "",
+                "extra_authorize_params": orjson.loads(
+                    login_provider.extra_authorize_params or "{}"
+                ),
+                # Set defaults for missing fields
+                "client_assertion_type": OauthClientAssertionType[
+                    (
+                        "client_secret"
+                        if login_provider.client_authentication_method.startswith(
+                            "client_secret"
+                        )
+                        else login_provider.client_authentication_method
+                    )
+                ],
+                "client_assertion_jwt_aud": login_provider.jwt_assertion_aud,
+                "response_type": "code",
+                "code_challenge": (
+                    base64.urlsafe_b64encode(
+                        hashlib.sha256(
+                            login_provider.code_verifier.encode("ascii")
+                        ).digest()
+                    )
+                    .rstrip(b"=")
+                    .decode()
+                ),
+                "code_challenge_method": "S256",
+                "client_assertion_jwk": (
+                    base64.b64decode(login_provider.client_private_key)
+                    if login_provider.client_private_key
+                    else None
+                ),
+            }
+            auth_parameters = OauthProviderParameters.model_validate(provider_data)
             token_request_data = {
                 "client_id": auth_parameters.client_id,
                 "grant_type": "authorization_code",
-                "redirect_uri": auth_parameters.redirect_uri,
+                "redirect_uri": auth_parameters.oauth_callback_url,
                 "code": query_params.get("code"),
             }
             if auth_parameters.enable_pkce:
@@ -412,9 +503,7 @@ class AuthController(BaseController):
         ):
             iat = datetime.now(tz=timezone.utc).replace(tzinfo=None)
             exp = iat + timedelta(hours=1)
-            client_assertion_type = (
-                "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
-            )
+            client_assertion_type = auth_parameters.client_assertion_type
             client_assertion = jwt.encode(
                 {
                     "iss": auth_parameters.client_id,

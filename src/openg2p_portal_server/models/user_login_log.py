@@ -7,7 +7,7 @@ from sqlalchemy import DateTime, ForeignKey, Integer, String, Enum as SQLEnum
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import Mapped, mapped_column
 
-from openg2p_fastapi_auth_models.schemas import UserType
+from ..models import UserType
 
 
 class UserLoginLog(BaseORMModelWithId):
@@ -34,7 +34,7 @@ class UserLoginLog(BaseORMModelWithId):
     async def create_login_record(
         cls,
         user_id: int,
-        auth_provider_id: int,
+        login_provider_id: int,
         provider_unique_id_type: str,
         user_type: str,
     ) -> Optional["UserLoginLog"]:
@@ -45,7 +45,7 @@ class UserLoginLog(BaseORMModelWithId):
         async with async_session_maker() as session:
             login = cls(
                 user_id=user_id,
-                auth_provider_id=auth_provider_id,
+                login_provider_id=login_provider_id,
                 provider_unique_id_type=provider_unique_id_type,
                 user_type=user_type,
                 login_time=datetime.utcnow(),
