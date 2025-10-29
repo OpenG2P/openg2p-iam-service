@@ -1,9 +1,11 @@
 import logging
 
-from typing import List
+from typing import List, Annotated
 
 from fastapi import Depends
 from openg2p_fastapi_common.controller import BaseController
+from openg2p_fastapi_auth.auth.factory import AuthFactory
+from openg2p_fastapi_auth_models.schemas import AuthCredentials
 
 from ..models import Department
 from ..schemas import DepartmentResponse
@@ -31,7 +33,9 @@ class DepartmentController(BaseController):
             methods=["POST"],
         )
 
-    async def get_departments(self, auth: Depends) -> List[DepartmentResponse]:
+    async def get_departments(
+        self, auth: Annotated[AuthCredentials, Depends(AuthFactory())]
+    ) -> List[DepartmentResponse]:
         """
         Returns all active departments.
         """
