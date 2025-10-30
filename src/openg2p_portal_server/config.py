@@ -36,7 +36,8 @@ class Settings(BaseSettings):
 
     auth_default_id_token_verify_at_hash: bool = True
 
-    auth_api_get_profile: ApiAuthSettings = ApiAuthSettings(enabled=True)
+    auth_api_get_user_profile: ApiAuthSettings = ApiAuthSettings(enabled=True)
+    auth_api_get_departments: ApiAuthSettings = ApiAuthSettings(enabled=True)
 
     @model_validator(mode="after")
     def validate_login_providers_list(self):
