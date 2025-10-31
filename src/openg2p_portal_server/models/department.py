@@ -3,7 +3,7 @@ import uuid
 
 from openg2p_fastapi_common.context import dbengine
 from openg2p_fastapi_common.models import BaseORMModelWithId
-from sqlalchemy import String, Boolean
+from sqlalchemy import String, Boolean, select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -31,21 +31,19 @@ class Department(BaseORMModelWithId):
         """
         async_session_maker = async_sessionmaker(dbengine.get(), expire_on_commit=False)
         async with async_session_maker() as session:
-            from sqlalchemy import select
 
-            result = await session.execute(select(cls).where(cls.active is True))
+            result = await session.execute(select(cls).where(cls.active.is_(True)))
             return result.scalars().all()
 
     @classmethod
     async def get_by_code(cls, code: str) -> Optional["Department"]:
         """
-        Get department by code.
+        Get department by mnemonic code.
         """
         async_session_maker = async_sessionmaker(dbengine.get(), expire_on_commit=False)
         async with async_session_maker() as session:
-            from sqlalchemy import select
 
             result = await session.execute(
-                select(cls).where(cls.code == code, cls.active is True)
+                select(cls).where(cls.department_mnemonic == code, cls.active.is_(True))
             )
             return result.scalar_one_or_none()
