@@ -16,12 +16,11 @@ class Department(BaseORMModelWithId):
     department_mnemonic: Mapped[str] = mapped_column(
         String, unique=True, nullable=False
     )
-    base_url: Mapped[str] = mapped_column(String, nullable=False)
-    bridge_relative_url: Mapped[str] = mapped_column(String, nullable=False)
-    spar_relative_url: Mapped[str] = mapped_column(String, nullable=False)
-    pbms_relative_url: Mapped[str] = mapped_column(String, nullable=False)
-    registry_relative_url: Mapped[str] = mapped_column(String, nullable=False)
-    superset_relative_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    bridge_url: Mapped[str] = mapped_column(String, nullable=False)
+    spar_url: Mapped[str] = mapped_column(String, nullable=False)
+    pbms_url: Mapped[str] = mapped_column(String, nullable=False)
+    registry_url: Mapped[str] = mapped_column(String, nullable=False)
+    superset_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     @classmethod
