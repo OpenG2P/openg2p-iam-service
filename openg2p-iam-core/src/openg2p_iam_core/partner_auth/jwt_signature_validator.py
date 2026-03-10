@@ -12,7 +12,9 @@ _logger = logging.getLogger(_config.logging_default_logger_name)
 
 
 class JWTSignatureValidator(HTTPBearer):
-    jwt_validate_helper: JWTValidationHelper = JWTValidationHelper.get_cached_component()
+    jwt_validate_helper: JWTValidationHelper = (
+        JWTValidationHelper.get_cached_component()
+    )
 
     async def __call__(self, request: Request) -> bool:
         request_body = await request.body()
@@ -23,4 +25,6 @@ class JWTSignatureValidator(HTTPBearer):
             _logger.error("Signature Header is not present or empty.")
             return False
 
-        return await self.jwt_validate_helper.verify_jwt(jwt_signature_data, request_json)
+        return await self.jwt_validate_helper.verify_jwt(
+            jwt_signature_data, request_json
+        )

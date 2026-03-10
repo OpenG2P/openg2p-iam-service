@@ -7,7 +7,9 @@ from ..dependencies import JwtBearerAuth
 class AuthInterface(JwtBearerAuth):
     """Base interface for authentication strategies."""
 
-    async def authenticate(self, request: Request, auth_credentials: AuthCredentials) -> AuthCredentials:
+    async def authenticate(
+        self, request: Request, auth_credentials: AuthCredentials
+    ) -> AuthCredentials:
         return auth_credentials
 
     async def __call__(self, request: Request) -> AuthCredentials:

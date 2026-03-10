@@ -31,7 +31,9 @@ class OauthProviderParameters(BaseModel):
 
     client_id: str
     client_secret: str | None = None
-    client_assertion_type: OauthClientAssertionType = OauthClientAssertionType.client_secret
+    client_assertion_type: OauthClientAssertionType = (
+        OauthClientAssertionType.client_secret
+    )
     client_assertion_jwk: dict | str | bytes | None = None
     client_assertion_jwt_aud: str | None = None
     client_assertion_jwk_keymanager: str | None = None

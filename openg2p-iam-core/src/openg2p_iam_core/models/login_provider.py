@@ -26,7 +26,9 @@ class LoginProvider(BaseORMModelWithTimes):
     client_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     client_authentication_method: Mapped[str] = mapped_column(String)
     client_secret: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    client_private_key: Mapped[Optional[bytes]] = mapped_column(LargeBinary(), nullable=True)
+    client_private_key: Mapped[Optional[bytes]] = mapped_column(
+        LargeBinary(), nullable=True
+    )
     auth_endpoint: Mapped[str] = mapped_column(String)
     validation_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     token_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
@@ -53,12 +55,16 @@ class LoginProvider(BaseORMModelWithTimes):
         return None
 
     @classmethod
-    async def get_auth_id_type_config(cls, id: int = None, iss: str = None) -> Optional[Dict[str, Any]]:
+    async def get_auth_id_type_config(
+        cls, id: int = None, iss: str = None
+    ) -> Optional[Dict[str, Any]]:
         iss_id = id if id else iss
         if auth_id_type_config_cache.get() is None:
             auth_id_type_config_cache.set({})
 
-        id_type_config: Optional[Dict[str, Any]] = auth_id_type_config_cache.get().get(iss_id, None)
+        id_type_config: Optional[Dict[str, Any]] = auth_id_type_config_cache.get().get(
+            iss_id, None
+        )
         if not id_type_config:
             login_provider: Optional[LoginProvider] = None
             if id:

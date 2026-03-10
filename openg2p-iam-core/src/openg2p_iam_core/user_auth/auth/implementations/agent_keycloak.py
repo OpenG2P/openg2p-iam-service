@@ -8,7 +8,9 @@ from ..interface import AuthInterface
 class AgentKeycloakAuth(AuthInterface):
     """Handles agent authentication via Keycloak."""
 
-    async def authenticate(self, request: Request, auth_credentials: AuthCredentials) -> AuthCredentials:
+    async def authenticate(
+        self, request: Request, auth_credentials: AuthCredentials
+    ) -> AuthCredentials:
         claims = auth_credentials.model_dump()
 
         user_type = claims.get("user_type") or claims.get("userType")
@@ -17,7 +19,10 @@ class AgentKeycloakAuth(AuthInterface):
 
         realm_roles = set((claims.get("realm_access") or {}).get("roles") or [])
         client_roles = set(
-            ((claims.get("resource_access") or {}).get("agent-portal") or {}).get("roles") or []
+            ((claims.get("resource_access") or {}).get("agent-portal") or {}).get(
+                "roles"
+            )
+            or []
         )
         effective_roles = realm_roles | client_roles
 

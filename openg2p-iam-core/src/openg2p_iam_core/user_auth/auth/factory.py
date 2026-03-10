@@ -39,6 +39,8 @@ class AuthFactory:
     """
 
     async def __call__(
-        self, request: Request, auth_credentials: AuthCredentials = Depends(JwtBearerAuth())
+        self,
+        request: Request,
+        auth_credentials: AuthCredentials = Depends(JwtBearerAuth()),
     ) -> AuthCredentials:
         return await _authenticate_user(request, auth_credentials)

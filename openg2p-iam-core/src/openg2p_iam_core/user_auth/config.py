@@ -59,7 +59,11 @@ class Settings(BaseSettings):
                     lp["created_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
 
             if not self.auth_default_issuers:
-                self.auth_default_issuers = [lp.get("iss") for lp in self.login_providers_list]
+                self.auth_default_issuers = [
+                    lp.get("iss") for lp in self.login_providers_list
+                ]
             if not self.auth_default_jwks_urls:
-                self.auth_default_jwks_urls = [lp.get("jwks_url") for lp in self.login_providers_list]
+                self.auth_default_jwks_urls = [
+                    lp.get("jwks_url") for lp in self.login_providers_list
+                ]
         return self

@@ -7,7 +7,10 @@ from pydantic_settings import SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_prefix="iam_agent_", env_file=".env", extra="allow", env_nested_delimiter="__"
+        env_prefix="iam_agent_",
+        env_file=".env",
+        extra="allow",
+        env_nested_delimiter="__",
     )
 
     @model_validator(mode="after")
