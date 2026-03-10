@@ -12,9 +12,15 @@ jobs:
   docker-build:
     name: Docker Build and Push
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        iam_api:
+          - openg2p-iam-bene-api
+          - openg2p-iam-staff-api
+          - openg2p-iam-agent-api
     env:
       NAMESPACE: ${{ secrets.docker_hub_organisation || 'openg2p' }}
-      SERVICE_NAME: openg2p-portal-server
+      SERVICE_NAME: ${{ matrix.iam_api }}
     steps:
       - uses: actions/checkout@v3
       - name: Docker build
@@ -40,6 +46,7 @@ jobs:
 
           docker build . \
             --file Dockerfile \
+            --build-arg IAM_API=${{ matrix.iam_api }} \
             --tag $IMAGE_ID:$VERSION
           if [[ '${{ secrets.docker_hub_token }}' != '' && '${{ secrets.docker_hub_actor }}' != '' ]]; then
             export DOCKER_PUSH="true"

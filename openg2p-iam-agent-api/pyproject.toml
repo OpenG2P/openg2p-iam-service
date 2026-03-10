@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openg2p-iam-agent-api"
+authors = [
+  { name="OpenG2P", email="info@openg2p.org" },
+]
+description = "OpenG2P IAM Agent API"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "openg2p-fastapi-common",
+  "openg2p-iam-core",
+  "python-slugify>=8.0.0",
+  "psycopg2",
+  "asyncpg",
+  "SQLAlchemy",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://openg2p.org"
+Documentation = "https://docs.openg2p.org/"
+Repository = "https://github.com/OpenG2P/openg2p-iam"
+Source = "https://github.com/OpenG2P/openg2p-iam"
+
+[tool.hatch.version]
+path = "src/openg2p_iam_agent_api/__init__.py"
