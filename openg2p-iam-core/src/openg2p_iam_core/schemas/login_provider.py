@@ -17,3 +17,8 @@ class LoginProviderResponse(BaseModel):
 
 class LoginProviderHttpResponse(BaseModel):
     loginProviders: list[LoginProviderResponse]
+
+
+class StartAuthTransactionResponse(BaseModel):
+    redirectUrl: str
+    state: str

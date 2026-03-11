@@ -42,6 +42,7 @@ class LoginProvider(BaseORMModelWithTimes):
     extra_authorize_params: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     oauth_callback_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     g2p_id_type: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    user_type: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     @classmethod
     async def get_login_provider_from_iss(cls, iss: str) -> Self:
@@ -93,3 +94,8 @@ class LoginProvider(BaseORMModelWithTimes):
                 from_key, to_key = (k.strip() for k in pair.split(":", 1))
                 res[to_key] = req.get(from_key, "")
         return res
+
+    @classmethod
+    async def get_by_user_type(cls, user_type: str) -> list[Self]:
+        providers = await cls.get_all()
+        return [provider for provider in providers if provider.user_type == user_type]
