@@ -3,11 +3,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "openg2p-iam-staff-api"
+name = "iam-core"
 authors = [
   { name="OpenG2P", email="info@openg2p.org" },
 ]
-description = "OpenG2P IAM Staff API"
+description = "OpenG2P IAM Core - Authentication models, user auth, and partner auth"
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
@@ -17,11 +17,8 @@ classifiers = [
 ]
 dependencies = [
   "openg2p-fastapi-common",
-  "openg2p-iam-core",
-  "python-slugify>=8.0.0",
-  "psycopg2",
-  "asyncpg",
-  "SQLAlchemy",
+  "cryptography >=41.0.4",
+  "python-jose >=3.3.0",
 ]
 dynamic = ["version"]
 
@@ -32,4 +29,4 @@ Repository = "https://github.com/OpenG2P/openg2p-iam"
 Source = "https://github.com/OpenG2P/openg2p-iam"
 
 [tool.hatch.version]
-path = "src/openg2p_iam_staff_api/__init__.py"
+path = "src/openg2p_iam_core/__init__.py"

@@ -3,11 +3,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "openg2p-iam-bene-api"
+name = "iam-staff-portal-api"
 authors = [
   { name="OpenG2P", email="info@openg2p.org" },
 ]
-description = "OpenG2P IAM Beneficiary API"
+description = "OpenG2P IAM Staff API"
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
@@ -17,7 +17,7 @@ classifiers = [
 ]
 dependencies = [
   "openg2p-fastapi-common",
-  "openg2p-iam-core",
+  "iam-core",
   "python-slugify>=8.0.0",
   "psycopg2",
   "asyncpg",
@@ -32,4 +32,4 @@ Repository = "https://github.com/OpenG2P/openg2p-iam"
 Source = "https://github.com/OpenG2P/openg2p-iam"
 
 [tool.hatch.version]
-path = "src/openg2p_iam_bene_api/__init__.py"
+path = "src/openg2p_iam_staff_api/__init__.py"

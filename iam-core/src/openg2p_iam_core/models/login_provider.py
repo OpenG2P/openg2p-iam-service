@@ -14,18 +14,24 @@ from sqlalchemy.orm import Mapped, mapped_column
 from ..context import auth_id_type_config_cache
 from ..schemas import LoginProviderTypes
 
+class UserTypeEnum(str):
+    STAFF = "STAFF"
+    AGENT = "AGENT"
+    BENEFICIARY = "BENEFICIARY"
+
 
 class LoginProvider(BaseORMModelWithTimes):
     __tablename__ = "login_providers"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String)
-    type: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    body: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    image_icon_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    user_type: Mapped[UserTypeEnum] = mapped_column(String, nullable=False)
+    provider_name: Mapped[str] = mapped_column(String, nullable=False)
+    # type: Mapped[Optional[str]] = mapped_column(String, nullable=True) 
+    description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    icon_base64: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     client_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    client_authentication_method: Mapped[str] = mapped_column(String)
     client_secret: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    client_authentication_method: Mapped[str] = mapped_column(String) # Change to ENUM
     client_private_key: Mapped[Optional[bytes]] = mapped_column(
         LargeBinary(), nullable=True
     )
@@ -42,7 +48,7 @@ class LoginProvider(BaseORMModelWithTimes):
     extra_authorize_params: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     oauth_callback_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     g2p_id_type: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    user_type: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    
 
     @classmethod
     async def get_login_provider_from_iss(cls, iss: str) -> Self:

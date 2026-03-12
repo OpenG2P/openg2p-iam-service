@@ -3,11 +3,11 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "openg2p-iam-core"
+name = "iam-agent-portal-api"
 authors = [
   { name="OpenG2P", email="info@openg2p.org" },
 ]
-description = "OpenG2P IAM Core - Authentication models, user auth, and partner auth"
+description = "OpenG2P IAM Agent API"
 readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
@@ -17,8 +17,11 @@ classifiers = [
 ]
 dependencies = [
   "openg2p-fastapi-common",
-  "cryptography >=41.0.4",
-  "python-jose >=3.3.0",
+  "iam-core",
+  "python-slugify>=8.0.0",
+  "psycopg2",
+  "asyncpg",
+  "SQLAlchemy",
 ]
 dynamic = ["version"]
 
@@ -29,4 +32,4 @@ Repository = "https://github.com/OpenG2P/openg2p-iam"
 Source = "https://github.com/OpenG2P/openg2p-iam"
 
 [tool.hatch.version]
-path = "src/openg2p_iam_core/__init__.py"
+path = "src/openg2p_iam_agent_api/__init__.py"
