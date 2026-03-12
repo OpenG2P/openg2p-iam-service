@@ -1,0 +1,63 @@
+import sys
+from enum import Enum
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
+from typing import Optional
+
+from openg2p_fastapi_common.models import BaseORMModelWithTimes
+from sqlalchemy import Boolean, Enum as SAEnum, Integer, LargeBinary, String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from ..schemas import TokenEndpointAuthMethod
+
+
+class UserTypeEnum(str, Enum):
+    staff = "staff"
+    agent = "agent"
+    beneficiary = "beneficiary"
+
+
+class LoginProvider(BaseORMModelWithTimes):
+    __tablename__ = "login_providers"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_type: Mapped[UserTypeEnum] = mapped_column(SAEnum(UserTypeEnum), nullable=False)
+    provider_name: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    icon_base64: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    client_id: Mapped[str] = mapped_column(String, nullable=False)
+    client_secret: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    token_endpoint_auth_method: Mapped[TokenEndpointAuthMethod] = mapped_column(
+        SAEnum(TokenEndpointAuthMethod), nullable=False
+    )
+    client_private_key: Mapped[Optional[bytes]] = mapped_column(
+        LargeBinary(), nullable=True
+    )
+    authorization_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    userinfo_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    token_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    server_metadata_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    jwks_uri: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    jwt_assertion_aud: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    scope: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    enable_pkce: Mapped[Optional[bool]] = mapped_column(Boolean(), nullable=True)
+    extra_authorize_params: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    oauth_callback_url: Mapped[str] = mapped_column(String, nullable=False)
+
+    @classmethod
+    async def get_login_provider_from_iss(cls, iss: str) -> Self:
+        providers = await cls.get_all()
+        for lp in providers:
+            if iss in (lp.token_endpoint or "") or iss in (lp.authorization_endpoint or ""):
+                return lp
+        return None
+
+    @classmethod
+    async def get_by_user_type(cls, user_type: str) -> list[Self]:
+        normalized = user_type.lower()
+        providers = await cls.get_all()
+        return [provider for provider in providers if provider.user_type.value == normalized]
