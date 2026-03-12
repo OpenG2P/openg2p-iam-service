@@ -2,3 +2,6 @@ from .beneficiary_esignet import BeneficiaryEsignetAuth
 from .beneficiary_keycloak import BeneficiaryKeycloakAuth
 from .staff_keycloak import StaffKeycloakAuth
 from .agent_keycloak import AgentKeycloakAuth
+from .staff_adapter import StaffAuthAdapter
+from .agent_adapter import AgentAuthAdapter
+from .beneficiary_adapter import BeneficiaryAuthAdapter

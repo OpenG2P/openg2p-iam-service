@@ -14,9 +14,6 @@ class StaffKeycloakAuth(AuthInterface):
         claims = auth_credentials.model_dump()
 
         user_type = claims.get("user_type") or claims.get("userType")
-        if user_type != "staff":
-            raise ForbiddenError(message="Forbidden. Invalid userType.")
-
         realm_roles = set((claims.get("realm_access") or {}).get("roles") or [])
         client_roles = set(
             ((claims.get("resource_access") or {}).get("staff-portal") or {}).get(
@@ -26,7 +23,14 @@ class StaffKeycloakAuth(AuthInterface):
         )
         effective_roles = realm_roles | client_roles
 
+        if not user_type and "staff" in effective_roles:
+            claims["user_type"] = "staff"
+            user_type = "staff"
+
+        if user_type != "staff":
+            raise ForbiddenError(message="Forbidden. Invalid userType.")
+
         if "staff" not in effective_roles:
             raise ForbiddenError(message="Forbidden. Missing required role(s).")
 
-        return auth_credentials
+        return AuthCredentials.model_validate(claims)

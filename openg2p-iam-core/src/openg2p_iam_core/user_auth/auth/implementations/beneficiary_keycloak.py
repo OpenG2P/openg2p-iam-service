@@ -14,7 +14,13 @@ class BeneficiaryKeycloakAuth(AuthInterface):
         claims = auth_credentials.model_dump()
 
         user_type = claims.get("user_type") or claims.get("userType")
+        if not user_type:
+            realm_roles = set((claims.get("realm_access") or {}).get("roles") or [])
+            if "beneficiary" in realm_roles:
+                claims["user_type"] = "beneficiary"
+                user_type = "beneficiary"
+
         if user_type != "beneficiary":
             raise ForbiddenError(message="Forbidden. Invalid userType.")
 
-        return auth_credentials
+        return AuthCredentials.model_validate(claims)
