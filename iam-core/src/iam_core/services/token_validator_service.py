@@ -6,13 +6,13 @@ from openg2p_fastapi_common.errors.http_exceptions import ForbiddenError, Unauth
 
 from openg2p_iam_core.schemas import AuthCredentials
 from openg2p_iam_core.services.provider_repository import ProviderRepository
+from openg2p_iam_core.user_auth.adapters import AdapterRegistry
 from openg2p_iam_core.user_auth.config import ApiAuthSettings
-from openg2p_iam_core.user_auth.oidc_service import AuthlibOidcService
 
 class TokenValidatorService:
     def __init__(self):
-        self._oidc = AuthlibOidcService()
         self._providers = ProviderRepository()
+        self._adapters = AdapterRegistry()
 
     async def _get_login_provider_db_by_iss(self, iss: str):
         return await self._providers.get_by_iss(iss)
@@ -87,11 +87,12 @@ class TokenValidatorService:
         login_provider = await self._get_login_provider_db_by_iss(iss)
         if not login_provider:
             raise UnauthorizedError(message=f"Unauthorized. Unknown Issuer. {iss}")
+        adapter = self._adapters.resolve_for_provider(login_provider)
 
         validation_mode = api_auth_settings.validation_mode or "jwt"
         introspected_claims = None
         if validation_mode in ("introspection", "hybrid"):
-            introspected_claims = await self._oidc.introspect_token(
+            introspected_claims = await adapter.introspect_token(
                 login_provider,
                 jwt_token,
                 endpoint=api_auth_settings.introspection_endpoint,
@@ -99,10 +100,9 @@ class TokenValidatorService:
 
         if validation_mode in ("jwt", "hybrid"):
             try:
-                verified_claims = await self._oidc.decode_jwt(
+                verified_claims = await adapter.decode_access_token(
                     login_provider,
                     jwt_token,
-                    verify_exp=True,
                     iss=iss,
                 )
             except JoseError as e:
@@ -115,11 +115,10 @@ class TokenValidatorService:
         id_token_claims = None
         if jwt_id_token:
             try:
-                id_token_claims = await self._oidc.decode_jwt(
+                id_token_claims = await adapter.decode_id_token(
                     login_provider,
                     jwt_id_token,
-                    verify_exp=True,
-                    access_token=jwt_token,
+                    jwt_token=jwt_token,
                     iss=iss,
                 )
             except JoseError as e:
@@ -133,6 +132,11 @@ class TokenValidatorService:
             verified_claims,
             id_token_claims,
         )
+        claims = adapter.normalize_claims(claims, login_provider=login_provider)
+        try:
+            adapter.validate_claims(claims, login_provider=login_provider)
+        except ValueError as e:
+            raise UnauthorizedError(message=f"Unauthorized. {str(e)}") from e
         self._validate_route_claims(claims, api_auth_settings)
         claims["credentials"] = jwt_token
         return AuthCredentials.model_validate(claims)

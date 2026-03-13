@@ -9,14 +9,14 @@ from openg2p_iam_core.schemas import (
 )
 from openg2p_iam_core.services.auth_transaction_store import auth_transaction_store
 from openg2p_iam_core.services.provider_repository import ProviderRepository
-from openg2p_iam_core.user_auth.oidc_service import AuthlibOidcService
+from openg2p_iam_core.user_auth.adapters import AdapterRegistry
 
 
 class AuthFacade:
     def __init__(self, user_type: str | None = None):
         self.user_type = user_type
         self._providers = ProviderRepository()
-        self._oidc = AuthlibOidcService()
+        self._adapters = AdapterRegistry()
 
     async def get_login_providers(self) -> LoginProviderHttpResponse:
         login_providers = await self._providers.get_all(user_type=self.user_type)
@@ -45,7 +45,8 @@ class AuthFacade:
             login_provider_id=login_provider.id,
             redirect_uri=redirect_uri,
         )
-        redirect_url, state = await self._oidc.build_authorize_redirect(
+        adapter = self._adapters.resolve_for_provider(login_provider)
+        redirect_url, state = await adapter.build_authorize_redirect(
             login_provider,
             state=txn.state,
             nonce=txn.nonce,
@@ -66,21 +67,19 @@ class AuthFacade:
             if not login_provider:
                 raise UnauthorizedError("G2P-AUT-401", "Invalid Login Provider Id")
 
-            token_response = await self._oidc.exchange_code_for_token(
+            adapter = self._adapters.resolve_for_provider(login_provider)
+            token_response = await adapter.exchange_code_for_token(
                 login_provider=login_provider,
                 code=code,
                 code_verifier=txn.code_verifier,
                 keymanager_helper=keymanager_helper,
                 **kw,
             )
-            id_token = token_response.get("id_token")
-            if id_token:
-                await self._oidc.decode_jwt(
-                    login_provider,
-                    id_token,
-                    nonce=txn.nonce,
-                    access_token=token_response.get("access_token"),
-                )
+            await adapter.validate_callback_id_token(
+                login_provider=login_provider,
+                token_response=token_response,
+                nonce=txn.nonce,
+            )
             return {
                 "redirect_uri": txn.redirect_uri,
                 "token_response": token_response,
@@ -95,7 +94,8 @@ class AuthFacade:
         if not login_provider:
             raise UnauthorizedError("G2P-AUT-401", "Invalid Login Provider Id")
 
-        token_response = await self._oidc.exchange_code_for_token(
+        adapter = self._adapters.resolve_for_provider(login_provider)
+        token_response = await adapter.exchange_code_for_token(
             login_provider=login_provider,
             code=code,
             code_verifier=None,
@@ -120,7 +120,8 @@ class AuthFacade:
         if not login_provider:
             raise UnauthorizedError(message=f"Unauthorized. Unknown Issuer. {issuer}")
 
-        userinfo = await self._oidc.get_oauth_validation_data(
+        adapter = self._adapters.resolve_for_provider(login_provider)
+        userinfo = await adapter.get_oauth_validation_data(
             login_provider=login_provider,
             access_token=access_token,
         )

@@ -2,7 +2,6 @@ from typing import Any, Annotated, Callable
 
 from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import (
     ForbiddenError,
     UnauthorizedError,
@@ -54,34 +53,6 @@ class JwtBearerAuth(HTTPBearer):
             issuers_list=issuers_list,
             audiences_list=audiences_list,
         )
-
-    @classmethod
-    def combine_token_dicts(cls, *token_dicts) -> dict:
-        res = None
-        for token_dict in token_dicts:
-            if token_dict:
-                if not res:
-                    res = token_dict
-                else:
-                    for k, v in token_dict.items():
-                        if v:
-                            res[k] = v
-        return res
-
-    @classmethod
-    def combine_tokens(cls, *tokens) -> dict:
-        res = []
-        for token in tokens:
-            if token:
-                try:
-                    res.append(
-                        jose_jwt.get_unverified_claims(token)
-                        if isinstance(token, str)
-                        else token
-                    )
-                except Exception:
-                    pass
-        return cls.combine_token_dicts(*res)
 
 
 def _claims_from_auth(auth: Any) -> dict:

@@ -18,6 +18,7 @@ class ProviderRepository:
             filtered["token_endpoint_auth_method"] = TokenEndpointAuthMethod(
                 filtered["token_endpoint_auth_method"]
             )
+        filtered["adapter_name"] = (filtered.get("adapter_name") or "default_oidc").lower()
         return LoginProvider(**filtered)
 
     async def get_by_id(self, provider_id: int) -> LoginProvider | None:

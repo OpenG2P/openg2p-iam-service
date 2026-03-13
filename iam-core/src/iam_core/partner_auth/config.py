@@ -1,17 +1,8 @@
 from datetime import datetime, timezone
 
 from openg2p_fastapi_common.config import Settings as BaseSettings
-from pydantic import BaseModel, model_validator
+from pydantic import model_validator
 from pydantic_settings import SettingsConfigDict
-
-
-class ApiAuthSettings(BaseModel):
-    enabled: bool = False
-    issuers: list[str] | None = None
-    audiences: list[str] | None = None
-    claim_name: str | None = None
-    claim_values: list[str] | None = None
-    id_token_verify_at_hash: bool | None = None
 
 
 class Settings(BaseSettings):
@@ -22,20 +13,6 @@ class Settings(BaseSettings):
     login_providers_table_enabled: bool = True
     login_providers_table_name: str = "login_providers"
     login_providers_list: list[dict] = []
-
-    auth_enabled: bool = True
-
-    auth_default_issuers: list[str] = []
-    auth_default_audiences: list[str] = []
-    auth_default_jwks_urls: list[str] = []
-
-    auth_cookie_max_age: int | None = None
-    auth_cookie_set_expires: bool = False
-    auth_cookie_path: str = "/"
-    auth_cookie_httponly: bool = True
-    auth_cookie_secure: bool = True
-
-    auth_default_id_token_verify_at_hash: bool = True
 
     keymanager_sign_app_id: str = ""
 
@@ -48,12 +25,4 @@ class Settings(BaseSettings):
                 if not lp.get("created_at"):
                     lp["created_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
 
-            if not self.auth_default_issuers:
-                self.auth_default_issuers = [
-                    lp.get("iss") for lp in self.login_providers_list
-                ]
-            if not self.auth_default_jwks_urls:
-                self.auth_default_jwks_urls = [
-                    lp.get("jwks_url") for lp in self.login_providers_list
-                ]
         return self

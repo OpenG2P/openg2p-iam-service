@@ -2,7 +2,6 @@ import logging
 
 import orjson
 from fastapi import Request
-from fastapi.security import HTTPBearer
 
 from .config import Settings
 from .jwt_validation_helper import JWTValidationHelper
@@ -11,7 +10,7 @@ _config = Settings.get_config(strict=False)
 _logger = logging.getLogger(_config.logging_default_logger_name)
 
 
-class JWTSignatureValidator(HTTPBearer):
+class JWTSignatureValidator:
     jwt_validate_helper: JWTValidationHelper = (
         JWTValidationHelper.get_cached_component()
     )

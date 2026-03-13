@@ -41,6 +41,7 @@ class LoginProvider(BaseORMModelWithTimes):
     userinfo_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     token_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     server_metadata_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    adapter_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     jwks_uri: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     jwt_assertion_aud: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     scope: Mapped[Optional[str]] = mapped_column(String, nullable=True)
