@@ -1,4 +1,4 @@
 from .auth_transaction_store import AuthTransactionStore, auth_transaction_store
-from .auth_facade import AuthFacade
+from .auth_service import AuthService
 from .provider_repository import ProviderRepository
 from .token_validator_service import TokenValidatorService

@@ -9,7 +9,7 @@ from openg2p_iam_core.schemas import (
     LoginProviderHttpResponse,
     StartAuthTransactionResponse,
 )
-from openg2p_iam_core.services import AuthFacade
+from openg2p_iam_core.services import AuthService
 from openg2p_iam_core.user_auth.dependencies import auth_principal, require_user_type
 
 from ..config import Settings
@@ -23,8 +23,8 @@ class AuthController(BaseController):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.router.prefix += "/auth"
-        self.router.tags += ["auth"]
-        self.auth_facade = AuthFacade(user_type=self.user_type)
+        self.router.tags += ["/auth"]
+        self.auth_service = AuthService(user_type=self.user_type)
 
         self.router.add_api_route("/get_user_profile", self.get_user_profile, methods=["GET"])
         self.router.add_api_route("/logout", self.logout, methods=["POST"])
@@ -44,7 +44,7 @@ class AuthController(BaseController):
             "/get_login_provider_redirect/{id}",
             self.get_login_provider_redirect,
             methods=["GET"],
-        )
+        ) # TODO: Remove this endpoint
         self.router.add_api_route("/callback", self.oauth_callback, methods=["GET"])
 
     async def get_user_profile(
@@ -61,23 +61,23 @@ class AuthController(BaseController):
         response.delete_cookie("X-ID-Token")
 
     async def get_login_providers(self):
-        return await self.auth_facade.get_login_providers()
+        return await self.auth_service.get_login_providers()
 
     async def start_authentication_transaction(self, id: int, redirect_uri: str = "/"):
-        return await self.auth_facade.start_login(
+        return await self.auth_service.start_authentication_transaction(
             provider_id=id,
             redirect_uri=redirect_uri,
         )
 
     async def get_login_provider_redirect(self, id: int, redirect_uri: str = "/"):
-        response = await self.auth_facade.start_login(
+        response = await self.auth_service.start_authentication_transaction(
             provider_id=id,
             redirect_uri=redirect_uri,
         )
         return RedirectResponse(response.redirectUrl)
 
     async def oauth_callback(self, request: Request):
-        result = await self.auth_facade.complete_login(
+        result = await self.auth_service.complete_authentication_transaction(
             state_value=request.query_params.get("state"),
             code=request.query_params.get("code"),
         )

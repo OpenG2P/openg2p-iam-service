@@ -1,9 +1,9 @@
-from typing import Any, Protocol
+from typing import Any, ABC
 
 from openg2p_iam_core.models import LoginProvider
 
 
-class ProviderAdapter(Protocol):
+class OIDCInterface(ABC):
     async def build_authorize_redirect(
         self,
         login_provider: LoginProvider,

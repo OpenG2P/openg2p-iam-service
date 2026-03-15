@@ -20,7 +20,7 @@ _config = Settings.get_config(strict=False)
 _logger = logging.getLogger(_config.logging_default_logger_name)
 
 
-class AuthlibOidcService:
+class OidcClient:
     @staticmethod
     def _extra_params(login_provider: LoginProvider) -> dict:
         if not login_provider.extra_authorize_params:
@@ -31,7 +31,7 @@ class AuthlibOidcService:
             return {}
 
     @classmethod
-    def _guess_issuer(cls, login_provider: LoginProvider) -> str | None:
+    def _guess_issuer(cls, login_provider: LoginProvider) -> str | None: 
         extra = cls._extra_params(login_provider)
         issuer = extra.get("issuer")
         if issuer:
@@ -65,7 +65,7 @@ class AuthlibOidcService:
             return None
         return f"{issuer.rstrip('/')}/.well-known/openid-configuration"
 
-    async def get_server_metadata(self, login_provider: LoginProvider) -> dict:
+    async def get_server_metadata(self, login_provider: LoginProvider) -> dict: # TODO: Store all the endpoints in AuthTransaction, remove this method
         cache = server_metadata_cache.get() or {}
         cache_key = f"lp:{login_provider.id}"
         if cache_key in cache:
@@ -93,7 +93,7 @@ class AuthlibOidcService:
         server_metadata_cache.set(cache)
         return metadata
 
-    async def _get_jwks(self, login_provider: LoginProvider, iss: str | None = None) -> dict:
+    async def _get_jwks(self, login_provider: LoginProvider, iss: str | None = None) -> dict: # TODO: Move to JWKs Helper
         metadata = await self.get_server_metadata(login_provider)
         issuer = iss or metadata.get("issuer") or self._guess_issuer(login_provider)
         cache = jwks_cache.get() or {}
@@ -131,6 +131,7 @@ class AuthlibOidcService:
     ) -> TokenEndpointAuthMethod:
         return login_provider.token_endpoint_auth_method
 
+    # TODO: Refactor this from Client
     async def _generate_client_assertion(
         self,
         login_provider: LoginProvider,
@@ -168,12 +169,12 @@ class AuthlibOidcService:
                 )
             app_id_ref_id = login_provider.client_private_key.decode("utf-8")
             if ":" in app_id_ref_id:
-                km_app_id, km_ref_id = [x.strip() for x in app_id_ref_id.split(":", 1)]
+                km_app_id, km_ref_id = [x.strip() for x in app_id_ref_id.split(":", 1)] # TODO: Store keymanager_app_id and keymanager_ref_id in separate fields in DB to avoid this parsing
             else:
                 km_app_id, km_ref_id = app_id_ref_id, ""
             iat = datetime.now(tz=timezone.utc).replace(tzinfo=None)
             exp = iat + timedelta(hours=1)
-            token = await keymanager_helper.create_jwt_token(
+            token = await keymanager_helper.create_jwt_token( #TODO: Keymanager Token
                 {
                     "iss": login_provider.client_id,
                     "sub": login_provider.client_id,
@@ -203,8 +204,8 @@ class AuthlibOidcService:
         if not auth_endpoint:
             raise InternalServerError("G2P-AUT-500", "authorization_endpoint missing.")
 
-        extra = self._extra_params(login_provider)
-        client = AsyncOAuth2Client(client_id=login_provider.client_id)
+        extra_authorize_params = self._extra_params(login_provider)
+        async_oauth2_client: AsyncOAuth2Client = AsyncOAuth2Client(client_id=login_provider.client_id)
         params = {
             "redirect_uri": login_provider.oauth_callback_url,
             "scope": login_provider.scope or "openid profile email",
@@ -215,8 +216,8 @@ class AuthlibOidcService:
         if login_provider.enable_pkce:
             params["code_verifier"] = code_verifier
             params["code_challenge_method"] = "S256"
-        params.update(extra)
-        return client.create_authorization_url(auth_endpoint, **params)
+        params.update(extra_authorize_params)
+        return async_oauth2_client.create_authorization_url(auth_endpoint, **params)
 
     async def exchange_code_for_token(
         self,
@@ -231,24 +232,27 @@ class AuthlibOidcService:
         if not token_endpoint:
             raise UnauthorizedError(message="Unauthorized. Missing token endpoint.")
 
-        token_auth_method = self._token_endpoint_auth_method(login_provider)
         client_kwargs = {}
         token_kwargs = {
             "code": code,
             "grant_type": "authorization_code",
             "redirect_uri": login_provider.oauth_callback_url,
         }
-        token_kwargs.update(self._pkce_kwargs(login_provider, code_verifier))
+        token_kwargs.update(self._pkce_kwargs(login_provider, code_verifier)) #TODO: Refactor
 
-        if token_auth_method == TokenEndpointAuthMethod.client_secret_basic:
+        if login_provider.token_endpoint_auth_method == TokenEndpointAuthMethod.client_secret_basic:
             client_kwargs["client_secret"] = login_provider.client_secret
-            client_kwargs["token_endpoint_auth_method"] = "client_secret_basic"
-        elif token_auth_method == TokenEndpointAuthMethod.client_secret_post:
+            client_kwargs["token_endpoint_auth_method"] = TokenEndpointAuthMethod.client_secret_basic.value #TODO: Change to Enum
+        
+        elif login_provider.token_endpoint_auth_method == TokenEndpointAuthMethod.client_secret_post:
+
             client_kwargs["client_secret"] = login_provider.client_secret
-            client_kwargs["token_endpoint_auth_method"] = "client_secret_post"
-        else:
-            client_kwargs["token_endpoint_auth_method"] = "client_secret_post"
-            assertion_type, assertion = await self._generate_client_assertion(
+            client_kwargs["token_endpoint_auth_method"] = TokenEndpointAuthMethod.client_secret_post.value
+        
+        elif login_provider.token_endpoint_auth_method == TokenEndpointAuthMethod.private_key_jwt_keymanager:
+            
+            client_kwargs["token_endpoint_auth_method"] = TokenEndpointAuthMethod.private_key_jwt_keymanager.value
+            assertion_type, assertion = await self._generate_client_assertion( #TODO: Key_manager_assertion_type and keymanager_token
                 login_provider,
                 keymanager_helper=keymanager_helper,
                 **kw,
@@ -260,10 +264,10 @@ class AuthlibOidcService:
             client_id=login_provider.client_id,
             **client_kwargs,
         )
-        token = await client.fetch_token(token_endpoint, **token_kwargs)
+        token = await client.fetch_token(token_endpoint, **token_kwargs) # TODO: IdP token
         return dict(token)
 
-    async def decode_jwt(
+    async def decode_jwt( # TODO: Create a JWT helper and move this there.
         self,
         login_provider: LoginProvider,
         token: str,

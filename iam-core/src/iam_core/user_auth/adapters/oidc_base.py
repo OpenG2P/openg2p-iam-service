@@ -1,14 +1,14 @@
 from typing import Any
 
 from openg2p_iam_core.models import LoginProvider
-from openg2p_iam_core.user_auth.oidc_service import AuthlibOidcService
+from openg2p_iam_core.user_auth.oidc_client import OidcClient
+from .interface import OIDCInterface
 
 
-class DefaultOidcAdapter:
-    name = "default_oidc"
+class OIDCBase(OIDCInterface):
 
-    def __init__(self, oidc_service: AuthlibOidcService | None = None):
-        self._oidc = oidc_service or AuthlibOidcService()
+    def __init__(self, oidc_client: OidcClient | None = None):
+        self.oidc_client = oidc_client or OidcClient()
 
     async def build_authorize_redirect(
         self,
@@ -17,7 +17,7 @@ class DefaultOidcAdapter:
         nonce: str,
         code_verifier: str,
     ) -> tuple[str, str]:
-        return await self._oidc.build_authorize_redirect(
+        return await self.oidc_client.build_authorize_redirect(
             login_provider=login_provider,
             state=state,
             nonce=nonce,
@@ -32,7 +32,7 @@ class DefaultOidcAdapter:
         keymanager_helper=None,
         **kw,
     ) -> dict[str, Any]:
-        return await self._oidc.exchange_code_for_token(
+        return await self.oidc_client.exchange_code_for_token(
             login_provider=login_provider,
             code=code,
             code_verifier=code_verifier,
@@ -49,7 +49,7 @@ class DefaultOidcAdapter:
         id_token = token_response.get("id_token")
         if not id_token:
             return
-        await self._oidc.decode_jwt(
+        await self.oidc_client.decode_jwt(
             login_provider=login_provider,
             token=id_token,
             nonce=nonce,
@@ -61,7 +61,7 @@ class DefaultOidcAdapter:
         login_provider: LoginProvider,
         access_token: str,
     ) -> dict[str, Any]:
-        return await self._oidc.get_oauth_validation_data(
+        return await self.oidc_client.get_oauth_validation_data(
             login_provider=login_provider,
             access_token=access_token,
         )
@@ -72,7 +72,7 @@ class DefaultOidcAdapter:
         jwt_token: str,
         iss: str | None = None,
     ) -> dict[str, Any]:
-        return await self._oidc.decode_jwt(
+        return await self.oidc_client.decode_jwt(
             login_provider=login_provider,
             token=jwt_token,
             verify_exp=True,
@@ -86,7 +86,7 @@ class DefaultOidcAdapter:
         jwt_token: str,
         iss: str | None = None,
     ) -> dict[str, Any]:
-        return await self._oidc.decode_jwt(
+        return await self.oidc_client.decode_jwt(
             login_provider=login_provider,
             token=jwt_id_token,
             verify_exp=True,
@@ -100,7 +100,7 @@ class DefaultOidcAdapter:
         jwt_token: str,
         endpoint: str | None = None,
     ) -> dict[str, Any]:
-        return await self._oidc.introspect_token(
+        return await self.oidc_client.introspect_token(
             login_provider=login_provider,
             token=jwt_token,
             endpoint=endpoint,

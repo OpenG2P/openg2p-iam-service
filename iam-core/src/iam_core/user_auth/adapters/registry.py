@@ -1,15 +1,15 @@
 from openg2p_iam_core.models import LoginProvider
-from openg2p_iam_core.user_auth.adapters.default_oidc_adapter import DefaultOidcAdapter
-from openg2p_iam_core.user_auth.adapters.esignet_adapter import EsignetAdapter
-from openg2p_iam_core.user_auth.adapters.keycloak_adapter import KeycloakAdapter
+from openg2p_iam_core.user_auth.adapters.implementations.esignet_adapter import EsignetAdapter
+from openg2p_iam_core.user_auth.adapters.implementations.keycloak_adapter import KeycloakAdapter
+from openg2p_iam_core.user_auth.adapters.oidc_base import OIDCBase
 
 
-class AdapterRegistry:
+class AdapterRegistry: #TODO: Call this adapter factory
     def __init__(self):
-        default = DefaultOidcAdapter()
-        self._adapters = {
+        default = OIDCBase()
+        self._adapters = { # TODO: Refactor
             "default_oidc": default,
-            "keycloak": KeycloakAdapter(),
+            "keycloak": KeycloakAdapter(), #TODO: get_component()
             "esignet": EsignetAdapter(),
             "mosip_esignet": EsignetAdapter(),
         }

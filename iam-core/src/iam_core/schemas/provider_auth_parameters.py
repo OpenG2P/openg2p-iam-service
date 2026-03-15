@@ -4,13 +4,12 @@ from pydantic import BaseModel, field_validator
 
 
 class TokenEndpointAuthMethod(enum.Enum):
-    private_key_jwt = "private_key_jwt"
     private_key_jwt_keymanager = "private_key_jwt_keymanager"
     client_secret_basic = "client_secret_basic"
     client_secret_post = "client_secret_post"
 
 
-class OauthProviderParameters(BaseModel):
+class OauthProviderParameters(BaseModel): #TODO: Remove
     authorization_endpoint: str
     token_endpoint: str
     userinfo_endpoint: str | None = None

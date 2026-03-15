@@ -37,17 +37,17 @@ class LoginProvider(BaseORMModelWithTimes):
     client_private_key: Mapped[Optional[bytes]] = mapped_column(
         LargeBinary(), nullable=True
     )
-    authorization_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    userinfo_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    token_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    server_metadata_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    adapter_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    authorization_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True) #IdP URL
+    userinfo_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True) # Optional URL to fetch user info from IdP.
+    token_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True) # Optional URL to fetch token from IdP.
+    server_metadata_url: Mapped[Optional[str]] = mapped_column(String, nullable=True) # Optional URL to fetch OIDC server metadata from IdP, can be used as an alternative to manually specifying authorization_endpoint, token_endpoint and jwks_uri.
+    adapter_name: Mapped[Optional[str]] = mapped_column(String, nullable=True) 
     jwks_uri: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     jwt_assertion_aud: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     scope: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     enable_pkce: Mapped[Optional[bool]] = mapped_column(Boolean(), nullable=True)
     extra_authorize_params: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    oauth_callback_url: Mapped[str] = mapped_column(String, nullable=False)
+    oauth_callback_url: Mapped[str] = mapped_column(String, nullable=False) # The callback URL registered with the IdP for this login provider, used in the OIDC authorization flow. This is required to be stored for each login provider as different providers may have different callback URLs registered with the IdP.
 
     @classmethod
     async def get_login_provider_from_iss(cls, iss: str) -> Self:

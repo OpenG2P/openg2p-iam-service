@@ -23,7 +23,7 @@ This document explains how staff login works in the current Authlib-first IAM se
 - Staff controller:
   - `iam-staff-portal-api/src/openg2p_iam_staff_api/controllers/auth_controller.py`
 - Core orchestration:
-  - `iam-core/src/openg2p_iam_core/services/auth_facade.py`
+  - `iam-core/src/openg2p_iam_core/services/auth_facade.py` (class `AuthService`)
 - Provider lookup:
   - `iam-core/src/openg2p_iam_core/services/provider_repository.py`
 - OIDC/Authlib integration:
@@ -41,7 +41,7 @@ sequenceDiagram
   participant Browser
   participant StaffUI as StaffFrontend
   participant StaffAPI as StaffPortalAPI
-  participant Core as IAMCoreAuthFacade
+  participant Core as IAMCoreAuthService
   participant IdP as OIDCProvider
 
   StaffUI->>StaffAPI: GET /auth/get_login_providers
@@ -50,13 +50,13 @@ sequenceDiagram
   StaffAPI-->>StaffUI: 200 loginProviders[]
 
   StaffUI->>StaffAPI: POST /auth/start_authentication_transaction?id=<provider_id>&redirect_uri=<ui_return_url>
-  StaffAPI->>Core: start_login(provider_id, redirect_uri)
+  StaffAPI->>Core: start_authentication_transaction(provider_id, redirect_uri)
   Core-->>StaffAPI: redirectUrl + state
   StaffAPI-->>StaffUI: 200 {redirectUrl,state}
   StaffUI->>IdP: Browser redirect to redirectUrl
 
   IdP-->>StaffAPI: GET /auth/callback?code=...&state=...
-  StaffAPI->>Core: complete_login(state, code)
+  StaffAPI->>Core: complete_authentication_transaction(state, code)
   Core->>IdP: token endpoint call (Authlib)
   IdP-->>Core: access_token + id_token (+expires_in)
   Core-->>StaffAPI: tokens + redirect_uri
