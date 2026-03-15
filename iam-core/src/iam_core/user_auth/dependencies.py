@@ -13,7 +13,7 @@ from openg2p_iam_core.services.token_validator_service import TokenValidatorServ
 from .config import ApiAuthSettings, Settings
 
 _config = Settings.get_config(strict=False)
-_token_validator = TokenValidatorService()
+_token_validator = TokenValidatorService.get_component()
 
 
 class JwtBearerAuth(HTTPBearer):

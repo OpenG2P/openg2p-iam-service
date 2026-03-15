@@ -1,10 +1,12 @@
 from typing import Any
 
+from openg2p_fastapi_common.service import BaseService
+
 from openg2p_iam_core.models import LoginProvider
 from openg2p_iam_core.user_auth.adapters.oidc_base import OIDCBase
 
 
-class KeycloakAdapter(OIDCBase):
+class KeycloakAdapter(BaseService, OIDCBase):
     name = "keycloak"
 
     def normalize_claims(

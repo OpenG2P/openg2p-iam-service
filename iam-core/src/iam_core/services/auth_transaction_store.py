@@ -1,17 +1,24 @@
 import secrets
 from datetime import datetime, timedelta, timezone
 
+from openg2p_fastapi_common.service import BaseService
+
 from openg2p_iam_core.schemas import AuthTransaction
 
 
-class AuthTransactionStore:
-    """Simple in-memory transaction store with TTL.""" # TODO: This needs to be replaced with Redis 
+class AuthTransactionStore(BaseService):
+    """In-memory transaction store with TTL. Use RedisAuthTransactionStore for production.""" 
 
     def __init__(self, ttl_seconds: int = 300):
         self._store: dict[str, AuthTransaction] = {}
         self._ttl = ttl_seconds
 
-    def create(self, login_provider_id: int, redirect_uri: str) -> AuthTransaction:
+    def create(
+        self,
+        login_provider_id: int,
+        redirect_uri: str,
+        server_metadata: dict | None = None,
+    ) -> AuthTransaction:
         now = datetime.now(tz=timezone.utc)
         auth_transaction: AuthTransaction = AuthTransaction(
             state=secrets.token_urlsafe(32),
@@ -21,6 +28,7 @@ class AuthTransactionStore:
             redirect_uri=redirect_uri,
             created_at=now,
             expires_at=now + timedelta(seconds=self._ttl),
+            server_metadata=server_metadata,
         )
         self._store[auth_transaction.state] = auth_transaction
         return auth_transaction
@@ -34,6 +42,3 @@ class AuthTransactionStore:
         if datetime.now(tz=timezone.utc) > auth_transaction.expires_at:
             return None
         return auth_transaction
-
-
-auth_transaction_store = AuthTransactionStore()

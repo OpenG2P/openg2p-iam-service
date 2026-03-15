@@ -26,7 +26,7 @@ async def test_claim_in_accepts_string_and_list_values():
 
 @pytest.mark.asyncio
 async def test_token_validator_hybrid_mode_merges_claims():
-    validator = TokenValidatorService()
+    validator = TokenValidatorService.get_component()
     token = jose_jwt.encode(
         {"iss": "https://issuer", "aud": "portal", "sub": "u-1"},
         "secret",
@@ -47,9 +47,16 @@ async def test_token_validator_hybrid_mode_merges_claims():
     async def mock_decode(*args, **kwargs):
         return {"sub": "u-1", "iss": "https://issuer", "aud": "portal"}
 
+    mock_adapter = types.SimpleNamespace(
+        introspect_token=mock_introspection,
+        decode_access_token=mock_decode,
+        decode_id_token=mock_decode,
+        normalize_claims=lambda claims, **kw: claims,
+        validate_claims=lambda *a, **k: None,
+    )
+
     validator._get_login_provider_db_by_iss = mock_provider
-    validator._oidc.introspect_token = mock_introspection
-    validator._oidc.decode_jwt = mock_decode
+    validator._adapters.resolve_for_provider = lambda lp: mock_adapter
 
     result = await validator.validate(
         jwt_token=token,
@@ -69,7 +76,7 @@ async def test_token_validator_hybrid_mode_merges_claims():
 
 @pytest.mark.asyncio
 async def test_token_validator_claim_gate_rejects_mismatch():
-    validator = TokenValidatorService()
+    validator = TokenValidatorService.get_component()
     token = jose_jwt.encode(
         {"iss": "https://issuer", "aud": "portal", "sub": "u-1"},
         "secret",
@@ -87,8 +94,16 @@ async def test_token_validator_claim_gate_rejects_mismatch():
     async def mock_decode(*args, **kwargs):
         return {"sub": "u-1", "iss": "https://issuer", "aud": "portal", "roles": ["staff"]}
 
+    mock_adapter = types.SimpleNamespace(
+        introspect_token=None,
+        decode_access_token=mock_decode,
+        decode_id_token=mock_decode,
+        normalize_claims=lambda claims, **kw: claims,
+        validate_claims=lambda *a, **k: None,
+    )
+
     validator._get_login_provider_db_by_iss = mock_provider
-    validator._oidc.decode_jwt = mock_decode
+    validator._adapters.resolve_for_provider = lambda lp: mock_adapter
 
     with pytest.raises(ForbiddenError):
         await validator.validate(

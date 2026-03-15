@@ -1,20 +1,21 @@
-import base64
 import json
 import logging
-from datetime import datetime, timedelta, timezone
 from urllib.parse import urlparse
 
 import httpx
 from authlib.integrations.httpx_client import AsyncOAuth2Client
-from authlib.jose import JsonWebKey, jwt
 from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import InternalServerError, UnauthorizedError
 
-from openg2p_iam_core.context import jwks_cache, server_metadata_cache
+from openg2p_iam_core.context import server_metadata_cache
 from openg2p_iam_core.models import LoginProvider
 from openg2p_iam_core.schemas import TokenEndpointAuthMethod
 
 from .config import Settings
+from .helpers import decode_jwt as jwt_decode
+from .helpers import generate_client_assertion
+from .helpers import get_jwks as jwks_get
+from .helpers import pkce_kwargs
 
 _config = Settings.get_config(strict=False)
 _logger = logging.getLogger(_config.logging_default_logger_name)
@@ -31,7 +32,7 @@ class OidcClient:
             return {}
 
     @classmethod
-    def _guess_issuer(cls, login_provider: LoginProvider) -> str | None: 
+    def _guess_issuer(cls, login_provider: LoginProvider) -> str | None:
         extra = cls._extra_params(login_provider)
         issuer = extra.get("issuer")
         if issuer:
@@ -65,7 +66,7 @@ class OidcClient:
             return None
         return f"{issuer.rstrip('/')}/.well-known/openid-configuration"
 
-    async def get_server_metadata(self, login_provider: LoginProvider) -> dict: # TODO: Store all the endpoints in AuthTransaction, remove this method
+    async def get_server_metadata(self, login_provider: LoginProvider) -> dict:
         cache = server_metadata_cache.get() or {}
         cache_key = f"lp:{login_provider.id}"
         if cache_key in cache:
@@ -79,7 +80,6 @@ class OidcClient:
                 response.raise_for_status()
                 metadata = response.json()
 
-        # Provider model values override discovery so local config remains authoritative.
         if login_provider.authorization_endpoint:
             metadata["authorization_endpoint"] = login_provider.authorization_endpoint
         if login_provider.token_endpoint:
@@ -93,119 +93,27 @@ class OidcClient:
         server_metadata_cache.set(cache)
         return metadata
 
-    async def _get_jwks(self, login_provider: LoginProvider, iss: str | None = None) -> dict: # TODO: Move to JWKs Helper
-        metadata = await self.get_server_metadata(login_provider)
-        issuer = iss or metadata.get("issuer") or self._guess_issuer(login_provider)
-        cache = jwks_cache.get() or {}
-        if issuer and issuer in cache:
-            return cache[issuer]
-
-        jwks_url = metadata.get("jwks_uri")
-        if not jwks_url and issuer:
-            jwks_url = f"{issuer.rstrip('/')}/.well-known/jwks.json"
-        if not jwks_url:
-            raise InternalServerError(
-                code="G2P-AUT-500",
-                message="Missing jwks_uri for provider.",
-            )
-
-        async with httpx.AsyncClient(timeout=10) as client:
-            response = await client.get(jwks_url)
-            response.raise_for_status()
-            jwks = response.json()
-
-        if issuer:
-            cache[issuer] = jwks
-            jwks_cache.set(cache)
-        return jwks
-
-    @staticmethod
-    def _pkce_kwargs(login_provider: LoginProvider, code_verifier: str | None) -> dict:
-        if login_provider.enable_pkce and code_verifier:
-            return {"code_verifier": code_verifier}
-        return {}
-
-    @staticmethod
-    def _token_endpoint_auth_method(
-        login_provider: LoginProvider,
-    ) -> TokenEndpointAuthMethod:
-        return login_provider.token_endpoint_auth_method
-
-    # TODO: Refactor this from Client
-    async def _generate_client_assertion(
+    async def build_authorize_redirect(
         self,
         login_provider: LoginProvider,
-        keymanager_helper=None,
-        **kw,
+        state: str,
+        nonce: str,
+        code_verifier: str,
+        server_metadata: dict | None = None,
     ) -> tuple[str, str]:
-        assertion_type = self._token_endpoint_auth_method(login_provider)
-        aud = login_provider.jwt_assertion_aud or login_provider.token_endpoint
-
-        if assertion_type in (
-            TokenEndpointAuthMethod.private_key_jwt,
-        ):
-            if not login_provider.client_private_key:
-                raise InternalServerError(
-                    "G2P-AUT-503",
-                    "client_private_key is required for private_key_jwt.",
-                )
-            encoded_private_key = base64.b64decode(login_provider.client_private_key)
-            private_key = JsonWebKey.import_key(encoded_private_key)
-            payload = {
-                "iss": login_provider.client_id,
-                "sub": login_provider.client_id,
-                "aud": aud,
-                "exp": datetime.utcnow() + timedelta(hours=1),
-                "iat": datetime.utcnow(),
-            }
-            token = jwt.encode({"alg": "RS256"}, payload, private_key).decode("utf-8")
-            return assertion_type.value, token
-
-        if assertion_type == TokenEndpointAuthMethod.private_key_jwt_keymanager:
-            if not keymanager_helper:
-                raise InternalServerError(
-                    "G2P-AUT-503",
-                    "Keymanager helper is required for keymanager flow.",
-                )
-            app_id_ref_id = login_provider.client_private_key.decode("utf-8")
-            if ":" in app_id_ref_id:
-                km_app_id, km_ref_id = [x.strip() for x in app_id_ref_id.split(":", 1)] # TODO: Store keymanager_app_id and keymanager_ref_id in separate fields in DB to avoid this parsing
-            else:
-                km_app_id, km_ref_id = app_id_ref_id, ""
-            iat = datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            exp = iat + timedelta(hours=1)
-            token = await keymanager_helper.create_jwt_token( #TODO: Keymanager Token
-                {
-                    "iss": login_provider.client_id,
-                    "sub": login_provider.client_id,
-                    "aud": aud,
-                    "iat": int(iat.timestamp()),
-                    "exp": int(exp.timestamp()),
-                },
-                km_app_id=km_app_id,
-                km_ref_id=km_ref_id,
-                **kw,
-            )
-            return (
-                "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
-                token,
-            )
-
-        raise InternalServerError(
-            "G2P-AUT-503",
-            "Unsupported client assertion configuration.",
+        metadata = (
+            server_metadata
+            if server_metadata is not None
+            else await self.get_server_metadata(login_provider)
         )
-
-    async def build_authorize_redirect(
-        self, login_provider: LoginProvider, state: str, nonce: str, code_verifier: str
-    ) -> tuple[str, str]:
-        metadata = await self.get_server_metadata(login_provider)
         auth_endpoint = metadata.get("authorization_endpoint")
         if not auth_endpoint:
             raise InternalServerError("G2P-AUT-500", "authorization_endpoint missing.")
 
         extra_authorize_params = self._extra_params(login_provider)
-        async_oauth2_client: AsyncOAuth2Client = AsyncOAuth2Client(client_id=login_provider.client_id)
+        async_oauth2_client: AsyncOAuth2Client = AsyncOAuth2Client(
+            client_id=login_provider.client_id
+        )
         params = {
             "redirect_uri": login_provider.oauth_callback_url,
             "scope": login_provider.scope or "openid profile email",
@@ -225,9 +133,14 @@ class OidcClient:
         code: str,
         code_verifier: str | None = None,
         keymanager_helper=None,
+        server_metadata: dict | None = None,
         **kw,
     ) -> dict:
-        metadata = await self.get_server_metadata(login_provider)
+        metadata = (
+            server_metadata
+            if server_metadata is not None
+            else await self.get_server_metadata(login_provider)
+        )
         token_endpoint = metadata.get("token_endpoint")
         if not token_endpoint:
             raise UnauthorizedError(message="Unauthorized. Missing token endpoint.")
@@ -238,36 +151,33 @@ class OidcClient:
             "grant_type": "authorization_code",
             "redirect_uri": login_provider.oauth_callback_url,
         }
-        token_kwargs.update(self._pkce_kwargs(login_provider, code_verifier)) #TODO: Refactor
+        token_kwargs.update(pkce_kwargs(login_provider, code_verifier))
 
-        if login_provider.token_endpoint_auth_method == TokenEndpointAuthMethod.client_secret_basic:
+        method = login_provider.token_endpoint_auth_method
+        if method == TokenEndpointAuthMethod.client_secret_basic:
             client_kwargs["client_secret"] = login_provider.client_secret
-            client_kwargs["token_endpoint_auth_method"] = TokenEndpointAuthMethod.client_secret_basic.value #TODO: Change to Enum
-        
-        elif login_provider.token_endpoint_auth_method == TokenEndpointAuthMethod.client_secret_post:
-
+            client_kwargs["token_endpoint_auth_method"] = method.value
+        elif method == TokenEndpointAuthMethod.client_secret_post:
             client_kwargs["client_secret"] = login_provider.client_secret
-            client_kwargs["token_endpoint_auth_method"] = TokenEndpointAuthMethod.client_secret_post.value
-        
-        elif login_provider.token_endpoint_auth_method == TokenEndpointAuthMethod.private_key_jwt_keymanager:
-            
-            client_kwargs["token_endpoint_auth_method"] = TokenEndpointAuthMethod.private_key_jwt_keymanager.value
-            assertion_type, assertion = await self._generate_client_assertion( #TODO: Key_manager_assertion_type and keymanager_token
+            client_kwargs["token_endpoint_auth_method"] = method.value
+        elif method == TokenEndpointAuthMethod.private_key_jwt_keymanager:
+            client_kwargs["token_endpoint_auth_method"] = method.value
+            keymanager_assertion_type, keymanager_token = await generate_client_assertion(
                 login_provider,
                 keymanager_helper=keymanager_helper,
                 **kw,
             )
-            token_kwargs["client_assertion_type"] = assertion_type
-            token_kwargs["client_assertion"] = assertion
+            token_kwargs["client_assertion_type"] = keymanager_assertion_type
+            token_kwargs["client_assertion"] = keymanager_token
 
         client = AsyncOAuth2Client(
             client_id=login_provider.client_id,
             **client_kwargs,
         )
-        token = await client.fetch_token(token_endpoint, **token_kwargs) # TODO: IdP token
-        return dict(token)
+        idp_token = await client.fetch_token(token_endpoint, **token_kwargs)
+        return dict(idp_token)
 
-    async def decode_jwt( # TODO: Create a JWT helper and move this there.
+    async def decode_jwt(
         self,
         login_provider: LoginProvider,
         token: str,
@@ -275,23 +185,34 @@ class OidcClient:
         nonce: str | None = None,
         access_token: str | None = None,
         iss: str | None = None,
+        server_metadata: dict | None = None,
     ) -> dict:
-        jwks = await self._get_jwks(login_provider, iss=iss)
-        key_set = JsonWebKey.import_key_set(jwks)
-        claims = jwt.decode(token, key_set, claims_params={"nonce": nonce})
-        if verify_exp:
-            claims.validate()
-        claim_dict = dict(claims)
-        if nonce and claim_dict.get("nonce") != nonce:
-            raise UnauthorizedError("G2P-AUT-401", "Nonce mismatch")
-        if access_token and claim_dict.get("at_hash") is None:
-            _logger.debug("ID token missing at_hash while access_token is present.")
-        return claim_dict
+        metadata = (
+            server_metadata
+            if server_metadata is not None
+            else await self.get_server_metadata(login_provider)
+        )
+        issuer = iss or metadata.get("issuer") or self._guess_issuer(login_provider)
+        jwks = await jwks_get(metadata, issuer)
+        return jwt_decode(
+            token,
+            jwks,
+            verify_exp=verify_exp,
+            nonce=nonce,
+            access_token=access_token,
+        )
 
     async def get_oauth_validation_data(
-        self, login_provider: LoginProvider, access_token: str
+        self,
+        login_provider: LoginProvider,
+        access_token: str,
+        server_metadata: dict | None = None,
     ) -> dict:
-        metadata = await self.get_server_metadata(login_provider)
+        metadata = (
+            server_metadata
+            if server_metadata is not None
+            else await self.get_server_metadata(login_provider)
+        )
         userinfo_endpoint = metadata.get("userinfo_endpoint")
         if not userinfo_endpoint:
             raise InternalServerError(
@@ -316,8 +237,13 @@ class OidcClient:
         login_provider: LoginProvider,
         token: str,
         endpoint: str | None = None,
+        server_metadata: dict | None = None,
     ) -> dict:
-        metadata = await self.get_server_metadata(login_provider)
+        metadata = (
+            server_metadata
+            if server_metadata is not None
+            else await self.get_server_metadata(login_provider)
+        )
         introspection_endpoint = endpoint or metadata.get("introspection_endpoint")
         if not introspection_endpoint:
             raise InternalServerError(

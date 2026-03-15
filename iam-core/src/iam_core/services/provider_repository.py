@@ -1,13 +1,20 @@
 import json
+import time
+
+from openg2p_fastapi_common.service import BaseService
 
 from openg2p_iam_core.models import LoginProvider, UserTypeEnum
 from openg2p_iam_core.schemas import TokenEndpointAuthMethod
 from openg2p_iam_core.user_auth.config import Settings
 
 _config = Settings.get_config(strict=False)
+_CACHE_TTL_SECONDS = 60
 
 
-class ProviderRepository:
+class ProviderRepository(BaseService):
+    def __init__(self):
+        self._by_id_cache: dict[int, tuple[LoginProvider, float]] = {}
+
     @staticmethod
     def _provider_from_config(provider_dict: dict) -> LoginProvider:
         provider_fields = set(LoginProvider.__mapper__.columns.keys())
@@ -22,13 +29,24 @@ class ProviderRepository:
         return LoginProvider(**filtered)
 
     async def get_by_id(self, provider_id: int) -> LoginProvider | None:
+        now = time.monotonic()
+        if provider_id in self._by_id_cache:
+            cached, ts = self._by_id_cache[provider_id]
+            if now - ts < _CACHE_TTL_SECONDS:
+                return cached
+            del self._by_id_cache[provider_id]
         if _config.login_providers_list:
             for provider in _config.login_providers_list:
                 if provider.get("id") == provider_id:
-                    return self._provider_from_config(provider)
+                    lp = self._provider_from_config(provider)
+                    self._by_id_cache[provider_id] = (lp, now)
+                    return lp
             return None
         if await LoginProvider.table_exists_cached():
-            return await LoginProvider.get_by_id(provider_id)
+            lp = await LoginProvider.get_by_id(provider_id)
+            if lp is not None:
+                self._by_id_cache[provider_id] = (lp, now)
+            return lp
         return None
 
     async def get_by_iss(self, issuer: str) -> LoginProvider | None:

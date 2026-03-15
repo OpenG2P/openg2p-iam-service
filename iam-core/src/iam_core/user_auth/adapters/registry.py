@@ -1,17 +1,23 @@
+from openg2p_fastapi_common.service import BaseService
+
 from openg2p_iam_core.models import LoginProvider
 from openg2p_iam_core.user_auth.adapters.implementations.esignet_adapter import EsignetAdapter
 from openg2p_iam_core.user_auth.adapters.implementations.keycloak_adapter import KeycloakAdapter
 from openg2p_iam_core.user_auth.adapters.oidc_base import OIDCBase
 
 
-class AdapterRegistry: #TODO: Call this adapter factory
+class AdapterFactory(BaseService):
+    """Resolves OIDC adapters by provider name. Use get_component() for singleton."""
+
     def __init__(self):
-        default = OIDCBase()
-        self._adapters = { # TODO: Refactor
-            "default_oidc": default,
-            "keycloak": KeycloakAdapter(), #TODO: get_component()
-            "esignet": EsignetAdapter(),
-            "mosip_esignet": EsignetAdapter(),
+        self._adapters = self._get_adapter_map()
+
+    def _get_adapter_map(self):
+        return {
+            "default_oidc": OIDCBase.get_component(),
+            "keycloak": KeycloakAdapter.get_component(),
+            "esignet": EsignetAdapter.get_component(),
+            "mosip_esignet": EsignetAdapter.get_component(),
         }
 
     def get(self, adapter_name: str | None):

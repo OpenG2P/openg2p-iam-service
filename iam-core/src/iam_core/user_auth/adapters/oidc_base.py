@@ -1,12 +1,13 @@
 from typing import Any
 
+from openg2p_fastapi_common.service import BaseService
+
 from openg2p_iam_core.models import LoginProvider
 from openg2p_iam_core.user_auth.oidc_client import OidcClient
 from .interface import OIDCInterface
 
 
-class OIDCBase(OIDCInterface):
-
+class OIDCBase(BaseService, OIDCInterface):
     def __init__(self, oidc_client: OidcClient | None = None):
         self.oidc_client = oidc_client or OidcClient()
 
@@ -16,12 +17,14 @@ class OIDCBase(OIDCInterface):
         state: str,
         nonce: str,
         code_verifier: str,
+        server_metadata: dict | None = None,
     ) -> tuple[str, str]:
         return await self.oidc_client.build_authorize_redirect(
             login_provider=login_provider,
             state=state,
             nonce=nonce,
             code_verifier=code_verifier,
+            server_metadata=server_metadata,
         )
 
     async def exchange_code_for_token(
@@ -30,6 +33,7 @@ class OIDCBase(OIDCInterface):
         code: str | None,
         code_verifier: str | None = None,
         keymanager_helper=None,
+        server_metadata: dict | None = None,
         **kw,
     ) -> dict[str, Any]:
         return await self.oidc_client.exchange_code_for_token(
@@ -37,6 +41,7 @@ class OIDCBase(OIDCInterface):
             code=code,
             code_verifier=code_verifier,
             keymanager_helper=keymanager_helper,
+            server_metadata=server_metadata,
             **kw,
         )
 
@@ -45,6 +50,7 @@ class OIDCBase(OIDCInterface):
         login_provider: LoginProvider,
         token_response: dict[str, Any],
         nonce: str | None,
+        server_metadata: dict | None = None,
     ) -> None:
         id_token = token_response.get("id_token")
         if not id_token:
@@ -54,6 +60,7 @@ class OIDCBase(OIDCInterface):
             token=id_token,
             nonce=nonce,
             access_token=token_response.get("access_token"),
+            server_metadata=server_metadata,
         )
 
     async def get_oauth_validation_data(

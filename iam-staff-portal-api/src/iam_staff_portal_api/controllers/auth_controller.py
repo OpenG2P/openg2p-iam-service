@@ -40,11 +40,6 @@ class AuthController(BaseController):
             responses={200: {"model": StartAuthTransactionResponse}},
             methods=["POST"],
         )
-        self.router.add_api_route(
-            "/get_login_provider_redirect/{id}",
-            self.get_login_provider_redirect,
-            methods=["GET"],
-        ) # TODO: Remove this endpoint
         self.router.add_api_route("/callback", self.oauth_callback, methods=["GET"])
 
     async def get_user_profile(
@@ -68,13 +63,6 @@ class AuthController(BaseController):
             provider_id=id,
             redirect_uri=redirect_uri,
         )
-
-    async def get_login_provider_redirect(self, id: int, redirect_uri: str = "/"):
-        response = await self.auth_service.start_authentication_transaction(
-            provider_id=id,
-            redirect_uri=redirect_uri,
-        )
-        return RedirectResponse(response.redirectUrl)
 
     async def oauth_callback(self, request: Request):
         result = await self.auth_service.complete_authentication_transaction(

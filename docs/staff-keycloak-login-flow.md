@@ -107,7 +107,7 @@ User clicks Keycloak login button.
 1. `AuthController.start_authentication_transaction(...)` calls:
    - `auth_service.start_authentication_transaction(provider_id, redirect_uri)`
 2. `AuthService` validates provider exists.
-3. `auth_transaction_store.create(...)` generates and stores:
+3. The auth transaction store (in-memory or Redis per config) creates and stores:
    - `state` (CSRF protection)
    - `nonce` (ID token replay protection)
    - `code_verifier` (PKCE if enabled)
@@ -160,7 +160,7 @@ Frontend redirects browser to `redirectUrl`.
 2. It calls:
    - `auth_service.complete_authentication_transaction(state_value, code)`
 3. `AuthService`:
-   - loads and removes saved transaction from `auth_transaction_store`
+   - loads and removes saved transaction from the transaction store (in-memory or Redis)
    - resolves provider + adapter
    - calls token endpoint with `authorization_code` grant
    - sends PKCE `code_verifier` if used

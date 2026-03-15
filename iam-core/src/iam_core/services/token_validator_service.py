@@ -3,16 +3,18 @@ from typing import Any
 from authlib.jose.errors import JoseError
 from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import ForbiddenError, UnauthorizedError
+from openg2p_fastapi_common.service import BaseService
 
 from openg2p_iam_core.schemas import AuthCredentials
 from openg2p_iam_core.services.provider_repository import ProviderRepository
-from openg2p_iam_core.user_auth.adapters import AdapterRegistry
+from openg2p_iam_core.user_auth.adapters import AdapterFactory
 from openg2p_iam_core.user_auth.config import ApiAuthSettings
 
-class TokenValidatorService:
+
+class TokenValidatorService(BaseService):
     def __init__(self):
-        self._providers = ProviderRepository()
-        self._adapters = AdapterRegistry()
+        self._providers = ProviderRepository.get_component()
+        self._adapters = AdapterFactory.get_component()
 
     async def _get_login_provider_db_by_iss(self, iss: str):
         return await self._providers.get_by_iss(iss)

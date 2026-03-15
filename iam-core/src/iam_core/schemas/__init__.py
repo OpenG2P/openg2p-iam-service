@@ -6,4 +6,4 @@ from .login_provider import (
     LoginProviderResponse,
     StartAuthTransactionResponse,
 )
-from .provider_auth_parameters import TokenEndpointAuthMethod, OauthProviderParameters
+from .provider_auth_parameters import TokenEndpointAuthMethod

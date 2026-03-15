@@ -1,6 +1,6 @@
-import orjson
 from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import UnauthorizedError
+from openg2p_fastapi_common.service import BaseService
 
 from openg2p_iam_core.schemas import (
     LoginProviderHttpResponse,
@@ -8,16 +8,27 @@ from openg2p_iam_core.schemas import (
     StartAuthTransactionResponse,
     AuthTransaction,
 )
-from openg2p_iam_core.services.auth_transaction_store import auth_transaction_store
+from openg2p_iam_core.services.auth_transaction_store import AuthTransactionStore
+from openg2p_iam_core.services.legacy_state_resolver import LegacyStateResolver
 from openg2p_iam_core.services.provider_repository import ProviderRepository
-from openg2p_iam_core.user_auth.adapters import AdapterRegistry
+from openg2p_iam_core.services.redis_auth_transaction_store import RedisAuthTransactionStore
+from openg2p_iam_core.user_auth.adapters import AdapterFactory
+from openg2p_iam_core.user_auth.config import Settings
+from openg2p_iam_core.user_auth.oidc_client import OidcClient
 
 
-class AuthService:
+class AuthService(BaseService):
     def __init__(self, user_type: str | None = None):
         self.user_type = user_type
-        self.provider_repository = ProviderRepository()
-        self._adapters = AdapterRegistry()
+        self.provider_repository = ProviderRepository.get_component()
+        self._adapters = AdapterFactory.get_component()
+        self._transaction_store = self._get_transaction_store()
+
+    def _get_transaction_store(self):
+        config = Settings.get_config(strict=False)
+        if getattr(config, "auth_transaction_store_backend", "memory") == "redis":
+            return RedisAuthTransactionStore.get_component()
+        return AuthTransactionStore.get_component()
 
     async def get_login_providers(self) -> LoginProviderHttpResponse:
         login_providers = await self.provider_repository.get_all(user_type=self.user_type)
@@ -36,15 +47,24 @@ class AuthService:
     async def start_authentication_transaction(
         self,
         provider_id: int,
-        redirect_uri: str = "/", #TODO: Take redirect uri from login_provider
+        redirect_uri: str = "/",
     ) -> StartAuthTransactionResponse:
         login_provider = await self.provider_repository.get_by_id(provider_id)
         if not login_provider:
             raise UnauthorizedError("G2P-AUT-401", "Invalid Login Provider Id")
 
-        auth_transaction: AuthTransaction = auth_transaction_store.create(
+        redirect_uri = (
+            redirect_uri
+            or getattr(login_provider, "default_redirect_uri", None)
+            or "/"
+        )
+
+        oidc_client = OidcClient()
+        server_metadata = await oidc_client.get_server_metadata(login_provider)
+        auth_transaction: AuthTransaction = self._transaction_store.create(
             login_provider_id=login_provider.id,
             redirect_uri=redirect_uri,
+            server_metadata=server_metadata,
         )
         adapter = self._adapters.resolve_for_provider(login_provider)
         redirect_url, state = await adapter.build_authorize_redirect(
@@ -52,6 +72,7 @@ class AuthService:
             state=auth_transaction.state,
             nonce=auth_transaction.nonce,
             code_verifier=auth_transaction.code_verifier,
+            server_metadata=server_metadata,
         )
         return StartAuthTransactionResponse(redirectUrl=redirect_url, state=state)
 
@@ -62,9 +83,11 @@ class AuthService:
         keymanager_helper=None,
         **kw,
     ) -> dict:
-        auth_transaction: AuthTransaction = auth_transaction_store.get_and_pop(state_value)
+        auth_transaction: AuthTransaction = self._transaction_store.get_and_pop(state_value)
         if auth_transaction:
-            login_provider = await self.provider_repository.get_by_id(auth_transaction.login_provider_id) # TODO: Only look at db or cache
+            login_provider = await self.provider_repository.get_by_id(
+                auth_transaction.login_provider_id
+            )
             if not login_provider:
                 raise UnauthorizedError("G2P-AUT-401", "Invalid Login Provider Id")
 
@@ -74,22 +97,22 @@ class AuthService:
                 code=code,
                 code_verifier=auth_transaction.code_verifier,
                 keymanager_helper=keymanager_helper,
+                server_metadata=auth_transaction.server_metadata,
                 **kw,
             )
             await adapter.validate_callback_id_token(
                 login_provider=login_provider,
                 token_response=token_response,
                 nonce=auth_transaction.nonce,
+                server_metadata=auth_transaction.server_metadata,
             )
             return {
                 "redirect_uri": auth_transaction.redirect_uri,
                 "token_response": token_response,
             }
 
-        # TODO: Handle Legacy fallback state format support in a separate class 
-        state = orjson.loads(state_value or "{}")
-        login_provider_id = state.get("p")
-        if not login_provider_id:
+        login_provider_id, redirect_uri = LegacyStateResolver.resolve(state_value)
+        if login_provider_id is None:
             raise UnauthorizedError("G2P-AUT-401", "Login Provider Id not received")
         login_provider = await self.provider_repository.get_by_id(login_provider_id)
         if not login_provider:
@@ -100,11 +123,11 @@ class AuthService:
             login_provider=login_provider,
             code=code,
             code_verifier=None,
-            keymanager_helper=keymanager_helper, #TODO: Remove keymanager_helper from param
+            keymanager_helper=keymanager_helper,
             **kw,
         )
         return {
-            "redirect_uri": state.get("r", "/"),
+            "redirect_uri": redirect_uri,
             "token_response": token_response,
         }
 

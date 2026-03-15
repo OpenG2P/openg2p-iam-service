@@ -37,6 +37,8 @@ class LoginProvider(BaseORMModelWithTimes):
     client_private_key: Mapped[Optional[bytes]] = mapped_column(
         LargeBinary(), nullable=True
     )
+    keymanager_app_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    keymanager_ref_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     authorization_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True) #IdP URL
     userinfo_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True) # Optional URL to fetch user info from IdP.
     token_endpoint: Mapped[Optional[str]] = mapped_column(String, nullable=True) # Optional URL to fetch token from IdP.
@@ -48,6 +50,7 @@ class LoginProvider(BaseORMModelWithTimes):
     enable_pkce: Mapped[Optional[bool]] = mapped_column(Boolean(), nullable=True)
     extra_authorize_params: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     oauth_callback_url: Mapped[str] = mapped_column(String, nullable=False) # The callback URL registered with the IdP for this login provider, used in the OIDC authorization flow. This is required to be stored for each login provider as different providers may have different callback URLs registered with the IdP.
+    default_redirect_uri: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # Optional default redirect URI after login; used when the client does not send one.
 
     @classmethod
     async def get_login_provider_from_iss(cls, iss: str) -> Self:

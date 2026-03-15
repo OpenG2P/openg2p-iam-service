@@ -11,3 +11,4 @@ class AuthTransaction(BaseModel):
     redirect_uri: str
     created_at: datetime
     expires_at: datetime
+    server_metadata: dict | None = None

@@ -10,6 +10,7 @@ class OIDCInterface(ABC):
         state: str,
         nonce: str,
         code_verifier: str,
+        server_metadata: dict | None = None,
     ) -> tuple[str, str]:
         ...
 
@@ -19,6 +20,7 @@ class OIDCInterface(ABC):
         code: str | None,
         code_verifier: str | None = None,
         keymanager_helper=None,
+        server_metadata: dict | None = None,
         **kw,
     ) -> dict[str, Any]:
         ...
@@ -28,6 +30,7 @@ class OIDCInterface(ABC):
         login_provider: LoginProvider,
         token_response: dict[str, Any],
         nonce: str | None,
+        server_metadata: dict | None = None,
     ) -> None:
         ...
 

@@ -12,7 +12,7 @@ _logger = logging.getLogger(_config.logging_default_logger_name)
 
 class JWTSignatureValidator:
     jwt_validate_helper: JWTValidationHelper = (
-        JWTValidationHelper.get_cached_component()
+        JWTValidationHelper.get_component()
     )
 
     async def __call__(self, request: Request) -> bool:
