@@ -43,12 +43,10 @@ class ProviderRepository(BaseService):
                     self._by_id_cache[provider_id] = (lp, now)
                     return lp
             return None
-        if await LoginProvider.table_exists_cached():
-            lp = await LoginProvider.get_by_id(provider_id)
-            if lp is not None:
-                self._by_id_cache[provider_id] = (lp, now)
-            return lp
-        return None
+        lp = await LoginProvider.get_by_id(provider_id)
+        if lp is not None:
+            self._by_id_cache[provider_id] = (lp, now)
+        return lp
 
     async def get_by_iss(self, issuer: str) -> LoginProvider | None:
         if _config.login_providers_list:
@@ -67,9 +65,6 @@ class ProviderRepository(BaseService):
                 return providers
             normalized = user_type.lower()
             return [p for p in providers if p.user_type.value == normalized]
-
-        if not await LoginProvider.table_exists_cached():
-            return []
 
         if user_type:
             return await LoginProvider.get_by_user_type(user_type)
