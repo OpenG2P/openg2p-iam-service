@@ -30,11 +30,6 @@ class JwtBearerAuth(HTTPBearer):
         if not api_auth_settings.enabled:
             return None
 
-        issuers_list = api_auth_settings.issuers or config_dict.get("auth_default_issuers", [])
-        audiences_list = api_auth_settings.audiences or config_dict.get(
-            "auth_default_audiences", []
-        )
-
         jwt_token = request.headers.get("Authorization", None) or request.cookies.get(
             "X-Access-Token", None
         )
@@ -50,8 +45,6 @@ class JwtBearerAuth(HTTPBearer):
             jwt_token=jwt_token,
             jwt_id_token=jwt_id_token,
             api_auth_settings=api_auth_settings,
-            issuers_list=issuers_list,
-            audiences_list=audiences_list,
         )
 
 

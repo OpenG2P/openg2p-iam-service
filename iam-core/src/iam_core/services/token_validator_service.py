@@ -5,6 +5,7 @@ from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import ForbiddenError, UnauthorizedError
 from openg2p_fastapi_common.service import BaseService
 
+from iam_core.models import LoginProvider
 from iam_core.schemas import AuthCredentials
 from iam_core.services.provider_repository import ProviderRepository
 from iam_core.user_auth.adapters import AdapterFactory
@@ -23,20 +24,20 @@ class TokenValidatorService(BaseService):
     @staticmethod
     def _validate_iss_aud(
         unverified_payload: dict,
-        issuers_list: list[str],
-        audiences_list: list[str],
+        login_provider: LoginProvider,
     ) -> None:
         iss = unverified_payload.get("iss")
-        aud = unverified_payload.get("aud")
-        if (not iss) or (iss not in issuers_list):
+        if (not iss) or iss != login_provider.issuer:
             raise UnauthorizedError(message=f"Unauthorized. Unknown Issuer. {iss}")
 
-        if not audiences_list:
+        audiences = login_provider.audiences_list
+        if not audiences:
             return
+        aud = unverified_payload.get("aud")
         if (
             (not aud)
-            or (isinstance(aud, list) and not set(audiences_list).issubset(set(aud)))
-            or (isinstance(aud, str) and aud not in audiences_list)
+            or (isinstance(aud, list) and not set(audiences).issubset(set(aud)))
+            or (isinstance(aud, str) and aud not in audiences)
         ):
             raise UnauthorizedError(message="Unauthorized. Unknown Audience.")
 
@@ -75,8 +76,6 @@ class TokenValidatorService(BaseService):
         jwt_token: str,
         jwt_id_token: str | None,
         api_auth_settings: ApiAuthSettings,
-        issuers_list: list[str],
-        audiences_list: list[str],
     ) -> AuthCredentials:
         try:
             unverified_payload = jose_jwt.get_unverified_claims(jwt_token)
@@ -85,11 +84,12 @@ class TokenValidatorService(BaseService):
                 message=f"Unauthorized. Jwt expired. {repr(e)}"
             ) from e
 
-        self._validate_iss_aud(unverified_payload, issuers_list, audiences_list)
         iss = unverified_payload.get("iss")
         login_provider = await self._get_login_provider_db_by_iss(iss)
         if not login_provider:
             raise UnauthorizedError(message=f"Unauthorized. Unknown Issuer. {iss}")
+
+        self._validate_iss_aud(unverified_payload, login_provider)
         adapter = self._adapters.resolve_for_provider(login_provider)
 
         validation_mode = api_auth_settings.validation_mode or "jwt"

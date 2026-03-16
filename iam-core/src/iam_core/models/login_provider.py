@@ -1,3 +1,4 @@
+import json
 import sys
 from enum import Enum
 
@@ -46,14 +47,22 @@ class LoginProvider(BaseORMModelWithTimes):
     scope: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     enable_pkce: Mapped[Optional[bool]] = mapped_column(Boolean(), nullable=True)
     extra_authorize_params: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    issuer: Mapped[str] = mapped_column(String, nullable=False)  # Canonical OIDC issuer URL
+    audiences: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # JSON-encoded list of allowed audiences
     oauth_callback_url: Mapped[str] = mapped_column(String, nullable=False) # The callback URL registered with the IdP for this login provider, used in the OIDC authorization flow. This is required to be stored for each login provider as different providers may have different callback URLs registered with the IdP.
     default_redirect_uri: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # Optional default redirect URI after login; used when the client does not send one.
+
+    @property
+    def audiences_list(self) -> list[str]:
+        if not self.audiences:
+            return []
+        return json.loads(self.audiences)
 
     @classmethod
     async def get_login_provider_from_iss(cls, iss: str) -> Self:
         providers = await cls.get_all()
         for lp in providers:
-            if iss in (lp.token_endpoint or "") or iss in (lp.authorization_endpoint or ""):
+            if lp.issuer == iss:
                 return lp
         return None
 

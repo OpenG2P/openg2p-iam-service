@@ -1,3 +1,4 @@
+import json
 import types
 
 import pytest
@@ -39,6 +40,9 @@ async def test_token_validator_hybrid_mode_merges_claims():
             client_id="client",
             client_secret="secret",
             token_endpoint_auth_method="client_secret_post",
+            issuer="https://issuer",
+            audiences=json.dumps(["portal"]),
+            audiences_list=["portal"],
         )
 
     async def mock_introspection(*args, **kwargs):
@@ -67,8 +71,6 @@ async def test_token_validator_hybrid_mode_merges_claims():
             claim_name="roles",
             claim_values=["staff"],
         ),
-        issuers_list=["https://issuer"],
-        audiences_list=["portal"],
     )
     assert result.user_type == "staff"
     assert result.sub == "u-1"
@@ -89,6 +91,9 @@ async def test_token_validator_claim_gate_rejects_mismatch():
             client_id="client",
             client_secret="secret",
             token_endpoint_auth_method="client_secret_post",
+            issuer="https://issuer",
+            audiences=json.dumps(["portal"]),
+            audiences_list=["portal"],
         )
 
     async def mock_decode(*args, **kwargs):
@@ -115,6 +120,4 @@ async def test_token_validator_claim_gate_rejects_mismatch():
                 claim_name="roles",
                 claim_values=["agent"],
             ),
-            issuers_list=["https://issuer"],
-            audiences_list=["portal"],
         )
