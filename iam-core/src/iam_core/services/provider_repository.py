@@ -54,9 +54,7 @@ class ProviderRepository(BaseService):
                 if issuer == provider.get("iss"):
                     return self._provider_from_config(provider)
             return None
-        if await LoginProvider.table_exists_cached():
-            return await LoginProvider.get_login_provider_from_iss(issuer)
-        return None
+        return await LoginProvider.get_login_provider_from_iss(issuer)
 
     async def get_all(self, user_type: str | None = None) -> list[LoginProvider]:
         if _config.login_providers_list:
