@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 import httpx
 from authlib.integrations.httpx_client import AsyncOAuth2Client
+from authlib.oauth2.rfc7636 import create_s256_code_challenge
 from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import InternalServerError, UnauthorizedError
 
@@ -122,7 +123,7 @@ class OidcClient:
             "response_type": "code",
         }
         if login_provider.enable_pkce:
-            params["code_verifier"] = code_verifier
+            params["code_challenge"] = create_s256_code_challenge(code_verifier)
             params["code_challenge_method"] = "S256"
         params.update(extra_authorize_params)
         return async_oauth2_client.create_authorization_url(auth_endpoint, **params)
