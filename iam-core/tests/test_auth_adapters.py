@@ -1,8 +1,8 @@
 import pytest
 from fastapi import Request
 from openg2p_fastapi_common.errors.http_exceptions import ForbiddenError
-from openg2p_iam_core.schemas import AuthCredentials
-from openg2p_iam_core.user_auth.auth.implementations import (
+from iam_core.schemas import AuthCredentials
+from iam_core.user_auth.auth.implementations import (
     AgentKeycloakAuth,
     BeneficiaryEsignetAuth,
     StaffKeycloakAuth,

@@ -45,7 +45,7 @@ jobs:
           echo VERSION=$VERSION >> $GITHUB_ENV
 
           docker build . \
-            --file Dockerfile \
+            --file ${{ matrix.iam_api }}/Dockerfile \
             --build-arg IAM_API=${{ matrix.iam_api }} \
             --tag $IMAGE_ID:$VERSION
           if [[ '${{ secrets.docker_hub_token }}' != '' && '${{ secrets.docker_hub_actor }}' != '' ]]; then

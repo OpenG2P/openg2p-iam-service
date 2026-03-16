@@ -19,6 +19,8 @@ dependencies = [
   "openg2p-fastapi-common",
   "cryptography >=41.0.4",
   "python-jose >=3.3.0",
+  "Authlib",
+  "redis >= 4.2",
 ]
 dynamic = ["version"]
 
@@ -29,4 +31,4 @@ Repository = "https://github.com/OpenG2P/openg2p-iam"
 Source = "https://github.com/OpenG2P/openg2p-iam"
 
 [tool.hatch.version]
-path = "src/openg2p_iam_core/__init__.py"
+path = "src/iam_core/__init__.py"
