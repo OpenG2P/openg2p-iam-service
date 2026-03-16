@@ -57,8 +57,16 @@ class AuthController(BaseController):
         return auth.model_dump(exclude={"credentials", "raw_claims"})
 
     async def logout(self, response: Response):
-        response.delete_cookie("X-Access-Token")
-        response.delete_cookie("X-ID-Token")
+        response.delete_cookie(
+            "X-Access-Token",
+            path=_config.auth_cookie_path,
+            domain=_config.auth_cookie_domain,
+        )
+        response.delete_cookie(
+            "X-ID-Token",
+            path=_config.auth_cookie_path,
+            domain=_config.auth_cookie_domain,
+        )
 
     async def get_login_providers(self):
         return await self.auth_service.get_login_providers()
@@ -96,6 +104,7 @@ class AuthController(BaseController):
             max_age=_config.auth_cookie_max_age,
             expires=expires_in,
             path=_config.auth_cookie_path,
+            domain=_config.auth_cookie_domain,
             httponly=_config.auth_cookie_httponly,
             secure=_config.auth_cookie_secure,
         )
@@ -105,6 +114,7 @@ class AuthController(BaseController):
             max_age=_config.auth_cookie_max_age,
             expires=expires_in,
             path=_config.auth_cookie_path,
+            domain=_config.auth_cookie_domain,
             httponly=_config.auth_cookie_httponly,
             secure=_config.auth_cookie_secure,
         )
