@@ -34,6 +34,7 @@ class Settings(BaseSettings):
 
     auth_cookie_max_age: int | None = None
     auth_cookie_set_expires: bool = False
+    auth_cookie_domain: str | None = None
     auth_cookie_path: str = "/"
     auth_cookie_httponly: bool = True
     auth_cookie_secure: bool = True
