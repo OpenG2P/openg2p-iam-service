@@ -4,7 +4,7 @@ from openg2p_fastapi_common.service import BaseService
 
 from openg2p_iam_core.models import LoginProvider
 from openg2p_iam_core.user_auth.oidc_client import OidcClient
-from .interface import OIDCInterface
+from .oidc_interface import OIDCInterface
 
 
 class OIDCBase(BaseService, OIDCInterface):

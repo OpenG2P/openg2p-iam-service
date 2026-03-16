@@ -1,4 +1,5 @@
-from typing import Any, ABC
+from abc import ABC
+from typing import Any
 
 from openg2p_iam_core.models import LoginProvider
 

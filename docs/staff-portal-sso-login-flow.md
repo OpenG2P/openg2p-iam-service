@@ -321,7 +321,8 @@ Current provider model fields (`login_providers`) in `iam-core`:
   - `jwks_uri`
   - `jwt_assertion_aud`
   - `client_secret`
-  - `client_private_key`
+  - `keymanager_app_id`
+  - `keymanager_ref_id`
   - `scope`
   - `enable_pkce`
   - `extra_authorize_params`
