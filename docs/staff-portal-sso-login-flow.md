@@ -1,8 +1,4 @@
-# Staff Portal Login and SSO Flow 
-
-## Purpose
-
-This document explains how staff login works in the current Authlib-first IAM setup, with endpoint contracts and SSO behavior across OpenG2P services (for example, Registry and PBMS).
+# Staff Portal Login and SSO Flow
 
 ---
 
@@ -21,16 +17,16 @@ This document explains how staff login works in the current Authlib-first IAM se
 ## Main components
 
 - Staff controller:
-  - `iam-staff-portal-api/src/openg2p_iam_staff_api/controllers/auth_controller.py`
+  - `iam-staff-portal-api/src/iam_staff_portal_api/controllers/auth_controller.py`
 - Core orchestration:
-  - `iam-core/src/openg2p_iam_core/services/auth_facade.py` (class `AuthService`)
+  - `iam-core/src/iam_core/services/auth_facade.py` (class `AuthService`)
 - Provider lookup:
-  - `iam-core/src/openg2p_iam_core/services/provider_repository.py`
+  - `iam-core/src/iam_core/services/provider_repository.py`
 - OIDC/Authlib integration:
-  - `iam-core/src/openg2p_iam_core/user_auth/oidc_service.py`
+  - `iam-core/src/iam_core/user_auth/oidc_service.py`
 - Token validation dependency:
-  - `iam-core/src/openg2p_iam_core/user_auth/dependencies.py`
-  - `iam-core/src/openg2p_iam_core/services/token_validator_service.py`
+  - `iam-core/src/iam_core/user_auth/dependencies.py`
+  - `iam-core/src/iam_core/services/token_validator_service.py`
 
 ---
 
@@ -197,7 +193,7 @@ Use one parent domain like `.openg2p.org` so browser sends cookies to:
 Add a cookie domain config in settings (example):
 
 ```python
-# iam-core/src/openg2p_iam_core/user_auth/config.py
+# iam-core/src/iam_core/user_auth/config.py
 class Settings(BaseSettings):
     ...
     auth_cookie_domain: str | None = None  # e.g. ".openg2p.org"
@@ -268,7 +264,7 @@ const res = await fetch("https://pbms.example.net/api/protected", {
 So no validator change is required for header mode.
 
 ```python
-# iam-core/src/openg2p_iam_core/user_auth/dependencies.py
+# iam-core/src/iam_core/user_auth/dependencies.py
 jwt_token = request.headers.get("Authorization", None) or request.cookies.get(
     "X-Access-Token", None
 )
@@ -330,7 +326,7 @@ Current provider model fields (`login_providers`) in `iam-core`:
 
 ## 2) Common auth settings
 
-From `iam-core/src/openg2p_iam_core/user_auth/config.py`:
+From `iam-core/src/iam_core/user_auth/config.py`:
 
 - `auth_enabled`
 - `auth_default_issuers`

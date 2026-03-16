@@ -2,7 +2,7 @@
 
 # ruff: noqa: I001
 
-from openg2p_iam_agent_api.app import Initializer
+from iam_agent_portal_api.app import Initializer
 from openg2p_fastapi_common.ping import PingInitializer
 
 initializer = Initializer()

@@ -6,8 +6,8 @@ from .config import Settings
 
 _config = Settings.get_config()
 
-from openg2p_iam_core.models import LoginProvider
-from openg2p_iam_core.user_auth.app import Initializer as AuthInitializer
+from iam_core.models import LoginProvider
+from iam_core.user_auth.app import Initializer as AuthInitializer
 
 from .controllers.auth_controller import AuthController
 

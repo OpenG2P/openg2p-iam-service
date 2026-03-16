@@ -11,6 +11,7 @@ _logger = logging.getLogger(_config.logging_default_logger_name)
 
 class JWTValidationHelper(BaseService):
     def __init__(self):
+        super().__init__()
         self.crypto_helper = CryptoHelper.get_component()
 
     async def verify_jwt(self, orig_jwt: str, payload: dict, **kw) -> bool:

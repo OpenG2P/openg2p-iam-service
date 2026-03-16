@@ -4,8 +4,8 @@ from datetime import datetime, timedelta, timezone
 
 from openg2p_fastapi_common.service import BaseService
 
-from openg2p_iam_core.schemas import AuthTransaction
-from openg2p_iam_core.user_auth.config import Settings
+from iam_core.schemas import AuthTransaction
+from iam_core.user_auth.config import Settings
 
 _config = Settings.get_config(strict=False)
 REDIS_KEY_PREFIX = "auth_tx:"
@@ -15,6 +15,7 @@ class RedisAuthTransactionStore(BaseService):
     """Redis-backed auth transaction store with TTL. Same API as AuthTransactionStore."""
 
     def __init__(self, ttl_seconds: int = 300, redis_url: str | None = None):
+        super().__init__()
         self._ttl = ttl_seconds
         self._redis_url = redis_url or getattr(
             _config, "auth_redis_url", "redis://localhost:6379/0"

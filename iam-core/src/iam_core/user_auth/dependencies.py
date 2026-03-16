@@ -7,8 +7,8 @@ from openg2p_fastapi_common.errors.http_exceptions import (
     UnauthorizedError,
 )
 
-from openg2p_iam_core.schemas import AuthCredentials, AuthPrincipal
-from openg2p_iam_core.services.token_validator_service import TokenValidatorService
+from iam_core.schemas import AuthCredentials, AuthPrincipal
+from iam_core.services.token_validator_service import TokenValidatorService
 
 from .config import ApiAuthSettings, Settings
 

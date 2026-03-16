@@ -3,13 +3,14 @@ from datetime import datetime, timedelta, timezone
 
 from openg2p_fastapi_common.service import BaseService
 
-from openg2p_iam_core.schemas import AuthTransaction
+from iam_core.schemas import AuthTransaction
 
 
 class AuthTransactionStore(BaseService):
     """In-memory transaction store with TTL. Use RedisAuthTransactionStore for production.""" 
 
     def __init__(self, ttl_seconds: int = 300):
+        super().__init__()
         self._store: dict[str, AuthTransaction] = {}
         self._ttl = ttl_seconds
 

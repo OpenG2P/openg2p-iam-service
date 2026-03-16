@@ -1,4 +1,4 @@
-from openg2p_iam_core.models import LoginProvider
+from iam_core.models import LoginProvider
 
 
 def pkce_kwargs(login_provider: LoginProvider, code_verifier: str | None) -> dict:

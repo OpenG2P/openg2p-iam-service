@@ -3,9 +3,9 @@ import types
 import pytest
 from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import ForbiddenError
-from openg2p_iam_core.services.token_validator_service import TokenValidatorService
-from openg2p_iam_core.user_auth.config import ApiAuthSettings
-from openg2p_iam_core.user_auth.dependencies import claim_in, require_user_type
+from iam_core.services.token_validator_service import TokenValidatorService
+from iam_core.user_auth.config import ApiAuthSettings
+from iam_core.user_auth.dependencies import claim_in, require_user_type
 
 
 @pytest.mark.asyncio

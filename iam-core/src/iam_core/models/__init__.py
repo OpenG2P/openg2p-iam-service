@@ -1,1 +1,1 @@
-from .login_provider import LoginProvider
+from .login_provider import LoginProvider, UserTypeEnum

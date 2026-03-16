@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from openg2p_iam_core.user_auth.config import Settings as BaseSettings
+from iam_core.user_auth.config import Settings as BaseSettings
 from pydantic import model_validator
 from pydantic_settings import SettingsConfigDict
 

@@ -5,14 +5,15 @@ from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import ForbiddenError, UnauthorizedError
 from openg2p_fastapi_common.service import BaseService
 
-from openg2p_iam_core.schemas import AuthCredentials
-from openg2p_iam_core.services.provider_repository import ProviderRepository
-from openg2p_iam_core.user_auth.adapters import AdapterFactory
-from openg2p_iam_core.user_auth.config import ApiAuthSettings
+from iam_core.schemas import AuthCredentials
+from iam_core.services.provider_repository import ProviderRepository
+from iam_core.user_auth.adapters import AdapterFactory
+from iam_core.user_auth.config import ApiAuthSettings
 
 
 class TokenValidatorService(BaseService):
     def __init__(self):
+        super().__init__()
         self._providers = ProviderRepository.get_component()
         self._adapters = AdapterFactory.get_component()
 

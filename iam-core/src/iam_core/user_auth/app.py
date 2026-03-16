@@ -6,15 +6,15 @@ _config = Settings.get_config()
 
 from openg2p_fastapi_common.app import Initializer as BaseInitializer
 
-from openg2p_iam_core.services.provider_repository import ProviderRepository
-from openg2p_iam_core.services.auth_transaction_store import AuthTransactionStore
-from openg2p_iam_core.services.redis_auth_transaction_store import RedisAuthTransactionStore
-from openg2p_iam_core.services.token_validator_service import TokenValidatorService
-from openg2p_iam_core.user_auth.adapters.oidc_base import OIDCBase
-from openg2p_iam_core.user_auth.adapters.implementations.keycloak_adapter import KeycloakAdapter
-from openg2p_iam_core.user_auth.adapters.implementations.esignet_adapter import EsignetAdapter
-from openg2p_iam_core.user_auth.adapters.registry import AdapterFactory
-from openg2p_iam_core.partner_auth.jwt_validation_helper import JWTValidationHelper
+from iam_core.services.provider_repository import ProviderRepository
+from iam_core.services.auth_transaction_store import AuthTransactionStore
+from iam_core.services.redis_auth_transaction_store import RedisAuthTransactionStore
+from iam_core.services.token_validator_service import TokenValidatorService
+from iam_core.user_auth.adapters.oidc_base import OIDCBase
+from iam_core.user_auth.adapters.implementations.keycloak_adapter import KeycloakAdapter
+from iam_core.user_auth.adapters.implementations.esignet_adapter import EsignetAdapter
+from iam_core.user_auth.adapters.registry import AdapterFactory
+from iam_core.partner_auth.jwt_validation_helper import JWTValidationHelper
 
 
 class Initializer(BaseInitializer):

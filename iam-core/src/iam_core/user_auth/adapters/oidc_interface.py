@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Any
 
-from openg2p_iam_core.models import LoginProvider
+from iam_core.models import LoginProvider
 
 
 class OIDCInterface(ABC):

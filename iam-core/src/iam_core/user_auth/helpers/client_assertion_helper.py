@@ -2,8 +2,8 @@ from datetime import datetime, timedelta, timezone
 
 from openg2p_fastapi_common.errors.http_exceptions import InternalServerError
 
-from openg2p_iam_core.models import LoginProvider
-from openg2p_iam_core.schemas import TokenEndpointAuthMethod
+from iam_core.models import LoginProvider
+from iam_core.schemas import TokenEndpointAuthMethod
 
 
 async def generate_client_assertion(

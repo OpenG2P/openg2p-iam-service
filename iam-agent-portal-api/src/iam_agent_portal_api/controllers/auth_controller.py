@@ -4,13 +4,13 @@ from fastapi import Depends, Request, Response
 from fastapi.responses import RedirectResponse
 from openg2p_fastapi_common.controller import BaseController
 from datetime import datetime, timedelta, timezone
-from openg2p_iam_core.schemas import (
+from iam_core.schemas import (
     AuthPrincipal,
     LoginProviderHttpResponse,
     StartAuthTransactionResponse,
 )
-from openg2p_iam_core.services import AuthService
-from openg2p_iam_core.user_auth.dependencies import auth_principal, require_user_type
+from iam_core.services import AuthService
+from iam_core.user_auth.dependencies import auth_principal, require_user_type
 
 from ..config import Settings
 

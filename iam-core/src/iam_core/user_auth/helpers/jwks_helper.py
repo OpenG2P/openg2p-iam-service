@@ -3,8 +3,8 @@ import logging
 import httpx
 from openg2p_fastapi_common.errors.http_exceptions import InternalServerError
 
-from openg2p_iam_core.context import jwks_cache
-from openg2p_iam_core.user_auth.config import Settings
+from iam_core.context import jwks_cache
+from iam_core.user_auth.config import Settings
 
 _config = Settings.get_config(strict=False)
 _logger = logging.getLogger(_config.logging_default_logger_name)

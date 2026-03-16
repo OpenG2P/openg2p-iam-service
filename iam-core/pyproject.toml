@@ -31,4 +31,4 @@ Repository = "https://github.com/OpenG2P/openg2p-iam"
 Source = "https://github.com/OpenG2P/openg2p-iam"
 
 [tool.hatch.version]
-path = "src/openg2p_iam_core/__init__.py"
+path = "src/iam_core/__init__.py"

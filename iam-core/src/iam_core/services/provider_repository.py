@@ -3,9 +3,9 @@ import time
 
 from openg2p_fastapi_common.service import BaseService
 
-from openg2p_iam_core.models import LoginProvider, UserTypeEnum
-from openg2p_iam_core.schemas import TokenEndpointAuthMethod
-from openg2p_iam_core.user_auth.config import Settings
+from iam_core.models import LoginProvider, UserTypeEnum
+from iam_core.schemas import TokenEndpointAuthMethod
+from iam_core.user_auth.config import Settings
 
 _config = Settings.get_config(strict=False)
 _CACHE_TTL_SECONDS = 60
@@ -13,6 +13,7 @@ _CACHE_TTL_SECONDS = 60
 
 class ProviderRepository(BaseService):
     def __init__(self):
+        super().__init__()
         self._by_id_cache: dict[int, tuple[LoginProvider, float]] = {}
 
     @staticmethod

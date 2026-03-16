@@ -7,9 +7,9 @@ from authlib.integrations.httpx_client import AsyncOAuth2Client
 from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import InternalServerError, UnauthorizedError
 
-from openg2p_iam_core.context import server_metadata_cache
-from openg2p_iam_core.models import LoginProvider
-from openg2p_iam_core.schemas import TokenEndpointAuthMethod
+from iam_core.context import server_metadata_cache
+from iam_core.models import LoginProvider
+from iam_core.schemas import TokenEndpointAuthMethod
 
 from .config import Settings
 from .helpers import decode_jwt as jwt_decode

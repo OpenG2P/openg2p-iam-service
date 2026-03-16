@@ -2,13 +2,14 @@ from typing import Any
 
 from openg2p_fastapi_common.service import BaseService
 
-from openg2p_iam_core.models import LoginProvider
-from openg2p_iam_core.user_auth.oidc_client import OidcClient
+from iam_core.models import LoginProvider
+from iam_core.user_auth.oidc_client import OidcClient
 from .oidc_interface import OIDCInterface
 
 
 class OIDCBase(BaseService, OIDCInterface):
     def __init__(self, oidc_client: OidcClient | None = None):
+        super().__init__()
         self.oidc_client = oidc_client or OidcClient()
 
     async def build_authorize_redirect(

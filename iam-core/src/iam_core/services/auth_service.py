@@ -2,23 +2,24 @@ from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import UnauthorizedError
 from openg2p_fastapi_common.service import BaseService
 
-from openg2p_iam_core.schemas import (
+from iam_core.schemas import (
     LoginProviderHttpResponse,
     LoginProviderResponse,
     StartAuthTransactionResponse,
     AuthTransaction,
 )
-from openg2p_iam_core.services.auth_transaction_store import AuthTransactionStore
-from openg2p_iam_core.services.legacy_state_resolver import LegacyStateResolver
-from openg2p_iam_core.services.provider_repository import ProviderRepository
-from openg2p_iam_core.services.redis_auth_transaction_store import RedisAuthTransactionStore
-from openg2p_iam_core.user_auth.adapters import AdapterFactory
-from openg2p_iam_core.user_auth.config import Settings
-from openg2p_iam_core.user_auth.oidc_client import OidcClient
+from iam_core.services.auth_transaction_store import AuthTransactionStore
+from iam_core.services.legacy_state_resolver import LegacyStateResolver
+from iam_core.services.provider_repository import ProviderRepository
+from iam_core.services.redis_auth_transaction_store import RedisAuthTransactionStore
+from iam_core.user_auth.adapters import AdapterFactory
+from iam_core.user_auth.config import Settings
+from iam_core.user_auth.oidc_client import OidcClient
 
 
 class AuthService(BaseService):
     def __init__(self, user_type: str | None = None):
+        super().__init__()
         self.user_type = user_type
         self.provider_repository = ProviderRepository.get_component()
         self._adapters = AdapterFactory.get_component()

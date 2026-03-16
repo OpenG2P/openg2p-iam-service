@@ -3,7 +3,7 @@ import logging
 from authlib.jose import JsonWebKey, jwt
 from openg2p_fastapi_common.errors.http_exceptions import UnauthorizedError
 
-from openg2p_iam_core.user_auth.config import Settings
+from iam_core.user_auth.config import Settings
 
 _config = Settings.get_config(strict=False)
 _logger = logging.getLogger(_config.logging_default_logger_name)
