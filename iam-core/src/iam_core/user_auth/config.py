@@ -4,6 +4,8 @@ from openg2p_fastapi_common.config import Settings as BaseSettings
 from pydantic import BaseModel
 from pydantic_settings import SettingsConfigDict
 
+from .. import __version__
+
 
 class ApiAuthSettings(BaseModel):
     enabled: bool = False
@@ -18,6 +20,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="common_", env_file=".env", extra="allow", env_nested_delimiter="__"
     )
+
+    openapi_title: str = "OpenG2P IAM Service"
+    openapi_version: str = __version__
 
     auth_enabled: bool = True
 
