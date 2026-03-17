@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import Depends, Request, Response
 from fastapi.responses import RedirectResponse
@@ -22,6 +22,7 @@ from ..models import (
     StaffRole,
     StaffRoleAction,
 )
+from ..schemas import ApplicationActionResponse, StaffPortalApplicationResponse
 
 _config = Settings.get_config(strict=False)
 
@@ -53,11 +54,13 @@ class AuthController(BaseController):
         self.router.add_api_route(
             "/get_staff_portal_applications",
             self.get_staff_portal_applications,
+            response_model=List[StaffPortalApplicationResponse],
             methods=["GET"],
         )
         self.router.add_api_route(
             "/get_application_actions_for_user",
             self.get_application_actions_for_user,
+            response_model=List[ApplicationActionResponse],
             methods=["GET"],
         )
 
@@ -133,7 +136,7 @@ class AuthController(BaseController):
             AuthPrincipal,
             Depends(require_user_type("staff", auth_dependency=auth_principal)),
         ],
-    ):
+    ) -> List[StaffPortalApplicationResponse]:
         apps = await StaffPortalApplication.get_all()
         return [
             {
@@ -141,6 +144,7 @@ class AuthController(BaseController):
                 "application_mnemonic": app.application_mnemonic,
                 "application_description": app.application_description,
                 "icon_base64": app.icon_base64,
+                "width": app.width,
             }
             for app in apps
         ]
@@ -151,7 +155,7 @@ class AuthController(BaseController):
             AuthPrincipal,
             Depends(require_user_type("staff", auth_dependency=auth_principal)),
         ],
-    ):
+    ) -> List[ApplicationActionResponse]:
         client_roles = auth.client_roles or {}
         if not client_roles:
             return []
