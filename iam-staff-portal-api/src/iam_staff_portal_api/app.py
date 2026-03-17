@@ -6,10 +6,18 @@ from .config import Settings
 
 _config = Settings.get_config()
 
+print("DB datasource:", _config.db_datasource)
+
 from iam_core.models import LoginProvider
 from iam_core.user_auth.app import Initializer as AuthInitializer
 
 from .controllers.auth_controller import AuthController
+from .models import (
+    StaffApplicationAction,
+    StaffPortalApplication,
+    StaffRole,
+    StaffRoleAction,
+)
 
 
 class Initializer(AuthInitializer):
@@ -23,5 +31,9 @@ class Initializer(AuthInitializer):
 
         async def migrate():
             await LoginProvider.create_migrate()
+            await StaffPortalApplication.create_migrate()
+            await StaffRole.create_migrate()
+            await StaffApplicationAction.create_migrate()
+            await StaffRoleAction.create_migrate()
 
         asyncio.run(migrate())
