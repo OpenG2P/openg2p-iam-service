@@ -9,8 +9,8 @@ WORKDIR /app
 
 # Core IAM dependencies from the openg2p-iam-service repo
 RUN pip install --no-cache-dir openg2p-fastapi-common==1.1.4 \
-    && pip install --no-cache-dir "git+https://github.com/psnappz/openg2p-iam-service@${IAM_REF}#subdirectory=iam-core" \
-    && pip install --no-cache-dir "git+https://github.com/psnappz/openg2p-iam-service@${IAM_REF}#subdirectory=iam-staff-portal-api"
+    && pip install --no-cache-dir "git+https://github.com/openg2p/openg2p-iam-service@${IAM_REF}#subdirectory=iam-core" \
+    && pip install --no-cache-dir "git+https://github.com/openg2p/openg2p-iam-service@${IAM_REF}#subdirectory=iam-staff-portal-api"
 
 RUN apk del --no-network .build-deps
 
