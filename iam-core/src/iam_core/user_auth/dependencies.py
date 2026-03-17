@@ -67,6 +67,18 @@ def _extract_roles(claims: dict) -> list[str]:
     return sorted(realm_roles | client_roles)
 
 
+def _extract_client_roles(claims: dict) -> dict[str, list[str]] | None:
+    resource_access = claims.get("resource_access") or {}
+    if not resource_access:
+        return None
+    result = {}
+    for client, value in resource_access.items():
+        roles = (value or {}).get("roles") or []
+        if roles:
+            result[client] = sorted(roles)
+    return result or None
+
+
 def _resolve_user_type(claims: dict) -> str | None:
     return claims.get("user_type") or claims.get("userType")
 
@@ -85,6 +97,7 @@ async def auth_principal(
         iat=claims.get("iat"),
         exp=claims.get("exp"),
         roles=_extract_roles(claims),
+        client_roles=_extract_client_roles(claims),
         provider=claims.get("identity_provider") or claims.get("iss"),
         raw_claims=claims,
     )
