@@ -16,5 +16,6 @@ class AuthPrincipal(BaseModel):
     iat: datetime | None = None
     exp: datetime | None = None
     roles: list[str] = Field(default_factory=list)
+    client_roles: dict[str, list[str]] | None = None
     provider: str | None = None
     raw_claims: dict[str, Any] = Field(default_factory=dict)
