@@ -16,7 +16,7 @@ jobs:
       matrix:
         iam_api:
           - iam-staff-portal-api
-          - iam-agency-portal-api
+          - iam-agent-portal-api
           - iam-bene-portal-api
     env:
       NAMESPACE: ${{ secrets.docker_hub_organisation || 'openg2p' }}
