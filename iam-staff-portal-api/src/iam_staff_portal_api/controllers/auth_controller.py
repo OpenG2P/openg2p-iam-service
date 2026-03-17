@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import Depends, Request, Response
 from fastapi.responses import RedirectResponse
 from datetime import datetime, timedelta, timezone
+from openg2p_fastapi_common.context import dbengine
 from openg2p_fastapi_common.controller import BaseController
 from iam_core.schemas import (
     AuthPrincipal,
@@ -11,8 +12,16 @@ from iam_core.schemas import (
 )
 from iam_core.services import AuthService
 from iam_core.user_auth.dependencies import auth_principal, require_user_type
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from ..config import Settings
+from ..models import (
+    StaffApplicationAction,
+    StaffPortalApplication,
+    StaffRole,
+    StaffRoleAction,
+)
 
 _config = Settings.get_config(strict=False)
 
@@ -41,6 +50,16 @@ class AuthController(BaseController):
             methods=["POST"],
         )
         self.router.add_api_route("/callback", self.oauth_callback, methods=["GET"])
+        self.router.add_api_route(
+            "/get_staff_portal_applications",
+            self.get_staff_portal_applications,
+            methods=["GET"],
+        )
+        self.router.add_api_route(
+            "/get_application_actions_for_user",
+            self.get_application_actions_for_user,
+            methods=["GET"],
+        )
 
     async def get_user_profile(
         self,
@@ -107,3 +126,93 @@ class AuthController(BaseController):
             secure=_config.auth_cookie_secure,
         )
         return response
+
+    async def get_staff_portal_applications(
+        self,
+        auth: Annotated[
+            AuthPrincipal,
+            Depends(require_user_type("staff", auth_dependency=auth_principal)),
+        ],
+    ):
+        apps = await StaffPortalApplication.get_all()
+        return [
+            {
+                "id": app.id,
+                "application_mnemonic": app.application_mnemonic,
+                "application_description": app.application_description,
+                "icon_base64": app.icon_base64,
+            }
+            for app in apps
+        ]
+
+    async def get_application_actions_for_user(
+        self,
+        auth: Annotated[
+            AuthPrincipal,
+            Depends(require_user_type("staff", auth_dependency=auth_principal)),
+        ],
+    ):
+        client_roles = auth.client_roles or {}
+        if not client_roles:
+            return []
+
+        result = []
+        async_session = async_sessionmaker(dbengine.get())
+        async with async_session() as session:
+            for client_id, roles in client_roles.items():
+                # Find the application by mnemonic (= Keycloak client_id)
+                stmt = select(StaffPortalApplication).where(
+                    StaffPortalApplication.application_mnemonic == client_id,
+                    StaffPortalApplication.active == True,  # noqa: E712
+                )
+                app_row = (await session.execute(stmt)).scalars().first()
+                if not app_row:
+                    continue
+
+                # Find role IDs matching the token roles for this application
+                role_stmt = select(StaffRole).where(
+                    StaffRole.application_id == app_row.id,
+                    StaffRole.role_mnemonic.in_(roles),
+                    StaffRole.active == True,  # noqa: E712
+                )
+                role_rows = (await session.execute(role_stmt)).scalars().all()
+                role_ids = [r.id for r in role_rows]
+
+                if not role_ids:
+                    continue
+
+                # Get action IDs mapped to those roles
+                mapping_stmt = select(StaffRoleAction.action_id).where(
+                    StaffRoleAction.role_id.in_(role_ids),
+                    StaffRoleAction.active == True,  # noqa: E712
+                )
+                action_ids = (
+                    (await session.execute(mapping_stmt)).scalars().all()
+                )
+
+                if not action_ids:
+                    continue
+
+                # Get the action details
+                action_stmt = select(StaffApplicationAction).where(
+                    StaffApplicationAction.id.in_(action_ids),
+                    StaffApplicationAction.active == True,  # noqa: E712
+                )
+                action_rows = (
+                    (await session.execute(action_stmt)).scalars().all()
+                )
+
+                actions = sorted(
+                    set(a.action_mnemonic for a in action_rows)
+                )
+
+                if actions:
+                    result.append(
+                        {
+                            "application_id": app_row.id,
+                            "application_mnemonic": app_row.application_mnemonic,
+                            "actions": actions,
+                        }
+                    )
+
+        return result

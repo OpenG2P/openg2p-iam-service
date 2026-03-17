@@ -1,0 +1,13 @@
+from typing import Optional
+
+from openg2p_fastapi_common.models import BaseORMModelWithTimes
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+
+
+class StaffPortalApplication(BaseORMModelWithTimes):
+    __tablename__ = "staff_portal_applications"
+
+    application_mnemonic: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    application_description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    icon_base64: Mapped[Optional[str]] = mapped_column(String, nullable=True)
