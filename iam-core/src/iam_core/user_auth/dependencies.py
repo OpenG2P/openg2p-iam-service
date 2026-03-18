@@ -75,6 +75,8 @@ def _resolve_user_type(claims: dict) -> str | None:
 async def auth_principal(
     auth: Annotated[AuthCredentials, Depends(JwtBearerAuth())],
 ) -> AuthPrincipal:
+    if auth is None:
+        return AuthPrincipal(credentials="")
     claims = auth.model_dump()
     return AuthPrincipal(
         scheme=auth.scheme,
