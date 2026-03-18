@@ -36,7 +36,9 @@ class AuthController(BaseController):
         self.router.tags += ["/auth"]
         self.auth_service = AuthService(user_type=self.user_type)
 
-        self.router.add_api_route("/get_user_profile", self.get_user_profile, methods=["GET"])
+        self.router.add_api_route(
+            "/get_user_profile", self.get_user_profile, methods=["GET"]
+        )
         self.router.add_api_route("/logout", self.logout, methods=["POST"])
         self.router.add_api_route(
             "/get_login_providers",
@@ -139,22 +141,18 @@ class AuthController(BaseController):
     ) -> List[StaffPortalApplicationResponse]:
         client_roles = auth.client_roles or {}
         allowed_mnemonics = list(client_roles.keys())
-        if not allowed_mnemonics:
-            return []
 
         async_session = async_sessionmaker(dbengine.get())
         async with async_session() as session:
             stmt = (
                 select(StaffPortalApplication)
-                .where(
-                    StaffPortalApplication.application_mnemonic.in_(allowed_mnemonics),
-                    StaffPortalApplication.active == True,  # noqa: E712
-                )
+                .where(StaffPortalApplication.active == True)
                 .order_by(
                     StaffPortalApplication.order.asc().nullslast(),
                     StaffPortalApplication.id.asc(),
                 )
             )
+
             apps = (await session.execute(stmt)).scalars().all()
 
         return [
@@ -165,7 +163,12 @@ class AuthController(BaseController):
                 "icon_base64": app.icon_base64,
                 "width": app.width,
                 "order": app.order,
-                "application_url": app.application_url,
+                "disabled": app.application_mnemonic not in allowed_mnemonics,
+                "application_url": (
+                    app.application_url
+                    if app.application_mnemonic in allowed_mnemonics
+                    else None
+                ),
             }
             for app in apps
         ]
@@ -211,9 +214,7 @@ class AuthController(BaseController):
                     StaffRoleAction.role_id.in_(role_ids),
                     StaffRoleAction.active == True,  # noqa: E712
                 )
-                action_ids = (
-                    (await session.execute(mapping_stmt)).scalars().all()
-                )
+                action_ids = (await session.execute(mapping_stmt)).scalars().all()
 
                 if not action_ids:
                     continue
@@ -223,13 +224,9 @@ class AuthController(BaseController):
                     StaffApplicationAction.id.in_(action_ids),
                     StaffApplicationAction.active == True,  # noqa: E712
                 )
-                action_rows = (
-                    (await session.execute(action_stmt)).scalars().all()
-                )
+                action_rows = (await session.execute(action_stmt)).scalars().all()
 
-                actions = sorted(
-                    set(a.action_mnemonic for a in action_rows)
-                )
+                actions = sorted(set(a.action_mnemonic for a in action_rows))
 
                 if actions:
                     result.append(
