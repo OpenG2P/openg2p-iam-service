@@ -71,7 +71,7 @@ class AuthController(BaseController):
             Depends(require_user_type("staff", auth_dependency=auth_principal)),
         ],
     ):
-        return auth.model_dump(exclude={"credentials", "raw_claims"})
+        return auth.model_dump(exclude={"credentials"})
 
     async def logout(self, response: Response):
         response.delete_cookie(
@@ -137,7 +137,26 @@ class AuthController(BaseController):
             Depends(require_user_type("staff", auth_dependency=auth_principal)),
         ],
     ) -> List[StaffPortalApplicationResponse]:
-        apps = await StaffPortalApplication.get_all()
+        client_roles = auth.client_roles or {}
+        allowed_mnemonics = list(client_roles.keys())
+        if not allowed_mnemonics:
+            return []
+
+        async_session = async_sessionmaker(dbengine.get())
+        async with async_session() as session:
+            stmt = (
+                select(StaffPortalApplication)
+                .where(
+                    StaffPortalApplication.application_mnemonic.in_(allowed_mnemonics),
+                    StaffPortalApplication.active == True,  # noqa: E712
+                )
+                .order_by(
+                    StaffPortalApplication.order.asc().nullslast(),
+                    StaffPortalApplication.id.asc(),
+                )
+            )
+            apps = (await session.execute(stmt)).scalars().all()
+
         return [
             {
                 "id": app.id,
@@ -145,6 +164,7 @@ class AuthController(BaseController):
                 "application_description": app.application_description,
                 "icon_base64": app.icon_base64,
                 "width": app.width,
+                "order": app.order,
             }
             for app in apps
         ]

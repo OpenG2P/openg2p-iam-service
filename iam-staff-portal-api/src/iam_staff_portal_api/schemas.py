@@ -7,6 +7,7 @@ class StaffPortalApplicationResponse(BaseModel):
     application_description: Optional[str] = None
     icon_base64: Optional[str] = None
     width: Optional[int] = None
+    order: Optional[int] = None
 
 class ApplicationActionResponse(BaseModel):
     application_id: int
