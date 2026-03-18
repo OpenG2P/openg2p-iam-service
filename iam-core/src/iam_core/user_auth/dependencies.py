@@ -49,22 +49,11 @@ class JwtBearerAuth(HTTPBearer):
 
 
 def _claims_from_auth(auth: Any) -> dict:
-    if hasattr(auth, "raw_claims") and auth.raw_claims:
-        return auth.raw_claims
     if hasattr(auth, "model_dump"):
         return auth.model_dump()
     if isinstance(auth, dict):
         return auth
     return {}
-
-
-def _extract_roles(claims: dict) -> list[str]:
-    realm_roles = set((claims.get("realm_access") or {}).get("roles") or [])
-    resource_access = claims.get("resource_access") or {}
-    client_roles = set()
-    for value in resource_access.values():
-        client_roles.update((value or {}).get("roles") or [])
-    return sorted(realm_roles | client_roles)
 
 
 def _extract_client_roles(claims: dict) -> dict[str, list[str]] | None:
@@ -86,20 +75,16 @@ def _resolve_user_type(claims: dict) -> str | None:
 async def auth_principal(
     auth: Annotated[AuthCredentials, Depends(JwtBearerAuth())],
 ) -> AuthPrincipal:
+    if auth is None:
+        return AuthPrincipal(credentials="")
     claims = auth.model_dump()
     return AuthPrincipal(
         scheme=auth.scheme,
         credentials=auth.credentials,
-        iss=claims.get("iss"),
         sub=claims.get("sub"),
         user_type=_resolve_user_type(claims),
         aud=claims.get("aud"),
-        iat=claims.get("iat"),
-        exp=claims.get("exp"),
-        roles=_extract_roles(claims),
         client_roles=_extract_client_roles(claims),
-        provider=claims.get("identity_provider") or claims.get("iss"),
-        raw_claims=claims,
     )
 
 

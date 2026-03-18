@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import Depends, Request, Response
 from fastapi.responses import RedirectResponse
@@ -22,6 +22,7 @@ from ..models import (
     StaffRole,
     StaffRoleAction,
 )
+from ..schemas import ApplicationActionResponse, StaffPortalApplicationResponse
 
 _config = Settings.get_config(strict=False)
 
@@ -53,11 +54,13 @@ class AuthController(BaseController):
         self.router.add_api_route(
             "/get_staff_portal_applications",
             self.get_staff_portal_applications,
+            response_model=List[StaffPortalApplicationResponse],
             methods=["GET"],
         )
         self.router.add_api_route(
             "/get_application_actions_for_user",
             self.get_application_actions_for_user,
+            response_model=List[ApplicationActionResponse],
             methods=["GET"],
         )
 
@@ -68,7 +71,7 @@ class AuthController(BaseController):
             Depends(require_user_type("staff", auth_dependency=auth_principal)),
         ],
     ):
-        return auth.model_dump(exclude={"credentials", "raw_claims"})
+        return auth.model_dump(exclude={"credentials"})
 
     async def logout(self, response: Response):
         response.delete_cookie(
@@ -133,14 +136,36 @@ class AuthController(BaseController):
             AuthPrincipal,
             Depends(require_user_type("staff", auth_dependency=auth_principal)),
         ],
-    ):
-        apps = await StaffPortalApplication.get_all()
+    ) -> List[StaffPortalApplicationResponse]:
+        client_roles = auth.client_roles or {}
+        allowed_mnemonics = list(client_roles.keys())
+        if not allowed_mnemonics:
+            return []
+
+        async_session = async_sessionmaker(dbengine.get())
+        async with async_session() as session:
+            stmt = (
+                select(StaffPortalApplication)
+                .where(
+                    StaffPortalApplication.application_mnemonic.in_(allowed_mnemonics),
+                    StaffPortalApplication.active == True,  # noqa: E712
+                )
+                .order_by(
+                    StaffPortalApplication.order.asc().nullslast(),
+                    StaffPortalApplication.id.asc(),
+                )
+            )
+            apps = (await session.execute(stmt)).scalars().all()
+
         return [
             {
                 "id": app.id,
                 "application_mnemonic": app.application_mnemonic,
                 "application_description": app.application_description,
                 "icon_base64": app.icon_base64,
+                "width": app.width,
+                "order": app.order,
+                "application_url": app.application_url,
             }
             for app in apps
         ]
@@ -151,7 +176,7 @@ class AuthController(BaseController):
             AuthPrincipal,
             Depends(require_user_type("staff", auth_dependency=auth_principal)),
         ],
-    ):
+    ) -> List[ApplicationActionResponse]:
         client_roles = auth.client_roles or {}
         if not client_roles:
             return []

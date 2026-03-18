@@ -1,4 +1,6 @@
 from iam_core.user_auth.config import Settings as BaseSettings
+from iam_core.user_auth.config import ApiAuthSettings
+
 from pydantic_settings import SettingsConfigDict
 
 
@@ -9,3 +11,4 @@ class Settings(BaseSettings):
         extra="allow",
         env_nested_delimiter="__",
     )
+    auth_api_get_staff_portal_applications: ApiAuthSettings = ApiAuthSettings(enabled=True)

@@ -29,7 +29,8 @@ async def test_staff_adapter_infers_user_type_from_roles():
     principal = await adapter.adapt(_request(), credentials)
 
     assert principal.user_type == "staff"
-    assert "staff" in principal.roles
+    assert principal.client_roles is not None
+    assert "staff-portal" in principal.client_roles
 
 
 @pytest.mark.asyncio
@@ -48,7 +49,8 @@ async def test_agent_adapter_infers_user_type_from_roles():
     principal = await adapter.adapt(_request(), credentials)
 
     assert principal.user_type == "agent"
-    assert "agent" in principal.roles
+    assert principal.client_roles is not None
+    assert "agent-portal" in principal.client_roles
 
 
 @pytest.mark.asyncio

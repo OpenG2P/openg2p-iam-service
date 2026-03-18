@@ -54,7 +54,7 @@ class AuthController(BaseController):
             Depends(require_user_type("agent", auth_dependency=auth_principal)),
         ],
     ):
-        return auth.model_dump(exclude={"credentials", "raw_claims"})
+        return auth.model_dump(exclude={"credentials"})
 
     async def logout(self, response: Response):
         response.delete_cookie(
