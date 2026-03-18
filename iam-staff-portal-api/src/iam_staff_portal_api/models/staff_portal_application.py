@@ -12,4 +12,5 @@ class StaffPortalApplication(BaseORMModelWithTimes):
     application_description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     icon_base64: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     width: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    application_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     order: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)

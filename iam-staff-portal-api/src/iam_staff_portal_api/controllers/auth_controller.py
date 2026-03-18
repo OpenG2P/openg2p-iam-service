@@ -165,6 +165,7 @@ class AuthController(BaseController):
                 "icon_base64": app.icon_base64,
                 "width": app.width,
                 "order": app.order,
+                "application_url": app.application_url,
             }
             for app in apps
         ]
