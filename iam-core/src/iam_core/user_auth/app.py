@@ -30,7 +30,6 @@ class Initializer(BaseInitializer):
         # Services
         ProviderRepository()
         AuthTransactionStore()
-        if getattr(_config, "auth_transaction_store_backend", "memory") == "redis":
-            RedisAuthTransactionStore()
+        RedisAuthTransactionStore()
         TokenValidatorService()
         JWTValidationHelper()
