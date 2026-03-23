@@ -156,3 +156,37 @@ def require_user_type(
         return auth
 
     return dependency
+
+
+def check_resource_access(
+    allowed_roles: set[str],
+    client_id: str | None = None,
+    auth_dependency: Callable | None = None,
+):
+    """Check that the user has at least one of the allowed roles in resource_access.
+
+    Args:
+        allowed_roles: Set of role/privilege/action names to check for.
+        client_id: If given, only check roles under this specific client.
+                   If None, check across all clients in resource_access.
+        auth_dependency: Upstream dependency. Defaults to auth_principal.
+    """
+
+    async def dependency(
+        auth: Annotated[Any, Depends(auth_dependency or auth_principal)],
+    ):
+        claims = _claims_from_auth(auth)
+        client_roles = claims.get("client_roles") or {}
+
+        if client_id:
+            user_roles = set(client_roles.get(client_id, []))
+        else:
+            user_roles = set()
+            for roles in client_roles.values():
+                user_roles.update(roles)
+
+        if not user_roles.intersection(allowed_roles):
+            raise ForbiddenError(message="Forbidden. Insufficient resource_access roles.")
+        return auth
+
+    return dependency
