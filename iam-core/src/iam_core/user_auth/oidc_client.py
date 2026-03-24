@@ -69,7 +69,7 @@ class OidcClient:
 
     async def get_server_metadata(self, login_provider: LoginProvider) -> dict:
         cache = server_metadata_cache.get() or {}
-        cache_key = f"lp:{login_provider.id}"
+        cache_key = f"lp:{getattr(login_provider, 'issuer', None) or login_provider.id}"
         if cache_key in cache:
             return cache[cache_key]
 
