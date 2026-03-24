@@ -151,7 +151,9 @@ def require_user_type(
         auth: Annotated[Any, Depends(auth_dependency or JwtBearerAuth())],
     ):
         claims = _claims_from_auth(auth)
+        print("Claims from auth: ", claims)
         user_type = claims.get("user_type") or claims.get("userType")
+        print("User type: ", user_type, " | Expected: ", expected)
         if user_type != expected:
             raise ForbiddenError(message="Forbidden. Invalid userType.")
         return auth
