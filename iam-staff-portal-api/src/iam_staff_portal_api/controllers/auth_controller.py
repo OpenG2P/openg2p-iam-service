@@ -63,6 +63,11 @@ class AuthController(BaseController):
             response_model=List[ApplicationActionResponse],
             methods=["GET"],
         )
+        self.router.add_api_route(
+            "/get_provider_by_issuer",
+            self.get_provider_by_issuer,
+            methods=["GET"],
+        )
 
     async def get_user_profile(
         self,
@@ -241,3 +246,6 @@ class AuthController(BaseController):
                     )
 
         return result
+
+    async def get_provider_by_issuer(self, issuer: str):
+        return await self.auth_service.get_provider_by_issuer(issuer)

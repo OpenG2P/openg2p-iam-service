@@ -154,6 +154,25 @@ class AuthService(BaseService):
             return userinfo
         return self.combine_tokens(access_token, id_token, userinfo)
 
+    async def get_provider_by_issuer(self, issuer: str) -> dict:
+        login_provider = await self.provider_repository.get_by_iss(issuer)
+        if not login_provider:
+            raise UnauthorizedError("G2P-AUT-404", "Provider not found")
+
+        return {
+            "issuer": login_provider.issuer,
+            "jwks_uri": login_provider.jwks_uri,
+            "server_metadata_url": login_provider.server_metadata_url,
+            "audiences": login_provider.audiences,
+            "adapter_name": login_provider.adapter_name,
+            "token_endpoint_auth_method": (
+                login_provider.token_endpoint_auth_method.value
+                if hasattr(login_provider.token_endpoint_auth_method, "value")
+                else login_provider.token_endpoint_auth_method
+            ),
+            "client_id": login_provider.client_id,
+        }
+
     @classmethod
     def combine_token_dicts(cls, *token_dicts) -> dict:
         response = None

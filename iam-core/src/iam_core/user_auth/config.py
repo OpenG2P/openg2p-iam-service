@@ -38,3 +38,6 @@ class Settings(BaseSettings):
 
     auth_default_id_token_verify_at_hash: bool = True
 
+    # e.g. http://localhost:8000/api/v1/iam-staff
+    auth_provider_api_url: str | None = None
+
