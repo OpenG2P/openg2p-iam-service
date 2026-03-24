@@ -1,14 +1,10 @@
-import logging
 import time
 
 from openg2p_fastapi_common.service import BaseService
 
 from iam_core.models import LoginProvider
-from iam_core.user_auth.config import ConfigLoginProvider, Settings
 
 _CACHE_TTL_SECONDS = 60
-_config = Settings.get_config(strict=False)
-_logger = logging.getLogger(_config.logging_default_logger_name)
 
 
 class ProviderRepository(BaseService):
@@ -28,24 +24,8 @@ class ProviderRepository(BaseService):
             self._by_id_cache[provider_id] = (lp, now)
         return lp
 
-    async def get_by_iss(self, issuer: str) -> LoginProvider | ConfigLoginProvider | None:
-        try:
-            result = await LoginProvider.get_login_provider_from_iss(issuer)
-            if result:
-                return result
-        except Exception:
-            _logger.debug(
-                "DB lookup for login_providers failed (table may not exist), "
-                "falling back to config-based providers."
-            )
-        return self._get_config_provider_by_iss(issuer)
-
-    @staticmethod
-    def _get_config_provider_by_iss(issuer: str) -> ConfigLoginProvider | None:
-        for provider in _config.auth_default_login_providers:
-            if provider.issuer == issuer:
-                return provider
-        return None
+    async def get_by_iss(self, issuer: str) -> LoginProvider | None:
+        return await LoginProvider.get_login_provider_from_iss(issuer)
 
     async def get_all(self, user_type: str | None = None) -> list[LoginProvider]:
         if user_type:
@@ -61,4 +41,3 @@ class ProviderRepository(BaseService):
             return json.loads(login_provider.extra_authorize_params)
         except Exception:
             return {}
-

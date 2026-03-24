@@ -1,4 +1,3 @@
-import json
 from typing import Literal
 
 from openg2p_fastapi_common.config import Settings as BaseSettings
@@ -15,22 +14,6 @@ class ApiAuthSettings(BaseModel):
     id_token_verify_at_hash: bool | None = None
     validation_mode: Literal["jwt", "introspection", "hybrid"] = "jwt"
     introspection_endpoint: str | None = None
-
-
-class ConfigLoginProvider(BaseModel):
-    """Lightweight provider config for token validation without DB."""
-
-    issuer: str
-    jwks_uri: str | None = None
-    server_metadata_url: str | None = None
-    audiences: str | None = None  # JSON-encoded list
-    adapter_name: str | None = None
-
-    @property
-    def audiences_list(self) -> list[str]:
-        if not self.audiences:
-            return []
-        return json.loads(self.audiences)
 
 
 class Settings(BaseSettings):
@@ -54,7 +37,4 @@ class Settings(BaseSettings):
     auth_redis_url: str = "redis://localhost:6379/0"
 
     auth_default_id_token_verify_at_hash: bool = True
-    auth_default_login_providers: list[ConfigLoginProvider] = []
-
-    auth_api_get_user_profile: ApiAuthSettings = ApiAuthSettings(enabled=True)
 
