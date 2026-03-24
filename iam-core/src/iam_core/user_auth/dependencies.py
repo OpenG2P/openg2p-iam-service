@@ -27,9 +27,6 @@ class JwtBearerAuth(HTTPBearer):
             config_dict.get("auth_api_" + api_call_name, {})
         )
 
-        if not api_auth_settings.enabled:
-            return None
-
         jwt_token = request.headers.get("Authorization", None) or request.cookies.get(
             "X-Access-Token", None
         )
