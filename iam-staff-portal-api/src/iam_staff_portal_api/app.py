@@ -11,7 +11,12 @@ print("DB datasource:", _config.db_datasource)
 from iam_core.models import LoginProvider
 from iam_core.user_auth.app import Initializer as AuthInitializer
 
-from .controllers.auth_controller import AuthController
+from .controllers import (
+    AuthController,
+    IdentityProviderController,
+    OAuthCallbackController,
+    UserAccessController
+)
 from .models import (
     StaffApplicationAction,
     StaffPortalApplication,
@@ -25,6 +30,9 @@ class Initializer(AuthInitializer):
         super().initialize()
 
         AuthController().post_init()
+        OAuthCallbackController().post_init()
+        UserAccessController().post_init()
+        IdentityProviderController().post_init()
 
     def migrate_database(self, args):
         super().migrate_database(args)
