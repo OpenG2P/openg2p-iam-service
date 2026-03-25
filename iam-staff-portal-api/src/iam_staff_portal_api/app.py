@@ -18,10 +18,10 @@ from .controllers import (
     UserAccessController
 )
 from .models import (
-    StaffApplicationAction,
+    StaffApplicationPermission,
     StaffPortalApplication,
     StaffRole,
-    StaffRoleAction,
+    StaffRolePermission,
 )
 
 
@@ -41,7 +41,7 @@ class Initializer(AuthInitializer):
             await LoginProvider.create_migrate()
             await StaffPortalApplication.create_migrate()
             await StaffRole.create_migrate()
-            await StaffApplicationAction.create_migrate()
-            await StaffRoleAction.create_migrate()
+            await StaffApplicationPermission.create_migrate()
+            await StaffRolePermission.create_migrate()
 
         asyncio.run(migrate())

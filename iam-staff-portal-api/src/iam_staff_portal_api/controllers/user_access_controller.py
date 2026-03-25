@@ -9,17 +9,17 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from ..models import (
-    StaffApplicationAction,
+    StaffApplicationPermission,
     StaffPortalApplication,
     StaffRole,
-    StaffRoleAction,
+    StaffRolePermission,
 )
-from ..schemas import ApplicationActionResponse, StaffPortalApplicationResponse
+from ..schemas import ApplicationPermissionResponse, StaffPortalApplicationResponse
 
 
 class UserAccessController(BaseController):
     '''
-    Controller for managing user access to staff portal applications and their associated actions.
+    Controller for managing user access to staff portal applications and their associated permissions.
     '''
     user_type = "staff"
 
@@ -35,9 +35,9 @@ class UserAccessController(BaseController):
             methods=["GET"],
         )
         self.router.add_api_route(
-            "/get_application_actions_for_user",
-            self.get_application_actions_for_user,
-            response_model=List[ApplicationActionResponse],
+            "/get_application_permissions_for_user",
+            self.get_application_permissions_for_user,
+            response_model=List[ApplicationPermissionResponse],
             methods=["GET"],
         )
 
@@ -81,13 +81,13 @@ class UserAccessController(BaseController):
             for app in apps
         ]
 
-    async def get_application_actions_for_user(
+    async def get_application_permissions_for_user(
         self,
         auth: Annotated[
             AuthPrincipal,
             Depends(require_user_type("staff", auth_dependency=auth_principal)),
         ],
-    ) -> List[ApplicationActionResponse]:
+    ) -> List[ApplicationPermissionResponse]:
         client_roles = auth.client_roles or {}
         if not client_roles:
             return []
@@ -117,31 +117,31 @@ class UserAccessController(BaseController):
                 if not role_ids:
                     continue
 
-                # Get action IDs mapped to those roles.
-                mapping_stmt = select(StaffRoleAction.action_id).where(
-                    StaffRoleAction.role_id.in_(role_ids),
-                    StaffRoleAction.active == True,  # noqa: E712
+                # Get permission IDs mapped to those roles.
+                mapping_stmt = select(StaffRolePermission.permission_id).where(
+                    StaffRolePermission.role_id.in_(role_ids),
+                    StaffRolePermission.active == True,  # noqa: E712
                 )
-                action_ids = (await session.execute(mapping_stmt)).scalars().all()
+                permission_ids = (await session.execute(mapping_stmt)).scalars().all()
 
-                if not action_ids:
+                if not permission_ids:
                     continue
 
-                # Get the action details.
-                action_stmt = select(StaffApplicationAction).where(
-                    StaffApplicationAction.id.in_(action_ids),
-                    StaffApplicationAction.active == True,  # noqa: E712
+                # Get the permission details.
+                permission_stmt = select(StaffApplicationPermission).where(
+                    StaffApplicationPermission.id.in_(permission_ids),
+                    StaffApplicationPermission.active == True,  # noqa: E712
                 )
-                action_rows = (await session.execute(action_stmt)).scalars().all()
+                permission_rows = (await session.execute(permission_stmt)).scalars().all()
 
-                actions = sorted(set(a.action_mnemonic for a in action_rows))
+                permissions = sorted(set(p.permission_mnemonic for p in permission_rows))
 
-                if actions:
+                if permissions:
                     result.append(
                         {
                             "application_id": app_row.id,
                             "application_mnemonic": app_row.application_mnemonic,
-                            "actions": actions,
+                            "permissions": permissions,
                         }
                     )
 
