@@ -12,7 +12,7 @@ class StaffPortalApplicationResponse(BaseModel):
     order: Optional[int] = None
     disabled: bool
 
-class ApplicationActionResponse(BaseModel):
+class ApplicationPermissionResponse(BaseModel):
     application_id: int
     application_mnemonic: str
-    actions: List[str]
+    permissions: List[str]

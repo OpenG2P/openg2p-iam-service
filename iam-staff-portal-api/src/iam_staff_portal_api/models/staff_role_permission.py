@@ -3,8 +3,8 @@ from sqlalchemy import Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
 
-class StaffRoleAction(BaseORMModelWithTimes):
-    __tablename__ = "staff_role_actions"
+class StaffRolePermission(BaseORMModelWithTimes):
+    __tablename__ = "staff_role_permissions"
 
     role_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    action_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    permission_id: Mapped[int] = mapped_column(Integer, nullable=False)

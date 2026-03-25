@@ -173,18 +173,43 @@ def check_resource_access(
     async def dependency(
         auth: Annotated[Any, Depends(auth_dependency or auth_principal)],
     ):
-        claims = _claims_from_auth(auth)
-        client_roles = claims.get("client_roles") or {}
-
-        if client_id:
-            user_roles = set(client_roles.get(client_id, []))
-        else:
-            user_roles = set()
-            for roles in client_roles.values():
-                user_roles.update(roles)
-
-        if not user_roles.intersection(allowed_roles):
-            raise ForbiddenError(message="Forbidden. Insufficient resource_access roles.")
-        return auth
+        return enforce_resource_access(
+            auth=auth,
+            allowed_roles=allowed_roles,
+            client_id=client_id,
+        )
 
     return dependency
+
+
+def enforce_resource_access(
+    auth: Any,
+    allowed_roles: set[str],
+    client_id: str | None = None,
+):
+    """Enforce role access using normalized ``client_roles`` claims.
+
+    Args:
+        auth: Auth payload or principal-like object that can be converted to claims.
+        allowed_roles: Required role names.
+        client_id: If set, enforce roles under this specific client id.
+
+    Returns:
+        The original auth object when authorized.
+
+    Raises:
+        ForbiddenError: If the roles do not intersect with required roles.
+    """
+    claims = _claims_from_auth(auth)
+    client_roles = claims.get("client_roles") or {}
+
+    if client_id:
+        user_roles = set(client_roles.get(client_id, []))
+    else:
+        user_roles = set()
+        for roles in client_roles.values():
+            user_roles.update(roles)
+
+    if not user_roles.intersection(allowed_roles):
+        raise ForbiddenError(message="Forbidden. Insufficient resource_access roles.")
+    return auth
