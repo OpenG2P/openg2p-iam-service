@@ -3,6 +3,9 @@ from openg2p_fastapi_common.controller import BaseController
 
 
 class IdentityProviderController(BaseController):
+    '''
+    Controller for identity provider-related endpoints, such as retrieving information about configured identity providers.
+    '''
     user_type = "staff"
 
     def __init__(self, **kwargs):

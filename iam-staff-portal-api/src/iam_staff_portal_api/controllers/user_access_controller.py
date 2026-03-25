@@ -18,6 +18,9 @@ from ..schemas import ApplicationActionResponse, StaffPortalApplicationResponse
 
 
 class UserAccessController(BaseController):
+    '''
+    Controller for managing user access to staff portal applications and their associated actions.
+    '''
     user_type = "staff"
 
     def __init__(self, **kwargs):

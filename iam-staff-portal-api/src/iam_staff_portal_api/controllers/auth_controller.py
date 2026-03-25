@@ -16,6 +16,9 @@ _config = Settings.get_config(strict=False)
 
 
 class AuthController(BaseController):
+    '''
+    Controller for authentication-related endpoints, such as retrieving user profile information and handling login/logout.
+    '''
     user_type = "staff"
 
     def __init__(self, **kwargs):
