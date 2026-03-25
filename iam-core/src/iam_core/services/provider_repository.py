@@ -89,7 +89,7 @@ class ProviderRepository(BaseService):
             )
             return None
 
-        url = f"{api_url.rstrip('/')}/auth/get_provider_by_issuer"
+        url = f"{api_url.rstrip('/')}/identity-providers/get_provider_by_issuer"
         try:
             async with httpx.AsyncClient(timeout=10) as client:
                 response = await client.get(url, params={"issuer": issuer})
