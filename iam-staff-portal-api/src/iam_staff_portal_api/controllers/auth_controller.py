@@ -144,17 +144,12 @@ class AuthController(BaseController):
     ) -> List[StaffPortalApplicationResponse]:
         client_roles = auth.client_roles or {}
         allowed_mnemonics = list(client_roles.keys())
-        if not allowed_mnemonics:
-            return []
 
         async_session = async_sessionmaker(dbengine.get())
         async with async_session() as session:
             stmt = (
                 select(StaffPortalApplication)
-                .where(
-                    StaffPortalApplication.application_mnemonic.in_(allowed_mnemonics),
-                    StaffPortalApplication.active == True,  # noqa: E712
-                )
+                .where(StaffPortalApplication.active == True)
                 .order_by(
                     StaffPortalApplication.order.asc().nullslast(),
                     StaffPortalApplication.id.asc(),
@@ -170,7 +165,12 @@ class AuthController(BaseController):
                 "icon_base64": app.icon_base64,
                 "width": app.width,
                 "order": app.order,
-                "application_url": app.application_url,
+                "disabled": app.application_mnemonic not in allowed_mnemonics,
+                "application_url": (
+                    app.application_url
+                    if app.application_mnemonic in allowed_mnemonics
+                    else None
+                ),
             }
             for app in apps
         ]

@@ -77,6 +77,7 @@ async def auth_principal(
     claims = auth.model_dump()
     return AuthPrincipal(
         scheme=auth.scheme,
+        name=auth.name,
         credentials=auth.credentials,
         sub=claims.get("sub"),
         user_type=_resolve_user_type(claims),
