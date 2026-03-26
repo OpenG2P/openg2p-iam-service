@@ -10,7 +10,7 @@ from starlette.routing import Match
 from .dependencies import JwtBearerAuth, auth_principal, enforce_resource_access
 from .helpers import user_auth_error_response, get_required_permissions as default_get_required_permissions
 
-class AuthorizationService(BaseHTTPMiddleware):
+class AuthMiddleware(BaseHTTPMiddleware):
     """Reusable IAM authorization middleware.
 
     Subclasses may override ``get_required_permissions`` or pass a
