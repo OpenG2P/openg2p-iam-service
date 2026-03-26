@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 
 from fastapi import Depends
 from iam_core.schemas import AuthPrincipal
@@ -87,15 +87,24 @@ class UserAccessController(BaseController):
             AuthPrincipal,
             Depends(require_user_type("staff", auth_dependency=auth_principal)),
         ],
+        application_mnemonic: Optional[str] = None,
     ) -> List[ApplicationPermissionResponse]:
         client_roles = auth.client_roles or {}
         if not client_roles:
             return []
 
+        if application_mnemonic:
+            roles = client_roles.get(application_mnemonic)
+            if not roles:
+                return []
+            client_roles_items = [(application_mnemonic, roles)]
+        else:
+            client_roles_items = client_roles.items()
+
         result = []
         async_session = async_sessionmaker(dbengine.get())
         async with async_session() as session:
-            for client_id, roles in client_roles.items():
+            for client_id, roles in client_roles_items:
                 # Find the application by mnemonic (= Keycloak client_id).
                 stmt = select(StaffPortalApplication).where(
                     StaffPortalApplication.application_mnemonic == client_id,
