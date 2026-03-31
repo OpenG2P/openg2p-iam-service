@@ -2,6 +2,7 @@
 
 import asyncio
 
+
 from .config import Settings
 
 _config = Settings.get_config()
@@ -10,6 +11,7 @@ print("DB datasource:", _config.db_datasource)
 
 from iam_core.models import LoginProvider
 from iam_core.user_auth.app import Initializer as AuthInitializer
+from .cache import init_cache
 
 from .controllers import (
     AuthController,
@@ -28,6 +30,8 @@ from .models import (
 class Initializer(AuthInitializer):
     def initialize(self, **kwargs):
         super().initialize()
+
+        init_cache()
 
         AuthController().post_init()
         OAuthCallbackController().post_init()

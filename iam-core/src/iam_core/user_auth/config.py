@@ -40,4 +40,4 @@ class Settings(BaseSettings):
 
     # e.g. http://localhost:8000/api/v1/iam-staff
     auth_provider_api_url: str | None = None
-
+    keycloak_client_id: str | None = None

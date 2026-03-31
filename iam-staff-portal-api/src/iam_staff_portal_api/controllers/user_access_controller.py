@@ -1,6 +1,7 @@
 from typing import Annotated, List, Optional
 
 from fastapi import Depends
+from fastapi_cache.decorator import cache
 from iam_core.schemas import AuthPrincipal
 from iam_core.user_auth.dependencies import auth_principal, require_user_type
 from openg2p_fastapi_common.context import dbengine
@@ -8,14 +9,22 @@ from openg2p_fastapi_common.controller import BaseController
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
+from ..config import Settings
 from ..models import (
     StaffApplicationPermission,
     StaffPortalApplication,
     StaffRole,
     StaffRolePermission,
 )
-from ..schemas import ApplicationPermissionResponse, StaffPortalApplicationResponse
+from ..schemas import (
+    ApplicationPermissionResponse,
+    GetPermissionsForRolesRequest,
+    PermissionsResponse,
+    StaffPortalApplicationResponse,
+)
 
+
+_config = Settings.get_config(strict=False)
 
 class UserAccessController(BaseController):
     '''
@@ -39,6 +48,12 @@ class UserAccessController(BaseController):
             self.get_application_permissions_for_user,
             response_model=List[ApplicationPermissionResponse],
             methods=["GET"],
+        )
+        self.router.add_api_route(
+            "/get_permissions_for_roles",
+            self.get_permissions_for_roles,
+            response_model=PermissionsResponse,
+            methods=["POST"],
         )
 
     async def get_staff_portal_applications(
@@ -155,3 +170,47 @@ class UserAccessController(BaseController):
                     )
 
         return result
+
+    async def get_permissions_for_roles(
+        self,
+        request: GetPermissionsForRolesRequest,
+    ) -> PermissionsResponse:
+        permissions: List[str] = []
+
+        for role_mnemonic in request.role_mnemonics:
+            permissions.extend(
+                await self.get_permission_mnemonics_for_role(role_mnemonic)
+            )
+
+        return PermissionsResponse(permissions=sorted(set(permissions)))
+
+    @cache(expire=_config.cache_expire_seconds)
+    async def get_permission_mnemonics_for_role(
+        self,
+        role_mnemonic: str,
+    ) -> List[str]:
+        async_session = async_sessionmaker(dbengine.get())
+        async with async_session() as session:
+            role_stmt = select(StaffRole).where(
+                StaffRole.role_mnemonic == role_mnemonic,
+                StaffRole.active == True,  # noqa: E712
+            )
+            role = (await session.execute(role_stmt)).scalars().first()
+
+            if not role:
+                return []
+
+            mapping_stmt = select(StaffRolePermission.permission_id).where(
+                StaffRolePermission.role_id == role.id,
+                StaffRolePermission.active == True,  # noqa: E712
+            )
+            permission_ids = (await session.execute(mapping_stmt)).scalars().all()
+
+            if not permission_ids:
+                return []
+
+            permission_stmt = select(StaffApplicationPermission.permission_mnemonic).where(
+                StaffApplicationPermission.id.in_(permission_ids),
+                StaffApplicationPermission.active == True,  # noqa: E712
+            )
+            return (await session.execute(permission_stmt)).scalars().all()
