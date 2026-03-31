@@ -2,10 +2,12 @@ from collections.abc import Callable
 from typing import Any
 
 from fastapi import Request
+from fastapi.security import HTTPAuthorizationCredentials
 from openg2p_fastapi_common.errors.base_exception import BaseAppException
 from openg2p_fastapi_common.errors.http_exceptions import ForbiddenError
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.routing import Match
+from ..schemas import AuthPrincipal
 
 from .dependencies import JwtBearerAuth, auth_principal, enforce_resource_access
 from .helpers import user_auth_error_response, get_required_permissions as default_get_required_permissions
@@ -67,8 +69,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
             if required_roles and not client_id:
                 raise ForbiddenError(message="Forbidden. keycloak_client_id is not configured.")
 
-            auth_credentials = await self._auth_scheme(request)
-            principal = await auth_principal(auth_credentials)
+            auth_credentials: HTTPAuthorizationCredentials | None = await self._auth_scheme(request)
+            principal: AuthPrincipal = await auth_principal(auth_credentials)
 
             if required_roles:
                 enforce_resource_access(
