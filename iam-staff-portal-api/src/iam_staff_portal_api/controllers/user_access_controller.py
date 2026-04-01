@@ -9,6 +9,7 @@ from openg2p_fastapi_common.controller import BaseController
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
+from ..cache import role_cache_key
 from ..config import Settings
 from ..models import (
     StaffApplicationPermission,
@@ -184,7 +185,7 @@ class UserAccessController(BaseController):
 
         return PermissionsResponse(permissions=sorted(set(permissions)))
 
-    @cache(expire=_config.cache_expire_seconds)
+    @cache(expire=_config.cache_expire_seconds, key_builder=role_cache_key)
     async def get_permission_mnemonics_for_role(
         self,
         role_mnemonic: str,
