@@ -1158,5 +1158,29 @@
     "updated_at": "2026-03-26 06:55:07.402958",
     "id": 145,
     "active": true
+  },
+  {
+    "role_id": 2,
+    "permission_id": 66,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 146,
+    "active": true
+  },
+  {
+    "role_id": 6,
+    "permission_id": 64,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 147,
+    "active": true
+  },
+  {
+    "role_id": 6,
+    "permission_id": 65,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 148,
+    "active": true
   }
 ]
