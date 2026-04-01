@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from fastapi import Request
-from fastapi.responses import ORJSONResponse
 from openg2p_fastapi_common.errors.base_exception import BaseAppException
 from openg2p_fastapi_common.schemas import (
     G2PResponse,
@@ -9,9 +8,10 @@ from openg2p_fastapi_common.schemas import (
     G2PResponseHeader,
     G2PResponseStatus,
 )
+from starlette.responses import JSONResponse
 
 
-def user_auth_error_response(request: Request, exc: BaseAppException) -> ORJSONResponse:
+def user_auth_error_response(request: Request, exc: BaseAppException) -> JSONResponse:
     """Construct a standard G2P envelope for middleware-layer auth failures."""
     request_id = request.headers.get("x-request-id", "")
 
@@ -28,4 +28,4 @@ def user_auth_error_response(request: Request, exc: BaseAppException) -> ORJSONR
             response_payload=None,
         ),
     )
-    return ORJSONResponse(content=response.model_dump(mode="json"), status_code=exc.status_code)
+    return JSONResponse(content=response.model_dump(mode="json"), status_code=exc.status_code)
