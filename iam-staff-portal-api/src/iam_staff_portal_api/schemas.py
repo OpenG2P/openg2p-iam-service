@@ -1,6 +1,7 @@
 from typing import List, Optional
 from pydantic import BaseModel
 
+
 class StaffPortalApplicationResponse(BaseModel):
     id: int
     application_mnemonic: str
@@ -15,4 +16,10 @@ class StaffPortalApplicationResponse(BaseModel):
 class ApplicationPermissionResponse(BaseModel):
     application_id: int
     application_mnemonic: str
+    permissions: List[str]
+
+class GetPermissionsForRolesRequest(BaseModel):
+    role_mnemonics: List[str]
+
+class PermissionsResponse(BaseModel):
     permissions: List[str]
