@@ -1,0 +1,569 @@
+[
+  {
+    "permission_mnemonic": "intakeForm:create",
+    "permission_description": "intakeForm:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.308851",
+    "updated_at": "2026-03-26 06:55:07.308863",
+    "id": 1,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "intakeForm:view",
+    "permission_description": "intakeForm:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.311146",
+    "updated_at": "2026-03-26 06:55:07.311155",
+    "id": 2,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "register:view",
+    "permission_description": "register:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.31213",
+    "updated_at": "2026-03-26 06:55:07.312138",
+    "id": 3,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "changeRequest:view",
+    "permission_description": "changeRequest:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.312923",
+    "updated_at": "2026-03-26 06:55:07.31293",
+    "id": 4,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "changeRequest:approve",
+    "permission_description": "changeRequest:approve",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.313765",
+    "updated_at": "2026-03-26 06:55:07.313773",
+    "id": 5,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "changeRequest:create",
+    "permission_description": "changeRequest:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.314614",
+    "updated_at": "2026-03-26 06:55:07.314621",
+    "id": 6,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "verificationIntakeForm:create",
+    "permission_description": "verificationIntakeForm:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.315422",
+    "updated_at": "2026-03-26 06:55:07.315429",
+    "id": 7,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "verificationIntakeForm:view",
+    "permission_description": "verificationIntakeForm:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.316219",
+    "updated_at": "2026-03-26 06:55:07.316226",
+    "id": 8,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "verificationChangeRequest:view",
+    "permission_description": "verificationChangeRequest:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.317018",
+    "updated_at": "2026-03-26 06:55:07.317025",
+    "id": 9,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "verificationChangeRequest:create",
+    "permission_description": "verificationChangeRequest:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.317966",
+    "updated_at": "2026-03-26 06:55:07.317973",
+    "id": 10,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerHistory:view",
+    "permission_description": "registerHistory:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.31908",
+    "updated_at": "2026-03-26 06:55:07.319086",
+    "id": 11,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "incomingMessage:view",
+    "permission_description": "incomingMessage:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.320084",
+    "updated_at": "2026-03-26 06:55:07.32009",
+    "id": 12,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "outgoingMessage:view",
+    "permission_description": "outgoingMessage:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.321777",
+    "updated_at": "2026-03-26 06:55:07.321785",
+    "id": 13,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registryConfiguration:view",
+    "permission_description": "registryConfiguration:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.323758",
+    "updated_at": "2026-03-26 06:55:07.323765",
+    "id": 14,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registryConfiguration:edit",
+    "permission_description": "registryConfiguration:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.325178",
+    "updated_at": "2026-03-26 06:55:07.325189",
+    "id": 15,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerDefinition:view",
+    "permission_description": "registerDefinition:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.327602",
+    "updated_at": "2026-03-26 06:55:07.327617",
+    "id": 16,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerDefinition:create",
+    "permission_description": "registerDefinition:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.329259",
+    "updated_at": "2026-03-26 06:55:07.329271",
+    "id": 17,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerDefinition:edit",
+    "permission_description": "registerDefinition:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.330522",
+    "updated_at": "2026-03-26 06:55:07.33053",
+    "id": 18,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerDefinition:delete",
+    "permission_description": "registerDefinition:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.331569",
+    "updated_at": "2026-03-26 06:55:07.331576",
+    "id": 19,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerTab:view",
+    "permission_description": "registerTab:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.332412",
+    "updated_at": "2026-03-26 06:55:07.332418",
+    "id": 20,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerTab:create",
+    "permission_description": "registerTab:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.33318",
+    "updated_at": "2026-03-26 06:55:07.333186",
+    "id": 21,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerTab:edit",
+    "permission_description": "registerTab:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.334158",
+    "updated_at": "2026-03-26 06:55:07.334165",
+    "id": 22,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerTab:delete",
+    "permission_description": "registerTab:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.335136",
+    "updated_at": "2026-03-26 06:55:07.335144",
+    "id": 23,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerSection:view",
+    "permission_description": "registerSection:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.335944",
+    "updated_at": "2026-03-26 06:55:07.33595",
+    "id": 24,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerSection:create",
+    "permission_description": "registerSection:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.336834",
+    "updated_at": "2026-03-26 06:55:07.336841",
+    "id": 25,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerSection:edit",
+    "permission_description": "registerSection:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.337687",
+    "updated_at": "2026-03-26 06:55:07.337694",
+    "id": 26,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerSection:delete",
+    "permission_description": "registerSection:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.338616",
+    "updated_at": "2026-03-26 06:55:07.338622",
+    "id": 27,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "dataModel:view",
+    "permission_description": "dataModel:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.339706",
+    "updated_at": "2026-03-26 06:55:07.339716",
+    "id": 28,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "dataModel:create",
+    "permission_description": "dataModel:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.340796",
+    "updated_at": "2026-03-26 06:55:07.340804",
+    "id": 29,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "dataModel:edit",
+    "permission_description": "dataModel:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.341735",
+    "updated_at": "2026-03-26 06:55:07.341742",
+    "id": 30,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "dataModel:delete",
+    "permission_description": "dataModel:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.342815",
+    "updated_at": "2026-03-26 06:55:07.342825",
+    "id": 31,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestPartner:view",
+    "permission_description": "ingestPartner:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.343911",
+    "updated_at": "2026-03-26 06:55:07.343921",
+    "id": 32,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestPartner:create",
+    "permission_description": "ingestPartner:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.345079",
+    "updated_at": "2026-03-26 06:55:07.34509",
+    "id": 33,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestPartner:edit",
+    "permission_description": "ingestPartner:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.346302",
+    "updated_at": "2026-03-26 06:55:07.346312",
+    "id": 34,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestPartner:delete",
+    "permission_description": "ingestPartner:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.347546",
+    "updated_at": "2026-03-26 06:55:07.347556",
+    "id": 35,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestKeyPath:view",
+    "permission_description": "ingestKeyPath:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.34887",
+    "updated_at": "2026-03-26 06:55:07.348882",
+    "id": 36,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestKeyPath:create",
+    "permission_description": "ingestKeyPath:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.350165",
+    "updated_at": "2026-03-26 06:55:07.350175",
+    "id": 37,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestKeyPath:edit",
+    "permission_description": "ingestKeyPath:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.351336",
+    "updated_at": "2026-03-26 06:55:07.351345",
+    "id": 38,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestKeyPath:delete",
+    "permission_description": "ingestKeyPath:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.352479",
+    "updated_at": "2026-03-26 06:55:07.352489",
+    "id": 39,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestExpression:view",
+    "permission_description": "ingestExpression:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.353955",
+    "updated_at": "2026-03-26 06:55:07.353965",
+    "id": 40,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestExpression:create",
+    "permission_description": "ingestExpression:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.355417",
+    "updated_at": "2026-03-26 06:55:07.355429",
+    "id": 41,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestExpression:edit",
+    "permission_description": "ingestExpression:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.356778",
+    "updated_at": "2026-03-26 06:55:07.356787",
+    "id": 42,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestExpression:delete",
+    "permission_description": "ingestExpression:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.357921",
+    "updated_at": "2026-03-26 06:55:07.357931",
+    "id": 43,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestTemplate:view",
+    "permission_description": "ingestTemplate:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.35908",
+    "updated_at": "2026-03-26 06:55:07.359089",
+    "id": 44,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestTemplate:create",
+    "permission_description": "ingestTemplate:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.360165",
+    "updated_at": "2026-03-26 06:55:07.360174",
+    "id": 45,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestTemplate:edit",
+    "permission_description": "ingestTemplate:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.36126",
+    "updated_at": "2026-03-26 06:55:07.361269",
+    "id": 46,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestTemplate:delete",
+    "permission_description": "ingestTemplate:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.362418",
+    "updated_at": "2026-03-26 06:55:07.362429",
+    "id": 47,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestEnricher:view",
+    "permission_description": "ingestEnricher:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.363614",
+    "updated_at": "2026-03-26 06:55:07.363624",
+    "id": 48,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestEnricher:create",
+    "permission_description": "ingestEnricher:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.365197",
+    "updated_at": "2026-03-26 06:55:07.365206",
+    "id": 49,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestEnricher:edit",
+    "permission_description": "ingestEnricher:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.366513",
+    "updated_at": "2026-03-26 06:55:07.366524",
+    "id": 50,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "ingestEnricher:delete",
+    "permission_description": "ingestEnricher:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.367681",
+    "updated_at": "2026-03-26 06:55:07.367691",
+    "id": 51,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "outgestTemplate:view",
+    "permission_description": "outgestTemplate:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.368825",
+    "updated_at": "2026-03-26 06:55:07.368835",
+    "id": 52,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "outgestTemplate:create",
+    "permission_description": "outgestTemplate:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.369904",
+    "updated_at": "2026-03-26 06:55:07.369912",
+    "id": 53,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "outgestTemplate:edit",
+    "permission_description": "outgestTemplate:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.3709",
+    "updated_at": "2026-03-26 06:55:07.370907",
+    "id": 54,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "outgestTemplate:delete",
+    "permission_description": "outgestTemplate:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.371714",
+    "updated_at": "2026-03-26 06:55:07.37172",
+    "id": 55,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "outgestTopic:view",
+    "permission_description": "outgestTopic:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.37268",
+    "updated_at": "2026-03-26 06:55:07.37269",
+    "id": 56,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "outgestTopic:create",
+    "permission_description": "outgestTopic:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.374068",
+    "updated_at": "2026-03-26 06:55:07.374076",
+    "id": 57,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "outgestTopic:edit",
+    "permission_description": "outgestTopic:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.375509",
+    "updated_at": "2026-03-26 06:55:07.375517",
+    "id": 58,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "outgestTopic:delete",
+    "permission_description": "outgestTopic:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.376483",
+    "updated_at": "2026-03-26 06:55:07.376491",
+    "id": 59,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "referenceData:view",
+    "permission_description": "referenceData:view",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.377383",
+    "updated_at": "2026-03-26 06:55:07.37739",
+    "id": 60,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "referenceData:create",
+    "permission_description": "referenceData:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.378229",
+    "updated_at": "2026-03-26 06:55:07.378237",
+    "id": 61,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "referenceData:edit",
+    "permission_description": "referenceData:edit",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.37906",
+    "updated_at": "2026-03-26 06:55:07.379067",
+    "id": 62,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "referenceData:delete",
+    "permission_description": "referenceData:delete",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.379905",
+    "updated_at": "2026-03-26 06:55:07.379912",
+    "id": 63,
+    "active": true
+  }
+]

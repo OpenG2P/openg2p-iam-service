@@ -1,0 +1,101 @@
+[
+  {
+    "role_mnemonic": "Intake Officer",
+    "role_description": "Operations role - Handles initial data entry and submission of new records into the registry.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.381946",
+    "updated_at": "2026-03-26 06:55:07.381954",
+    "id": 1,
+    "active": true
+  },
+  {
+    "role_mnemonic": "Intake Validator",
+    "role_description": "Operations role - Validates and verifies the accuracy of newly submitted intake records before further processing.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.384384",
+    "updated_at": "2026-03-26 06:55:07.384398",
+    "id": 2,
+    "active": true
+  },
+  {
+    "role_mnemonic": "Data Editor",
+    "role_description": "Operations role - Edits and updates existing registry records as part of ongoing data maintenance.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.385691",
+    "updated_at": "2026-03-26 06:55:07.385699",
+    "id": 3,
+    "active": true
+  },
+  {
+    "role_mnemonic": "Data Validator",
+    "role_description": "Operations role - Reviews and verifies changes made to registry records to ensure correctness and compliance.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.386753",
+    "updated_at": "2026-03-26 06:55:07.38676",
+    "id": 4,
+    "active": true
+  },
+  {
+    "role_mnemonic": "Data Supervisor",
+    "role_description": "Operations role - Approves verified registry changes, making them final and officially accepted.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.387664",
+    "updated_at": "2026-03-26 06:55:07.38767",
+    "id": 5,
+    "active": true
+  },
+  {
+    "role_mnemonic": "Integration Manager",
+    "role_description": "Operations role - Manages and monitors data exchange between the registry and external systems.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.388543",
+    "updated_at": "2026-03-26 06:55:07.388549",
+    "id": 6,
+    "active": true
+  },
+  {
+    "role_mnemonic": "Operations Administrator",
+    "role_description": "Operations role - Has full operational control across the registry.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.389307",
+    "updated_at": "2026-03-26 06:55:07.389313",
+    "id": 7,
+    "active": true
+  },
+  {
+    "role_mnemonic": "Schema Designer",
+    "role_description": "Configurations role - Configures core registry settings such as domain schemas, fields, and validation rules.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.39039",
+    "updated_at": "2026-03-26 06:55:07.3904",
+    "id": 8,
+    "active": true
+  },
+  {
+    "role_mnemonic": "Integration Specialist",
+    "role_description": "Configurations role - Sets up and manages configurations for integrations with external systems and APIs.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.391574",
+    "updated_at": "2026-03-26 06:55:07.391581",
+    "id": 9,
+    "active": true
+  },
+  {
+    "role_mnemonic": "Reference Data Specialist",
+    "role_description": "Configurations role - Maintains and updates reference/master data used across the registry.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.392408",
+    "updated_at": "2026-03-26 06:55:07.392414",
+    "id": 10,
+    "active": true
+  },
+  {
+    "role_mnemonic": "Technical Administrator",
+    "role_description": "Configurations role - Has full control over all configuration aspects, including registry, integrations, and reference data.",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.393178",
+    "updated_at": "2026-03-26 06:55:07.393183",
+    "id": 11,
+    "active": true
+  }
+]
