@@ -1,4 +1,5 @@
 import json
+import logging
 from abc import ABC
 from datetime import date, datetime
 from pathlib import Path
@@ -17,6 +18,8 @@ from ..models import (
     StaffRole,
     StaffRolePermission,
 )
+
+_logger = logging.getLogger("iam-staff-data-loader")
 
 
 class DataLoaderBase(ABC):
@@ -67,7 +70,10 @@ class DataLoaderBase(ABC):
         data_dir: Path,
     ) -> None:
         if not data_dir.exists() or not data_dir.is_dir():
+            _logger.info("Skipping missing data directory: %s", data_dir)
             return
+
+        _logger.info("Loading data from %s", data_dir)
 
         for model in self.data_models:
             rows = self.load_dataset(model, data_dir)
@@ -86,6 +92,7 @@ class DataLoaderBase(ABC):
         if not rows:
             return
 
+        _logger.info("Seeding %s with %s rows", model.__tablename__, len(rows))
         await session.execute(insert(model), self.coerce_rows_for_model(model, rows))
 
     def coerce_rows_for_model(
@@ -134,10 +141,12 @@ class DataLoader(DataLoaderBase):
         loader = cls()
         session_factory = loader.create_session_factory()
 
+        _logger.info("Starting IAM staff data loader")
         async with session_factory() as session:
             await loader.load_data(session)
             await loader.load_fallback_data(session)
             await session.commit()
+        _logger.info("Completed IAM staff data loader")
 
     async def load_data(self, session: AsyncSession) -> None:
         await self.seed_models_from_dir(session, self.get_mounted_data_dir())
