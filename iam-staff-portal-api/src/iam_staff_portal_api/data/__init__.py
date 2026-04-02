@@ -1,3 +1,3 @@
-from .data_loader import DataLoader, run_data_loader
+from .data_loader import DataLoader, DataLoaderBase
 
-__all__ = ["DataLoader", "run_data_loader"]
+__all__ = ["DataLoader", "DataLoaderBase"]

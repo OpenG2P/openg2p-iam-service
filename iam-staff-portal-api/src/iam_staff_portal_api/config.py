@@ -12,4 +12,5 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
     )
     auth_api_get_staff_portal_applications: ApiAuthSettings = ApiAuthSettings(enabled=True)
-    cache_expire_seconds: int = 7*24*60*60  # 7 days in seconds
+    cache_expire_seconds: int = 7*24*60*60      # 7 days
+    data_dir: str = "/opt/iam-staff-portal-data"
