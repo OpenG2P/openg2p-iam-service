@@ -1,6 +1,6 @@
 FROM python:3.12.11-alpine3.22
 
-ARG IAM_REF=develop
+ARG IAM_REF=1.0
 
 RUN apk add --no-cache --virtual .build-deps gcc libc-dev linux-headers make \
  && apk add --no-cache bash git gettext libpq-dev libmagic
