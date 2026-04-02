@@ -25,7 +25,7 @@ from .models import (
     StaffRole,
     StaffRolePermission,
 )
-from .data import run_data_loader
+from .data import DataLoader
 
 
 class Initializer(AuthInitializer):
@@ -49,6 +49,6 @@ class Initializer(AuthInitializer):
             await StaffApplicationPermission.create_migrate()
             await StaffRolePermission.create_migrate()
 
-            await run_data_loader()
+            await DataLoader.run()
 
         asyncio.run(migrate())

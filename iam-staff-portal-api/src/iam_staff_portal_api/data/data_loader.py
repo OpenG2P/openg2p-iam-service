@@ -1,4 +1,5 @@
 import json
+from abc import ABC
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
@@ -9,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from iam_core.models import LoginProvider
 from openg2p_fastapi_common.context import dbengine
 
+from ..config import Settings
 from ..models import (
     StaffApplicationPermission,
     StaffPortalApplication,
@@ -17,116 +19,128 @@ from ..models import (
 )
 
 
-class DataLoader:
-    def __init__(self):
-        self._data_dir = Path(__file__).resolve().parent
+class DataLoaderBase(ABC):
+    data_models = (
+        LoginProvider,
+        StaffPortalApplication,
+        StaffRole,
+        StaffApplicationPermission,
+        StaffRolePermission,
+    )
 
-    def load_login_providers(self) -> list[dict[str, Any]]:
-        return self._load_dataset("login_providers.json")
+    def get_mounted_data_dir(self) -> Path:
+        return Path(Settings.get_config(strict=False).data_dir)
 
-    def load_staff_portal_applications(self) -> list[dict[str, Any]]:
-        return self._load_dataset("staff_portal_applications.json")
+    def get_fallback_data_dir(self) -> Path:
+        return Path(__file__).resolve().parent
 
-    def load_staff_roles(self) -> list[dict[str, Any]]:
-        return self._load_dataset("staff_roles.json")
+    def get_dataset_path(self, model, data_dir: Path) -> Path:
+        return data_dir / f"{model.__tablename__}.json"
 
-    def load_staff_application_permissions(self) -> list[dict[str, Any]]:
-        return self._load_dataset("staff_application_permissions.json")
-
-    def load_staff_role_permissions(self) -> list[dict[str, Any]]:
-        return self._load_dataset("staff_role_permissions.json")
-
-    def _load_dataset(
+    def load_dataset(
         self,
-        default_filename: str,
+        model,
+        data_dir: Path,
     ) -> list[dict[str, Any]]:
-        raw_value = (self._data_dir / default_filename).read_text(encoding="utf-8")
+        dataset_path = self.get_dataset_path(model, data_dir)
+        if not dataset_path.exists():
+            return []
+
+        raw_value = dataset_path.read_text(encoding="utf-8")
 
         try:
             payload = json.loads(raw_value)
         except json.JSONDecodeError as exc:
-            raise ValueError(
-                f"Invalid JSON in {default_filename}: {exc.msg}"
-            ) from exc
+            raise ValueError(f"Invalid JSON in {dataset_path}: {exc.msg}") from exc
 
         if not isinstance(payload, list):
-            raise ValueError(f"{default_filename} must be a JSON array of objects")
+            raise ValueError(f"{dataset_path} must be a JSON array of objects")
 
         if any(not isinstance(row, dict) for row in payload):
-            raise ValueError(f"{default_filename} must contain only JSON objects")
+            raise ValueError(f"{dataset_path} must contain only JSON objects")
 
         return payload
 
+    async def seed_models_from_dir(
+        self,
+        session: AsyncSession,
+        data_dir: Path,
+    ) -> None:
+        if not data_dir.exists() or not data_dir.is_dir():
+            return
 
-async def run_data_loader() -> None:
-    loader = DataLoader()
+        for model in self.data_models:
+            rows = self.load_dataset(model, data_dir)
+            await self.seed_if_empty(session, model, rows)
 
-    async_session = async_sessionmaker(dbengine.get(), expire_on_commit=False)
-    async with async_session() as session:
-        await _seed_if_empty(session, LoginProvider, loader.load_login_providers())
-        await _seed_if_empty(
-            session,
-            StaffPortalApplication,
-            loader.load_staff_portal_applications(),
-        )
-        await _seed_if_empty(session, StaffRole, loader.load_staff_roles())
-        await _seed_if_empty(
-            session,
-            StaffApplicationPermission,
-            loader.load_staff_application_permissions(),
-        )
-        await _seed_if_empty(
-            session,
-            StaffRolePermission,
-            loader.load_staff_role_permissions(),
-        )
-        await session.commit()
+    async def seed_if_empty(
+        self,
+        session: AsyncSession,
+        model,
+        rows: list[dict[str, Any]],
+    ) -> None:
+        row_count = await session.scalar(select(func.count()).select_from(model))
+        if row_count and row_count > 0:
+            return
+
+        if not rows:
+            return
+
+        await session.execute(insert(model), self.coerce_rows_for_model(model, rows))
+
+    def coerce_rows_for_model(
+        self,
+        model,
+        rows: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        datetime_columns: set[str] = set()
+        date_columns: set[str] = set()
+
+        for column in model.__table__.columns:
+            if isinstance(column.type, DateTime):
+                datetime_columns.add(column.name)
+            elif isinstance(column.type, Date):
+                date_columns.add(column.name)
+
+        coerced_rows: list[dict[str, Any]] = []
+        for row in rows:
+            coerced = dict(row)
+
+            for column_name in datetime_columns:
+                if column_name in {"created_at", "updated_at"}:
+                    coerced.pop(column_name, None)
+                    continue
+
+                value = coerced.get(column_name)
+                if isinstance(value, str):
+                    coerced[column_name] = datetime.fromisoformat(value)
+
+            for column_name in date_columns:
+                value = coerced.get(column_name)
+                if isinstance(value, str):
+                    coerced[column_name] = date.fromisoformat(value)
+
+            coerced_rows.append(coerced)
+
+        return coerced_rows
+
+    def create_session_factory(self) -> async_sessionmaker[AsyncSession]:
+        return async_sessionmaker(dbengine.get(), expire_on_commit=False)
 
 
-async def _seed_if_empty(
-    session: AsyncSession,
-    model,
-    rows: list[dict],
-) -> None:
-    row_count = await session.scalar(select(func.count()).select_from(model))
-    if row_count and row_count > 0:
-        return
+class DataLoader(DataLoaderBase):
+    @classmethod
+    async def run(cls) -> None:
+        loader = cls()
+        session_factory = loader.create_session_factory()
 
-    if not rows:
-        return
+        async with session_factory() as session:
+            await loader.load_data(session)
+            await loader.load_fallback_data(session)
+            await session.commit()
 
-    await session.execute(insert(model), _coerce_rows_for_model(model, rows))
+    async def load_data(self, session: AsyncSession) -> None:
+        await self.seed_models_from_dir(session, self.get_mounted_data_dir())
 
-
-def _coerce_rows_for_model(model, rows: list[dict]) -> list[dict]:
-    datetime_columns: set[str] = set()
-    date_columns: set[str] = set()
-
-    for column in model.__table__.columns:
-        if isinstance(column.type, DateTime):
-            datetime_columns.add(column.name)
-        elif isinstance(column.type, Date):
-            date_columns.add(column.name)
-
-    coerced_rows: list[dict] = []
-    for row in rows:
-        coerced = dict(row)
-
-        for column_name in datetime_columns:
-            # Let ORM/DB defaults populate timestamp audit fields.
-            if column_name in {"created_at", "updated_at"}:
-                coerced.pop(column_name, None)
-                continue
-
-            value = coerced.get(column_name)
-            if isinstance(value, str):
-                coerced[column_name] = datetime.fromisoformat(value)
-
-        for column_name in date_columns:
-            value = coerced.get(column_name)
-            if isinstance(value, str):
-                coerced[column_name] = date.fromisoformat(value)
-
-        coerced_rows.append(coerced)
-
-    return coerced_rows
+    async def load_fallback_data(self, session: AsyncSession) -> None:
+        await self.seed_models_from_dir(session, self.get_fallback_data_dir())
