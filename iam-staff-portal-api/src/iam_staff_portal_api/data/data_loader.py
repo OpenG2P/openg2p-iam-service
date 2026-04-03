@@ -37,6 +37,9 @@ class DataLoaderBase(ABC):
     def get_fallback_data_dir(self) -> Path:
         return Path(__file__).resolve().parent
 
+    def get_config(self) -> Settings:
+        return Settings.get_config(strict=False)
+
     def get_dataset_path(self, model, data_dir: Path) -> Path:
         return data_dir / f"{model.__tablename__}.json"
 
@@ -62,7 +65,29 @@ class DataLoaderBase(ABC):
         if any(not isinstance(row, dict) for row in payload):
             raise ValueError(f"{dataset_path} must contain only JSON objects")
 
-        return payload
+        return self.apply_config_values(model, payload)
+
+    def apply_config_values(
+        self,
+        model,
+        rows: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        if model is not StaffPortalApplication:
+            return rows
+
+        application_urls = self.get_config().data_application_urls
+        updated_rows: list[dict[str, Any]] = []
+
+        for row in rows:
+            updated_row = dict(row)
+            application_url_key = updated_row.get("application_url")
+
+            if application_url_key in application_urls:
+                updated_row["application_url"] = application_urls[application_url_key]
+
+            updated_rows.append(updated_row)
+
+        return updated_rows
 
     async def seed_models_from_dir(
         self,
