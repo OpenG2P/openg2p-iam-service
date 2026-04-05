@@ -72,9 +72,18 @@ class DataLoaderBase(ABC):
         model,
         rows: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
-        if model is not StaffPortalApplication:
-            return rows
+        if model is StaffPortalApplication:
+            return self.apply_application_url_values(rows)
 
+        if model is LoginProvider:
+            return self.apply_login_provider_values(rows)
+
+        return rows
+
+    def apply_application_url_values(
+        self,
+        rows: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
         application_urls = self.get_config().data_application_urls
         updated_rows: list[dict[str, Any]] = []
 
@@ -84,6 +93,24 @@ class DataLoaderBase(ABC):
 
             if application_url_key in application_urls:
                 updated_row["application_url"] = application_urls[application_url_key]
+
+            updated_rows.append(updated_row)
+
+        return updated_rows
+
+    def apply_login_provider_values(
+        self,
+        rows: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        client_secrets = self.get_config().data_client_secrets
+        updated_rows: list[dict[str, Any]] = []
+
+        for row in rows:
+            updated_row = dict(row)
+            client_secret_key = updated_row.get("client_secret")
+
+            if client_secret_key in client_secrets:
+                updated_row["client_secret"] = client_secrets[client_secret_key]
 
             updated_rows.append(updated_row)
 
