@@ -15,7 +15,6 @@ class Settings(BaseSettings):
     auth_api_get_staff_portal_applications: ApiAuthSettings = ApiAuthSettings(enabled=True)
     data_application_urls: dict[str, str] = Field(
         default_factory=lambda: {
-            "rancher_application_url": "https://rancher.openg2p.org",
             "keycloak_application_url": "https://keycloak.openg2p.org",
             "registry_application_url": "https://registry.openg2p.org",
             "minio_application_url": "https://minio.openg2p.org",
