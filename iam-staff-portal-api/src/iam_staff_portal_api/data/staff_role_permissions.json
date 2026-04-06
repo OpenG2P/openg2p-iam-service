@@ -1,0 +1,1210 @@
+[
+  {
+    "role_id": 1,
+    "permission_id": 1,
+    "created_at": "2026-03-26 06:55:07.402087",
+    "updated_at": "2026-03-26 06:55:07.402098",
+    "id": 1,
+    "active": true
+  },
+  {
+    "role_id": 1,
+    "permission_id": 2,
+    "created_at": "2026-03-26 06:55:07.402102",
+    "updated_at": "2026-03-26 06:55:07.402105",
+    "id": 2,
+    "active": true
+  },
+  {
+    "role_id": 2,
+    "permission_id": 2,
+    "created_at": "2026-03-26 06:55:07.402108",
+    "updated_at": "2026-03-26 06:55:07.402111",
+    "id": 3,
+    "active": true
+  },
+  {
+    "role_id": 2,
+    "permission_id": 8,
+    "created_at": "2026-03-26 06:55:07.402117",
+    "updated_at": "2026-03-26 06:55:07.402121",
+    "id": 4,
+    "active": true
+  },
+  {
+    "role_id": 2,
+    "permission_id": 7,
+    "created_at": "2026-03-26 06:55:07.402123",
+    "updated_at": "2026-03-26 06:55:07.402126",
+    "id": 5,
+    "active": true
+  },
+  {
+    "role_id": 3,
+    "permission_id": 3,
+    "created_at": "2026-03-26 06:55:07.402129",
+    "updated_at": "2026-03-26 06:55:07.402131",
+    "id": 6,
+    "active": true
+  },
+  {
+    "role_id": 3,
+    "permission_id": 11,
+    "created_at": "2026-03-26 06:55:07.402134",
+    "updated_at": "2026-03-26 06:55:07.402137",
+    "id": 7,
+    "active": true
+  },
+  {
+    "role_id": 3,
+    "permission_id": 4,
+    "created_at": "2026-03-26 06:55:07.40214",
+    "updated_at": "2026-03-26 06:55:07.402144",
+    "id": 8,
+    "active": true
+  },
+  {
+    "role_id": 3,
+    "permission_id": 6,
+    "created_at": "2026-03-26 06:55:07.402147",
+    "updated_at": "2026-03-26 06:55:07.40215",
+    "id": 9,
+    "active": true
+  },
+  {
+    "role_id": 4,
+    "permission_id": 3,
+    "created_at": "2026-03-26 06:55:07.402153",
+    "updated_at": "2026-03-26 06:55:07.402156",
+    "id": 10,
+    "active": true
+  },
+  {
+    "role_id": 4,
+    "permission_id": 11,
+    "created_at": "2026-03-26 06:55:07.402159",
+    "updated_at": "2026-03-26 06:55:07.402162",
+    "id": 11,
+    "active": true
+  },
+  {
+    "role_id": 4,
+    "permission_id": 4,
+    "created_at": "2026-03-26 06:55:07.402166",
+    "updated_at": "2026-03-26 06:55:07.402168",
+    "id": 12,
+    "active": true
+  },
+  {
+    "role_id": 4,
+    "permission_id": 9,
+    "created_at": "2026-03-26 06:55:07.402172",
+    "updated_at": "2026-03-26 06:55:07.402175",
+    "id": 13,
+    "active": true
+  },
+  {
+    "role_id": 4,
+    "permission_id": 10,
+    "created_at": "2026-03-26 06:55:07.402178",
+    "updated_at": "2026-03-26 06:55:07.402181",
+    "id": 14,
+    "active": true
+  },
+  {
+    "role_id": 5,
+    "permission_id": 3,
+    "created_at": "2026-03-26 06:55:07.402184",
+    "updated_at": "2026-03-26 06:55:07.402187",
+    "id": 15,
+    "active": true
+  },
+  {
+    "role_id": 5,
+    "permission_id": 11,
+    "created_at": "2026-03-26 06:55:07.40219",
+    "updated_at": "2026-03-26 06:55:07.402193",
+    "id": 16,
+    "active": true
+  },
+  {
+    "role_id": 5,
+    "permission_id": 4,
+    "created_at": "2026-03-26 06:55:07.402197",
+    "updated_at": "2026-03-26 06:55:07.402199",
+    "id": 17,
+    "active": true
+  },
+  {
+    "role_id": 5,
+    "permission_id": 9,
+    "created_at": "2026-03-26 06:55:07.402202",
+    "updated_at": "2026-03-26 06:55:07.402205",
+    "id": 18,
+    "active": true
+  },
+  {
+    "role_id": 6,
+    "permission_id": 12,
+    "created_at": "2026-03-26 06:55:07.402209",
+    "updated_at": "2026-03-26 06:55:07.402212",
+    "id": 19,
+    "active": true
+  },
+  {
+    "role_id": 6,
+    "permission_id": 13,
+    "created_at": "2026-03-26 06:55:07.402215",
+    "updated_at": "2026-03-26 06:55:07.402218",
+    "id": 20,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 1,
+    "created_at": "2026-03-26 06:55:07.402221",
+    "updated_at": "2026-03-26 06:55:07.402224",
+    "id": 21,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 2,
+    "created_at": "2026-03-26 06:55:07.402228",
+    "updated_at": "2026-03-26 06:55:07.40223",
+    "id": 22,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 8,
+    "created_at": "2026-03-26 06:55:07.402233",
+    "updated_at": "2026-03-26 06:55:07.402236",
+    "id": 23,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 7,
+    "created_at": "2026-03-26 06:55:07.402239",
+    "updated_at": "2026-03-26 06:55:07.402242",
+    "id": 24,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 3,
+    "created_at": "2026-03-26 06:55:07.402245",
+    "updated_at": "2026-03-26 06:55:07.402247",
+    "id": 25,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 11,
+    "created_at": "2026-03-26 06:55:07.40225",
+    "updated_at": "2026-03-26 06:55:07.402253",
+    "id": 26,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 4,
+    "created_at": "2026-03-26 06:55:07.402256",
+    "updated_at": "2026-03-26 06:55:07.402258",
+    "id": 27,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 6,
+    "created_at": "2026-03-26 06:55:07.402261",
+    "updated_at": "2026-03-26 06:55:07.402264",
+    "id": 28,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 9,
+    "created_at": "2026-03-26 06:55:07.402267",
+    "updated_at": "2026-03-26 06:55:07.40227",
+    "id": 29,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 10,
+    "created_at": "2026-03-26 06:55:07.402273",
+    "updated_at": "2026-03-26 06:55:07.402276",
+    "id": 30,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 12,
+    "created_at": "2026-03-26 06:55:07.402279",
+    "updated_at": "2026-03-26 06:55:07.402282",
+    "id": 31,
+    "active": true
+  },
+  {
+    "role_id": 7,
+    "permission_id": 13,
+    "created_at": "2026-03-26 06:55:07.402285",
+    "updated_at": "2026-03-26 06:55:07.402288",
+    "id": 32,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 14,
+    "created_at": "2026-03-26 06:55:07.402292",
+    "updated_at": "2026-03-26 06:55:07.402295",
+    "id": 33,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 15,
+    "created_at": "2026-03-26 06:55:07.402298",
+    "updated_at": "2026-03-26 06:55:07.402301",
+    "id": 34,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 16,
+    "created_at": "2026-03-26 06:55:07.402304",
+    "updated_at": "2026-03-26 06:55:07.402307",
+    "id": 35,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 17,
+    "created_at": "2026-03-26 06:55:07.40231",
+    "updated_at": "2026-03-26 06:55:07.402312",
+    "id": 36,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 18,
+    "created_at": "2026-03-26 06:55:07.402315",
+    "updated_at": "2026-03-26 06:55:07.402318",
+    "id": 37,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 19,
+    "created_at": "2026-03-26 06:55:07.40232",
+    "updated_at": "2026-03-26 06:55:07.402324",
+    "id": 38,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 20,
+    "created_at": "2026-03-26 06:55:07.402327",
+    "updated_at": "2026-03-26 06:55:07.40233",
+    "id": 39,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 21,
+    "created_at": "2026-03-26 06:55:07.402333",
+    "updated_at": "2026-03-26 06:55:07.402336",
+    "id": 40,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 22,
+    "created_at": "2026-03-26 06:55:07.402339",
+    "updated_at": "2026-03-26 06:55:07.402341",
+    "id": 41,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 23,
+    "created_at": "2026-03-26 06:55:07.402345",
+    "updated_at": "2026-03-26 06:55:07.402348",
+    "id": 42,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 24,
+    "created_at": "2026-03-26 06:55:07.402351",
+    "updated_at": "2026-03-26 06:55:07.402354",
+    "id": 43,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 25,
+    "created_at": "2026-03-26 06:55:07.402358",
+    "updated_at": "2026-03-26 06:55:07.402361",
+    "id": 44,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 26,
+    "created_at": "2026-03-26 06:55:07.402364",
+    "updated_at": "2026-03-26 06:55:07.402366",
+    "id": 45,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 27,
+    "created_at": "2026-03-26 06:55:07.402372",
+    "updated_at": "2026-03-26 06:55:07.402375",
+    "id": 46,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 28,
+    "created_at": "2026-03-26 06:55:07.402378",
+    "updated_at": "2026-03-26 06:55:07.402381",
+    "id": 47,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 29,
+    "created_at": "2026-03-26 06:55:07.402384",
+    "updated_at": "2026-03-26 06:55:07.402387",
+    "id": 48,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 30,
+    "created_at": "2026-03-26 06:55:07.40239",
+    "updated_at": "2026-03-26 06:55:07.402393",
+    "id": 49,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 31,
+    "created_at": "2026-03-26 06:55:07.402395",
+    "updated_at": "2026-03-26 06:55:07.402398",
+    "id": 50,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 32,
+    "created_at": "2026-03-26 06:55:07.402401",
+    "updated_at": "2026-03-26 06:55:07.402403",
+    "id": 51,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 33,
+    "created_at": "2026-03-26 06:55:07.402406",
+    "updated_at": "2026-03-26 06:55:07.40241",
+    "id": 52,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 34,
+    "created_at": "2026-03-26 06:55:07.402412",
+    "updated_at": "2026-03-26 06:55:07.402415",
+    "id": 53,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 35,
+    "created_at": "2026-03-26 06:55:07.402418",
+    "updated_at": "2026-03-26 06:55:07.402421",
+    "id": 54,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 36,
+    "created_at": "2026-03-26 06:55:07.402424",
+    "updated_at": "2026-03-26 06:55:07.402427",
+    "id": 55,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 37,
+    "created_at": "2026-03-26 06:55:07.40243",
+    "updated_at": "2026-03-26 06:55:07.402433",
+    "id": 56,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 38,
+    "created_at": "2026-03-26 06:55:07.402436",
+    "updated_at": "2026-03-26 06:55:07.402438",
+    "id": 57,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 39,
+    "created_at": "2026-03-26 06:55:07.402441",
+    "updated_at": "2026-03-26 06:55:07.402443",
+    "id": 58,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 40,
+    "created_at": "2026-03-26 06:55:07.402446",
+    "updated_at": "2026-03-26 06:55:07.402449",
+    "id": 59,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 41,
+    "created_at": "2026-03-26 06:55:07.402451",
+    "updated_at": "2026-03-26 06:55:07.402456",
+    "id": 60,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 42,
+    "created_at": "2026-03-26 06:55:07.402459",
+    "updated_at": "2026-03-26 06:55:07.402462",
+    "id": 61,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 43,
+    "created_at": "2026-03-26 06:55:07.402465",
+    "updated_at": "2026-03-26 06:55:07.402468",
+    "id": 62,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 44,
+    "created_at": "2026-03-26 06:55:07.402471",
+    "updated_at": "2026-03-26 06:55:07.402474",
+    "id": 63,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 45,
+    "created_at": "2026-03-26 06:55:07.402477",
+    "updated_at": "2026-03-26 06:55:07.402479",
+    "id": 64,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 46,
+    "created_at": "2026-03-26 06:55:07.402482",
+    "updated_at": "2026-03-26 06:55:07.402485",
+    "id": 65,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 47,
+    "created_at": "2026-03-26 06:55:07.402487",
+    "updated_at": "2026-03-26 06:55:07.40249",
+    "id": 66,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 48,
+    "created_at": "2026-03-26 06:55:07.402493",
+    "updated_at": "2026-03-26 06:55:07.402496",
+    "id": 67,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 49,
+    "created_at": "2026-03-26 06:55:07.402499",
+    "updated_at": "2026-03-26 06:55:07.402502",
+    "id": 68,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 50,
+    "created_at": "2026-03-26 06:55:07.402505",
+    "updated_at": "2026-03-26 06:55:07.402508",
+    "id": 69,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 51,
+    "created_at": "2026-03-26 06:55:07.402511",
+    "updated_at": "2026-03-26 06:55:07.402514",
+    "id": 70,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 52,
+    "created_at": "2026-03-26 06:55:07.402517",
+    "updated_at": "2026-03-26 06:55:07.402521",
+    "id": 71,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 53,
+    "created_at": "2026-03-26 06:55:07.402524",
+    "updated_at": "2026-03-26 06:55:07.402527",
+    "id": 72,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 54,
+    "created_at": "2026-03-26 06:55:07.402531",
+    "updated_at": "2026-03-26 06:55:07.402533",
+    "id": 73,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 55,
+    "created_at": "2026-03-26 06:55:07.402536",
+    "updated_at": "2026-03-26 06:55:07.402539",
+    "id": 74,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 56,
+    "created_at": "2026-03-26 06:55:07.402542",
+    "updated_at": "2026-03-26 06:55:07.402546",
+    "id": 75,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 57,
+    "created_at": "2026-03-26 06:55:07.402548",
+    "updated_at": "2026-03-26 06:55:07.402551",
+    "id": 76,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 58,
+    "created_at": "2026-03-26 06:55:07.402554",
+    "updated_at": "2026-03-26 06:55:07.402557",
+    "id": 77,
+    "active": true
+  },
+  {
+    "role_id": 9,
+    "permission_id": 59,
+    "created_at": "2026-03-26 06:55:07.40256",
+    "updated_at": "2026-03-26 06:55:07.402563",
+    "id": 78,
+    "active": true
+  },
+  {
+    "role_id": 10,
+    "permission_id": 60,
+    "created_at": "2026-03-26 06:55:07.402566",
+    "updated_at": "2026-03-26 06:55:07.402569",
+    "id": 79,
+    "active": true
+  },
+  {
+    "role_id": 10,
+    "permission_id": 61,
+    "created_at": "2026-03-26 06:55:07.402572",
+    "updated_at": "2026-03-26 06:55:07.402575",
+    "id": 80,
+    "active": true
+  },
+  {
+    "role_id": 10,
+    "permission_id": 62,
+    "created_at": "2026-03-26 06:55:07.402579",
+    "updated_at": "2026-03-26 06:55:07.402581",
+    "id": 81,
+    "active": true
+  },
+  {
+    "role_id": 10,
+    "permission_id": 63,
+    "created_at": "2026-03-26 06:55:07.402585",
+    "updated_at": "2026-03-26 06:55:07.402588",
+    "id": 82,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 1,
+    "created_at": "2026-03-26 06:55:07.402591",
+    "updated_at": "2026-03-26 06:55:07.402594",
+    "id": 83,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 2,
+    "created_at": "2026-03-26 06:55:07.402597",
+    "updated_at": "2026-03-26 06:55:07.4026",
+    "id": 84,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 3,
+    "created_at": "2026-03-26 06:55:07.402603",
+    "updated_at": "2026-03-26 06:55:07.402606",
+    "id": 85,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 4,
+    "created_at": "2026-03-26 06:55:07.402609",
+    "updated_at": "2026-03-26 06:55:07.402611",
+    "id": 86,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 5,
+    "created_at": "2026-03-26 06:55:07.402614",
+    "updated_at": "2026-03-26 06:55:07.402617",
+    "id": 87,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 6,
+    "created_at": "2026-03-26 06:55:07.40262",
+    "updated_at": "2026-03-26 06:55:07.402631",
+    "id": 88,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 7,
+    "created_at": "2026-03-26 06:55:07.402634",
+    "updated_at": "2026-03-26 06:55:07.402637",
+    "id": 89,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 8,
+    "created_at": "2026-03-26 06:55:07.40264",
+    "updated_at": "2026-03-26 06:55:07.402642",
+    "id": 90,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 9,
+    "created_at": "2026-03-26 06:55:07.402645",
+    "updated_at": "2026-03-26 06:55:07.402648",
+    "id": 91,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 10,
+    "created_at": "2026-03-26 06:55:07.402651",
+    "updated_at": "2026-03-26 06:55:07.402653",
+    "id": 92,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 11,
+    "created_at": "2026-03-26 06:55:07.402656",
+    "updated_at": "2026-03-26 06:55:07.402659",
+    "id": 93,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 12,
+    "created_at": "2026-03-26 06:55:07.402662",
+    "updated_at": "2026-03-26 06:55:07.402665",
+    "id": 94,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 13,
+    "created_at": "2026-03-26 06:55:07.402668",
+    "updated_at": "2026-03-26 06:55:07.402671",
+    "id": 95,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 14,
+    "created_at": "2026-03-26 06:55:07.402675",
+    "updated_at": "2026-03-26 06:55:07.402677",
+    "id": 96,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 15,
+    "created_at": "2026-03-26 06:55:07.40268",
+    "updated_at": "2026-03-26 06:55:07.402682",
+    "id": 97,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 16,
+    "created_at": "2026-03-26 06:55:07.402685",
+    "updated_at": "2026-03-26 06:55:07.402687",
+    "id": 98,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 17,
+    "created_at": "2026-03-26 06:55:07.40269",
+    "updated_at": "2026-03-26 06:55:07.402693",
+    "id": 99,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 18,
+    "created_at": "2026-03-26 06:55:07.402696",
+    "updated_at": "2026-03-26 06:55:07.402699",
+    "id": 100,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 19,
+    "created_at": "2026-03-26 06:55:07.402703",
+    "updated_at": "2026-03-26 06:55:07.402705",
+    "id": 101,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 20,
+    "created_at": "2026-03-26 06:55:07.402708",
+    "updated_at": "2026-03-26 06:55:07.402711",
+    "id": 102,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 21,
+    "created_at": "2026-03-26 06:55:07.402714",
+    "updated_at": "2026-03-26 06:55:07.402717",
+    "id": 103,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 22,
+    "created_at": "2026-03-26 06:55:07.402719",
+    "updated_at": "2026-03-26 06:55:07.402722",
+    "id": 104,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 23,
+    "created_at": "2026-03-26 06:55:07.402725",
+    "updated_at": "2026-03-26 06:55:07.402728",
+    "id": 105,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 24,
+    "created_at": "2026-03-26 06:55:07.40273",
+    "updated_at": "2026-03-26 06:55:07.402733",
+    "id": 106,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 25,
+    "created_at": "2026-03-26 06:55:07.402735",
+    "updated_at": "2026-03-26 06:55:07.402737",
+    "id": 107,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 26,
+    "created_at": "2026-03-26 06:55:07.402741",
+    "updated_at": "2026-03-26 06:55:07.402743",
+    "id": 108,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 27,
+    "created_at": "2026-03-26 06:55:07.402747",
+    "updated_at": "2026-03-26 06:55:07.40275",
+    "id": 109,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 28,
+    "created_at": "2026-03-26 06:55:07.402752",
+    "updated_at": "2026-03-26 06:55:07.402755",
+    "id": 110,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 29,
+    "created_at": "2026-03-26 06:55:07.402758",
+    "updated_at": "2026-03-26 06:55:07.402761",
+    "id": 111,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 30,
+    "created_at": "2026-03-26 06:55:07.402764",
+    "updated_at": "2026-03-26 06:55:07.402766",
+    "id": 112,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 31,
+    "created_at": "2026-03-26 06:55:07.402769",
+    "updated_at": "2026-03-26 06:55:07.402772",
+    "id": 113,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 32,
+    "created_at": "2026-03-26 06:55:07.402775",
+    "updated_at": "2026-03-26 06:55:07.402778",
+    "id": 114,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 33,
+    "created_at": "2026-03-26 06:55:07.402781",
+    "updated_at": "2026-03-26 06:55:07.402783",
+    "id": 115,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 34,
+    "created_at": "2026-03-26 06:55:07.402786",
+    "updated_at": "2026-03-26 06:55:07.402789",
+    "id": 116,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 35,
+    "created_at": "2026-03-26 06:55:07.402792",
+    "updated_at": "2026-03-26 06:55:07.402795",
+    "id": 117,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 36,
+    "created_at": "2026-03-26 06:55:07.402798",
+    "updated_at": "2026-03-26 06:55:07.4028",
+    "id": 118,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 37,
+    "created_at": "2026-03-26 06:55:07.402804",
+    "updated_at": "2026-03-26 06:55:07.402806",
+    "id": 119,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 38,
+    "created_at": "2026-03-26 06:55:07.402809",
+    "updated_at": "2026-03-26 06:55:07.402812",
+    "id": 120,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 39,
+    "created_at": "2026-03-26 06:55:07.402816",
+    "updated_at": "2026-03-26 06:55:07.402818",
+    "id": 121,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 40,
+    "created_at": "2026-03-26 06:55:07.402821",
+    "updated_at": "2026-03-26 06:55:07.402824",
+    "id": 122,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 41,
+    "created_at": "2026-03-26 06:55:07.402827",
+    "updated_at": "2026-03-26 06:55:07.402829",
+    "id": 123,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 42,
+    "created_at": "2026-03-26 06:55:07.402832",
+    "updated_at": "2026-03-26 06:55:07.402835",
+    "id": 124,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 43,
+    "created_at": "2026-03-26 06:55:07.402838",
+    "updated_at": "2026-03-26 06:55:07.40284",
+    "id": 125,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 44,
+    "created_at": "2026-03-26 06:55:07.402843",
+    "updated_at": "2026-03-26 06:55:07.402846",
+    "id": 126,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 45,
+    "created_at": "2026-03-26 06:55:07.402849",
+    "updated_at": "2026-03-26 06:55:07.402852",
+    "id": 127,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 46,
+    "created_at": "2026-03-26 06:55:07.402855",
+    "updated_at": "2026-03-26 06:55:07.402858",
+    "id": 128,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 47,
+    "created_at": "2026-03-26 06:55:07.402861",
+    "updated_at": "2026-03-26 06:55:07.402864",
+    "id": 129,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 48,
+    "created_at": "2026-03-26 06:55:07.402867",
+    "updated_at": "2026-03-26 06:55:07.40287",
+    "id": 130,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 49,
+    "created_at": "2026-03-26 06:55:07.402875",
+    "updated_at": "2026-03-26 06:55:07.402878",
+    "id": 131,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 50,
+    "created_at": "2026-03-26 06:55:07.402881",
+    "updated_at": "2026-03-26 06:55:07.402884",
+    "id": 132,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 51,
+    "created_at": "2026-03-26 06:55:07.402886",
+    "updated_at": "2026-03-26 06:55:07.402889",
+    "id": 133,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 52,
+    "created_at": "2026-03-26 06:55:07.402892",
+    "updated_at": "2026-03-26 06:55:07.402895",
+    "id": 134,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 53,
+    "created_at": "2026-03-26 06:55:07.402898",
+    "updated_at": "2026-03-26 06:55:07.4029",
+    "id": 135,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 54,
+    "created_at": "2026-03-26 06:55:07.402903",
+    "updated_at": "2026-03-26 06:55:07.402906",
+    "id": 136,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 55,
+    "created_at": "2026-03-26 06:55:07.402909",
+    "updated_at": "2026-03-26 06:55:07.402911",
+    "id": 137,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 56,
+    "created_at": "2026-03-26 06:55:07.402914",
+    "updated_at": "2026-03-26 06:55:07.402917",
+    "id": 138,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 57,
+    "created_at": "2026-03-26 06:55:07.40292",
+    "updated_at": "2026-03-26 06:55:07.402923",
+    "id": 139,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 58,
+    "created_at": "2026-03-26 06:55:07.402926",
+    "updated_at": "2026-03-26 06:55:07.402929",
+    "id": 140,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 59,
+    "created_at": "2026-03-26 06:55:07.402932",
+    "updated_at": "2026-03-26 06:55:07.402935",
+    "id": 141,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 60,
+    "created_at": "2026-03-26 06:55:07.402938",
+    "updated_at": "2026-03-26 06:55:07.402941",
+    "id": 142,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 61,
+    "created_at": "2026-03-26 06:55:07.402944",
+    "updated_at": "2026-03-26 06:55:07.402947",
+    "id": 143,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 62,
+    "created_at": "2026-03-26 06:55:07.402949",
+    "updated_at": "2026-03-26 06:55:07.402951",
+    "id": 144,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 63,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 145,
+    "active": true
+  },
+  {
+    "role_id": 2,
+    "permission_id": 66,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 146,
+    "active": true
+  },
+  {
+    "role_id": 6,
+    "permission_id": 64,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 147,
+    "active": true
+  },
+  {
+    "role_id": 6,
+    "permission_id": 65,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 148,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 66,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 149,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 64,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 150,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 65,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 151,
+    "active": true
+  }
+]
