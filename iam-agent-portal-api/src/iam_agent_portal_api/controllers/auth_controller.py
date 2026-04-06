@@ -107,6 +107,7 @@ class AuthController(BaseController):
             domain=_config.auth_cookie_domain,
             httponly=_config.auth_cookie_httponly,
             secure=_config.auth_cookie_secure,
+            samesite="lax",
         )
         response.set_cookie(
             "X-ID-Token",
@@ -117,5 +118,6 @@ class AuthController(BaseController):
             domain=_config.auth_cookie_domain,
             httponly=_config.auth_cookie_httponly,
             secure=_config.auth_cookie_secure,
+            samesite="lax",
         )
         return response
