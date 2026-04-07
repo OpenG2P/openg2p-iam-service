@@ -30,7 +30,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         client_id: str | None = None,
         allow_by_default: bool = True,
         state_key: str = "auth_principal",
-        required_permissions_resolver: Callable[[Request, Any], set[str]] | None = None,
+        required_permissions_resolver: Callable[[Request, Any], set[str] | None] | None = None,
     ):
         super().__init__(app)
         self._auth_scheme = JwtBearerAuth()
@@ -39,9 +39,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
         self._state_key = state_key
         self._required_permissions_resolver = required_permissions_resolver
 
-    def get_required_permissions(self, request: Request, route: Any) -> set[str]:
+    def get_required_permissions(self, request: Request, route: Any) -> set[str] | None:
         if self._required_permissions_resolver is not None:
-            roles = self._required_permissions_resolver(request, route) or set()
+            roles = self._required_permissions_resolver(request, route)
+            if roles is None:
+                return None
             return {str(role) for role in roles}
         return default_get_required_permissions(getattr(route, "endpoint", None))
 
@@ -92,7 +94,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 return await call_next(request)
 
             required_permissions = self.get_required_permissions(request, matched_route)
-            if not required_permissions and self._allow_by_default:
+            if required_permissions is None and self._allow_by_default:
                 return await call_next(request)
 
             request.scope["route"] = matched_route
@@ -107,7 +109,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             user_roles = list((principal.client_roles or {}).get(client_id, []))
             user_permissions = await self._get_user_permissions(user_roles)
 
-            if not required_permissions.issubset(user_permissions):
+            if required_permissions and not required_permissions.issubset(user_permissions):
                 raise ForbiddenError(message="Forbidden. Insufficient resource_access roles.")
 
             setattr(request.state, self._state_key, principal)
