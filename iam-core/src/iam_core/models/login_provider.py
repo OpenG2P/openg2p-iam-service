@@ -1,6 +1,5 @@
 import json
 import sys
-from enum import Enum
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -16,17 +15,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from ..schemas import TokenEndpointAuthMethod
 
 
-class UserTypeEnum(str, Enum):
-    staff = "staff"
-    agent = "agent"
-    beneficiary = "beneficiary"
-
-
 class LoginProvider(BaseORMModelWithTimes):
     __tablename__ = "login_providers"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_type: Mapped[UserTypeEnum] = mapped_column(SAEnum(UserTypeEnum), nullable=False)
     provider_name: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     icon_base64: Mapped[Optional[str]] = mapped_column(String, nullable=True)
@@ -65,9 +57,3 @@ class LoginProvider(BaseORMModelWithTimes):
             if lp.issuer == iss:
                 return lp
         return None
-
-    @classmethod
-    async def get_by_user_type(cls, user_type: str) -> list[Self]:
-        normalized = user_type.lower()
-        providers = await cls.get_all()
-        return [provider for provider in providers if provider.user_type.value == normalized]

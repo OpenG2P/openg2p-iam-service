@@ -18,9 +18,8 @@ from iam_core.user_auth.oidc_client import OidcClient
 
 
 class AuthService(BaseService):
-    def __init__(self, user_type: str | None = None):
+    def __init__(self):
         super().__init__()
-        self.user_type = user_type
         self.provider_repository = ProviderRepository.get_component()
         self._adapters = AdapterFactory.get_component()
         self._transaction_store = self._get_transaction_store()
@@ -32,7 +31,7 @@ class AuthService(BaseService):
         return AuthTransactionStore.get_component()
 
     async def get_login_providers(self) -> LoginProviderHttpResponse:
-        login_providers = await self.provider_repository.get_all(user_type=self.user_type)
+        login_providers = await self.provider_repository.get_all()
         return LoginProviderHttpResponse(
             loginProviders=[
                 LoginProviderResponse(

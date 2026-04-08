@@ -3,7 +3,7 @@ from typing import Annotated, List, Optional
 from fastapi import Depends
 from fastapi_cache.decorator import cache
 from iam_core.schemas import AuthPrincipal
-from iam_core.user_auth.dependencies import auth_principal, require_user_type
+from iam_core.user_auth.dependencies import auth_principal, require_auth
 from openg2p_fastapi_common.context import dbengine
 from openg2p_fastapi_common.controller import BaseController
 from sqlalchemy import select
@@ -31,8 +31,6 @@ class UserAccessController(BaseController):
     '''
     Controller for managing user access to staff portal applications and their associated permissions.
     '''
-    user_type = "staff"
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.router.prefix += "/user-access"
@@ -61,7 +59,7 @@ class UserAccessController(BaseController):
         self,
         auth: Annotated[
             AuthPrincipal,
-            Depends(require_user_type("staff", auth_dependency=auth_principal)),
+            Depends(require_auth(auth_principal)),
         ],
     ) -> List[StaffPortalApplicationResponse]:
         client_roles = auth.client_roles or {}
@@ -101,7 +99,7 @@ class UserAccessController(BaseController):
         self,
         auth: Annotated[
             AuthPrincipal,
-            Depends(require_user_type("staff", auth_dependency=auth_principal)),
+            Depends(require_auth(auth_principal)),
         ],
         application_mnemonic: Optional[str] = None,
     ) -> List[ApplicationPermissionResponse]:

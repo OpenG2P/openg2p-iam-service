@@ -104,9 +104,7 @@ class ProviderRepository(BaseService):
             )
             return None
 
-    async def get_all(self, user_type: str | None = None) -> list[LoginProvider]:
-        if user_type:
-            return await LoginProvider.get_by_user_type(user_type)
+    async def get_all(self) -> list[LoginProvider]:
         return await LoginProvider.get_all()
 
     @staticmethod
