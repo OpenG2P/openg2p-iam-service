@@ -65,10 +65,6 @@ def _extract_client_roles(claims: dict) -> dict[str, list[str]] | None:
     return result or None
 
 
-def _resolve_user_type(claims: dict) -> str | None:
-    return claims.get("user_type") or claims.get("userType")
-
-
 async def auth_principal(
     auth: Annotated[AuthCredentials, Depends(JwtBearerAuth())],
 ) -> AuthPrincipal:
@@ -80,10 +76,22 @@ async def auth_principal(
         name=auth.name,
         credentials=auth.credentials,
         sub=claims.get("sub"),
-        user_type=_resolve_user_type(claims),
         aud=claims.get("aud"),
         client_roles=_extract_client_roles(claims),
     )
+
+
+def require_auth(
+    auth_dependency: Callable | None = None,
+):
+    async def dependency(
+        auth: Annotated[Any, Depends(auth_dependency or auth_principal)],
+    ):
+        if auth is None:
+            raise UnauthorizedError()
+        return auth
+
+    return dependency
 
 
 def has_claim(
@@ -135,22 +143,6 @@ def claim_in(
             values = set()
         if not values.intersection(allowed):
             raise ForbiddenError(message=f"Forbidden. Claim {name} not allowed.")
-        return auth
-
-    return dependency
-
-
-def require_user_type(
-    expected: str,
-    auth_dependency: Callable | None = None,
-):
-    async def dependency(
-        auth: Annotated[Any, Depends(auth_dependency or JwtBearerAuth())],
-    ):
-        claims = _claims_from_auth(auth)
-        user_type = claims.get("user_type") or claims.get("userType")
-        if user_type != expected:
-            raise ForbiddenError(message="Forbidden. Invalid userType.")
         return auth
 
     return dependency

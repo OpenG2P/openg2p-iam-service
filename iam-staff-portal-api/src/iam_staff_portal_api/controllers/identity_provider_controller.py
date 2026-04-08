@@ -6,13 +6,11 @@ class IdentityProviderController(BaseController):
     '''
     Controller for identity provider-related endpoints, such as retrieving information about configured identity providers.
     '''
-    user_type = "staff"
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.router.prefix += "/identity-providers"
         self.router.tags += ["/identity-providers"]
-        self.auth_service = AuthService(user_type=self.user_type)
+        self.auth_service = AuthService()
 
         self.router.add_api_route(
             "/get_provider_by_issuer",

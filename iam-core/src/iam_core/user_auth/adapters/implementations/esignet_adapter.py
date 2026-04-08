@@ -13,8 +13,6 @@ class EsignetAdapter(OIDCBase):
         login_provider: LoginProvider,
     ) -> dict[str, Any]:
         normalized = dict(claims)
-        if not normalized.get("user_type"):
-            normalized["user_type"] = normalized.get("userType") or login_provider.user_type.value
 
         # Some integrations send provider/realm roles only in nested claims.
         if "roles" not in normalized:

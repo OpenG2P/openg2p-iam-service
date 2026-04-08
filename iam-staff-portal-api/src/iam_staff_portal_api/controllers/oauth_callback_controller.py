@@ -14,13 +14,11 @@ class OAuthCallbackController(BaseController):
     '''
     Controller for handling the OAuth callback endpoint, which completes the authentication transaction and sets the necessary cookies for authenticated sessions.
     '''
-    user_type = "staff"
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.router.prefix += "/auth"
         self.router.tags += ["/auth"]
-        self.auth_service = AuthService(user_type=self.user_type)
+        self.auth_service = AuthService()
 
         self.router.add_api_route("/callback", self.oauth_callback, methods=["GET"])
 

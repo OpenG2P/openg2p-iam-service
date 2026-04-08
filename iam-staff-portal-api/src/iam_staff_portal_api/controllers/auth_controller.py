@@ -8,7 +8,7 @@ from iam_core.schemas import (
     StartAuthTransactionResponse,
 )
 from iam_core.services import AuthService
-from iam_core.user_auth.dependencies import auth_principal, require_user_type
+from iam_core.user_auth.dependencies import auth_principal, require_auth
 
 from ..config import Settings
 
@@ -19,13 +19,11 @@ class AuthController(BaseController):
     '''
     Controller for authentication-related endpoints, such as retrieving user profile information and handling login/logout.
     '''
-    user_type = "staff"
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.router.prefix += "/auth"
         self.router.tags += ["/auth"]
-        self.auth_service = AuthService(user_type=self.user_type)
+        self.auth_service = AuthService()
 
         self.router.add_api_route("/get_user_profile", self.get_user_profile, methods=["GET"])
         self.router.add_api_route("/logout", self.logout, methods=["POST"])
@@ -46,7 +44,7 @@ class AuthController(BaseController):
         self,
         auth: Annotated[
             AuthPrincipal,
-            Depends(require_user_type("staff", auth_dependency=auth_principal)),
+            Depends(require_auth(auth_principal)),
         ],
     ):
         return auth.model_dump(exclude={"credentials"})
