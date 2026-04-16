@@ -7,9 +7,8 @@ from openg2p_fastapi_common.errors.http_exceptions import (
     UnauthorizedError,
 )
 
-from iam_core.schemas import AuthCredentials, AuthPrincipal
-from iam_core.services.token_validator_service import TokenValidatorService
-
+from iam_core.schemas import AuthCredentials, AuthPrincipal, LoggedInUserResponse
+from iam_core.services import AuthService, TokenValidatorService
 from .config import ApiAuthSettings, Settings
 
 _config = Settings.get_config(strict=False)
@@ -65,6 +64,23 @@ def _extract_client_roles(claims: dict) -> dict[str, list[str]] | None:
     return result or None
 
 
+def _logged_in_user_from_claims(claims: dict) -> LoggedInUserResponse:
+    address = claims.get("address")
+    if not isinstance(address, dict):
+        address = {}
+
+    return LoggedInUserResponse(
+        sub=claims.get("sub"),
+        email_verified=claims.get("email_verified"),
+        address=address,
+        name=claims.get("name"),
+        preferred_username=claims.get("preferred_username"),
+        given_name=claims.get("given_name"),
+        family_name=claims.get("family_name"),
+        email=claims.get("email"),
+    )
+
+
 async def auth_principal(
     auth: Annotated[AuthCredentials, Depends(JwtBearerAuth())],
 ) -> AuthPrincipal:
@@ -79,6 +95,33 @@ async def auth_principal(
         aud=claims.get("aud"),
         client_roles=_extract_client_roles(claims),
     )
+
+
+async def logged_in_user(
+    auth: Annotated[Any, Depends(JwtBearerAuth())],
+) -> LoggedInUserResponse:
+    if auth is None:
+        raise UnauthorizedError()
+
+    claims = _claims_from_auth(auth)
+
+    access_token = claims.get("credentials")
+    if access_token:
+        issuer = claims.get("iss")
+        try:
+            auth_service = AuthService.get_component() or AuthService()
+            userinfo = await auth_service.get_oauth_validation_data(
+                auth=access_token,
+                iss=issuer,
+                combine=False,
+            )
+            if isinstance(userinfo, dict) and userinfo:
+                return _logged_in_user_from_claims(userinfo)
+        except Exception:
+            # Fallback to claims already validated by JwtBearerAuth.
+            pass
+
+    return _logged_in_user_from_claims(claims)
 
 
 def require_auth(
