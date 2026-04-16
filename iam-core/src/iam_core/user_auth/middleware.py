@@ -29,7 +29,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         *,
         client_id: str | None = None,
         allow_by_default: bool = True,
-        state_key: str = "auth_principal",
+        state_key: str = "auth",
         required_permissions_resolver: Callable[[Request, Any], set[str] | None] | None = None,
     ):
         super().__init__(app)
