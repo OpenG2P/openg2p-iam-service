@@ -7,3 +7,4 @@ from .login_provider import (
     StartAuthTransactionResponse,
 )
 from .provider_auth_parameters import TokenEndpointAuthMethod
+from .logged_in_user import LoggedInUserResponse

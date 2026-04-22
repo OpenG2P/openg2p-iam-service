@@ -1,88 +1,59 @@
+import types
+
 import pytest
-from fastapi import Request
-from openg2p_fastapi_common.errors.http_exceptions import ForbiddenError
+
 from iam_core.schemas import AuthCredentials
-from iam_core.user_auth.auth.implementations import (
-    AgentKeycloakAuth,
-    BeneficiaryEsignetAuth,
-    StaffKeycloakAuth,
-)
-
-
-def _request() -> Request:
-    return Request({"type": "http", "method": "GET", "headers": []})
+from iam_core.user_auth.adapters.implementations.esignet_adapter import EsignetAdapter
+from iam_core.user_auth.adapters.implementations.keycloak_adapter import KeycloakAdapter
+from iam_core.user_auth.dependencies import auth_principal
 
 
 @pytest.mark.asyncio
-async def test_staff_adapter_infers_user_type_from_roles():
-    adapter = StaffKeycloakAuth()
+async def test_auth_principal_extracts_client_roles_without_user_type():
     credentials = AuthCredentials.model_validate(
         {
             "credentials": "token",
             "iss": "https://issuer",
+            "sub": "user-1",
+            "name": "Test User",
+            "resource_access": {"staff-portal": {"roles": ["admin", "viewer"]}},
+        }
+    )
+
+    principal = await auth_principal(credentials)
+
+    assert principal.sub == "user-1"
+    assert principal.name == "Test User"
+    assert principal.client_roles == {"staff-portal": ["admin", "viewer"]}
+    assert "user_type" not in principal.model_dump()
+
+
+def test_keycloak_adapter_normalizes_roles_without_user_type():
+    adapter = KeycloakAdapter()
+
+    claims = adapter.normalize_claims(
+        {
             "sub": "user-1",
             "realm_access": {"roles": ["staff"]},
-            "resource_access": {"staff-portal": {"roles": ["staff"]}},
-        }
+            "resource_access": {"staff-portal": {"roles": ["viewer"]}},
+        },
+        login_provider=types.SimpleNamespace(),
     )
 
-    principal = await adapter.adapt(_request(), credentials)
-
-    assert principal.user_type == "staff"
-    assert principal.client_roles is not None
-    assert "staff-portal" in principal.client_roles
+    assert claims["roles"] == ["staff", "viewer"]
+    assert "user_type" not in claims
 
 
-@pytest.mark.asyncio
-async def test_agent_adapter_infers_user_type_from_roles():
-    adapter = AgentKeycloakAuth()
-    credentials = AuthCredentials.model_validate(
+def test_esignet_adapter_keeps_roles_without_user_type():
+    adapter = EsignetAdapter()
+
+    claims = adapter.normalize_claims(
         {
-            "credentials": "token",
-            "iss": "https://issuer",
             "sub": "user-1",
-            "realm_access": {"roles": ["agent"]},
-            "resource_access": {"agent-portal": {"roles": ["agent"]}},
-        }
+            "realm_access": {"roles": ["beneficiary"]},
+        },
+        login_provider=types.SimpleNamespace(),
     )
 
-    principal = await adapter.adapt(_request(), credentials)
-
-    assert principal.user_type == "agent"
-    assert principal.client_roles is not None
-    assert "agent-portal" in principal.client_roles
-
-
-@pytest.mark.asyncio
-async def test_beneficiary_esignet_infers_user_type_from_provider_roles():
-    adapter = BeneficiaryEsignetAuth()
-    credentials = AuthCredentials.model_validate(
-        {
-            "credentials": "token",
-            "iss": "https://issuer",
-            "sub": "user-1",
-            "resource_access": {"google-client": {"roles": ["beneficiary"]}},
-        }
-    )
-
-    principal = await adapter.adapt(_request(), credentials)
-
-    assert principal.user_type == "beneficiary"
-    assert principal.sub == "user-1"
-
-
-@pytest.mark.asyncio
-async def test_staff_adapter_rejects_non_staff_user():
-    adapter = StaffKeycloakAuth()
-    credentials = AuthCredentials.model_validate(
-        {
-            "credentials": "token",
-            "iss": "https://issuer",
-            "sub": "user-1",
-            "user_type": "agent",
-            "realm_access": {"roles": ["agent"]},
-        }
-    )
-
-    with pytest.raises(ForbiddenError):
-        await adapter.adapt(_request(), credentials)
+    assert claims["roles"] == ["beneficiary"]
+    assert "user_type" not in claims

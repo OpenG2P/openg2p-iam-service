@@ -24,13 +24,6 @@ class KeycloakAdapter(OIDCBase):
         if "roles" not in normalized and all_roles:
             normalized["roles"] = all_roles
 
-        if not normalized.get("user_type"):
-            # Fallback user_type inference from common realm roles.
-            for value in ("staff", "agent", "beneficiary"):
-                if value in realm_roles or value in resource_roles:
-                    normalized["user_type"] = value
-                    break
-
         return normalized
 
     def validate_claims(

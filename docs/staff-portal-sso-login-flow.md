@@ -41,7 +41,7 @@ sequenceDiagram
   participant IdP as OIDCProvider
 
   StaffUI->>StaffAPI: GET /auth/get_login_providers
-  StaffAPI->>Core: get_login_providers(user_type="staff")
+  StaffAPI->>Core: get_login_providers()
   Core-->>StaffAPI: provider list
   StaffAPI-->>StaffUI: 200 loginProviders[]
 
@@ -135,7 +135,7 @@ All routes are registered with controller prefix `/auth`.
 - **Checks:**
   - token issuer/audience
   - JWT signature/JWKS (or introspection/hybrid by config)
-  - `require_user_type("staff")`
+  - `require_auth(auth_principal)`
 - **Response example:**
 
 ```json
@@ -143,7 +143,6 @@ All routes are registered with controller prefix `/auth`.
   "scheme": "bearer",
   "iss": "https://idp.example.com/realms/staff",
   "sub": "uuid-user-id",
-  "user_type": "staff",
   "aud": "staff-portal",
   "iat": "2026-03-12T10:01:02Z",
   "exp": "2026-03-12T11:01:02Z",
@@ -299,7 +298,6 @@ Current provider model fields (`login_providers`) in `iam-core`:
 
 - Required:
   - `id`
-  - `user_type` (`staff|agent|beneficiary`)
   - `provider_name`
   - `client_id`
   - `oauth_callback_url`
@@ -352,7 +350,6 @@ Per-route auth policy (`ApiAuthSettings`) supports:
 ```json
 {
   "id": 1,
-  "user_type": "staff",
   "provider_name": "Keycloak Staff",
   "client_id": "staff-portal-client",
   "client_secret": "secret",
@@ -381,7 +378,7 @@ Per-route auth policy (`ApiAuthSettings`) supports:
 
 - Configure provider metadata and client auth method correctly.
 - Set issuer/audience policies for each protected API.
-- Use `require_user_type("staff")` and optional `has_claim`/`claim_in` for authorization.
+- Use `require_auth(auth_principal)` and optional `has_claim`/`claim_in` for authorization.
 - For multi-service SSO, align domain/routing/token propagation strategy early.
 
 ---
@@ -391,6 +388,4 @@ Per-route auth policy (`ApiAuthSettings`) supports:
 - `Unauthorized. Unknown Issuer`: issuer not in configured allow-list or provider not found.
 - `Unauthorized. Unknown Audience`: token audience mismatch.
 - `Nonce mismatch`: callback state/nonce flow broken or replayed.
-- `Forbidden. Invalid userType`: token claims do not map to `staff`.
 - `Forbidden. Claim(s) missing/don't match`: route claim policy mismatch.
-

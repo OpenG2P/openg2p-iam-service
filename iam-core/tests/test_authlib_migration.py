@@ -6,14 +6,17 @@ from jose import jwt as jose_jwt
 from openg2p_fastapi_common.errors.http_exceptions import ForbiddenError
 from iam_core.services.token_validator_service import TokenValidatorService
 from iam_core.user_auth.config import ApiAuthSettings
-from iam_core.user_auth.dependencies import claim_in, require_user_type
+from iam_core.user_auth.dependencies import claim_in, require_auth
 
 
 @pytest.mark.asyncio
-async def test_require_user_type_accepts_legacy_user_type_field():
-    checker = require_user_type("staff")
-    result = await checker(auth={"userType": "staff"})
-    assert result["userType"] == "staff"
+async def test_require_auth_returns_auth_object():
+    checker = require_auth()
+    auth = {"sub": "user-1", "roles": ["staff"]}
+
+    result = await checker(auth=auth)
+
+    assert result is auth
 
 
 @pytest.mark.asyncio
@@ -46,7 +49,7 @@ async def test_token_validator_hybrid_mode_merges_claims():
         )
 
     async def mock_introspection(*args, **kwargs):
-        return {"active": True, "user_type": "staff", "roles": ["staff"]}
+        return {"active": True, "roles": ["staff"]}
 
     async def mock_decode(*args, **kwargs):
         return {"sub": "u-1", "iss": "https://issuer", "aud": "portal"}
@@ -72,8 +75,8 @@ async def test_token_validator_hybrid_mode_merges_claims():
             claim_values=["staff"],
         ),
     )
-    assert result.user_type == "staff"
     assert result.sub == "u-1"
+    assert "user_type" not in result.model_dump()
 
 
 @pytest.mark.asyncio
