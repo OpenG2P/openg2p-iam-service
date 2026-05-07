@@ -9,7 +9,7 @@ else:
 from typing import Optional
 
 from openg2p_fastapi_common.models import BaseORMModelWithTimes
-from sqlalchemy import Boolean, Enum as SAEnum, Integer, String
+from sqlalchemy import Boolean, Enum as SAEnum, Integer, LargeBinary, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..schemas import TokenEndpointAuthMethod
@@ -24,6 +24,7 @@ class LoginProvider(BaseORMModelWithTimes):
     icon_base64: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     client_id: Mapped[str] = mapped_column(String, nullable=False)
     client_secret: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    client_private_key: Mapped[Optional[bytes]] = mapped_column(LargeBinary(), nullable=True)
     token_endpoint_auth_method: Mapped[TokenEndpointAuthMethod] = mapped_column(
         SAEnum(TokenEndpointAuthMethod), nullable=False
     )

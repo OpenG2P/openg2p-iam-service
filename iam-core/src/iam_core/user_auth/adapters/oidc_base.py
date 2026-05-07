@@ -129,3 +129,56 @@ class OIDCBase(BaseService, OIDCInterface):
     ) -> None:
         # Default path: no provider-specific validation.
         return None
+
+    def registrant_subject(
+        self,
+        claims: dict[str, Any],
+        login_provider: LoginProvider,
+    ) -> str | None:
+        v = claims.get("sub")
+        return str(v) if v is not None else None
+
+    async def enrich_claims_from_userinfo(
+        self,
+        claims: dict[str, Any],
+        *,
+        login_provider: LoginProvider,
+        access_token: str | None,
+    ) -> dict[str, Any]:
+        return claims
+
+    def get_authentication_method(
+        self,
+        claims: dict[str, Any],
+        login_provider: LoginProvider,
+    ) -> str | None:
+        amr = claims.get("amr")
+        if isinstance(amr, list) and amr:
+            v = amr[0]
+            if isinstance(v, str) and v:
+                return v
+        acr = claims.get("acr")
+        if isinstance(acr, str) and acr:
+            low = acr.lower()
+            for key in ("otp", "biometric", "face", "fingerprint", "password"):
+                if key in low:
+                    return key
+            return acr
+        return None
+
+    def get_claim_verifications(
+        self,
+        claims: dict[str, Any],
+        login_provider: LoginProvider,
+    ) -> dict[str, bool] | None:
+        out: dict[str, bool] = {}
+        if "email_verified" in claims:
+            out["email_verified"] = bool(claims.get("email_verified"))
+        if "phone_number_verified" in claims:
+            out["phone_verified"] = bool(claims.get("phone_number_verified"))
+        verified = claims.get("verified_attributes")
+        if isinstance(verified, list):
+            for attr in verified:
+                if isinstance(attr, str) and attr:
+                    out[attr] = True
+        return out or None
