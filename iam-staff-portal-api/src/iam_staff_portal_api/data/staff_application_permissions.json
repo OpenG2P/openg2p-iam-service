@@ -1,7 +1,7 @@
 [
   {
-    "permission_mnemonic": "intakeForm:create",
-    "permission_description": "intakeForm:create",
+    "permission_mnemonic": "intakeSubmission:edit",
+    "permission_description": "intakeSubmission:edit",
     "application_id": 1,
     "created_at": "2026-03-26 06:55:07.308851",
     "updated_at": "2026-03-26 06:55:07.308863",
@@ -9,8 +9,8 @@
     "active": true
   },
   {
-    "permission_mnemonic": "intakeForm:view",
-    "permission_description": "intakeForm:view",
+    "permission_mnemonic": "intakeSubmission:view",
+    "permission_description": "intakeSubmission:view",
     "application_id": 1,
     "created_at": "2026-03-26 06:55:07.311146",
     "updated_at": "2026-03-26 06:55:07.311155",
@@ -585,8 +585,8 @@
     "active": true
   },
   {
-    "permission_mnemonic": "intakeForm:approve",
-    "permission_description": "intakeForm:approve",
+    "permission_mnemonic": "intakeSubmission:approve",
+    "permission_description": "intakeSubmission:approve",
     "application_id": 1,
     "created_at": "2026-03-26 06:55:07.379905",
     "updated_at": "2026-03-26 06:55:07.379912",
@@ -609,6 +609,24 @@
     "created_at": "2026-03-26 06:55:07.379905",
     "updated_at": "2026-03-26 06:55:07.379912",
     "id": 68,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "registerScore:create",
+    "permission_description": "registerScore:create",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.379905",
+    "updated_at": "2026-03-26 06:55:07.379912",
+    "id": 69,
+    "active": true
+  },
+  {
+    "permission_mnemonic": "register:authenticate",
+    "permission_description": "register:authenticate",
+    "application_id": 1,
+    "created_at": "2026-03-26 06:55:07.379905",
+    "updated_at": "2026-03-26 06:55:07.379912",
+    "id": 70,
     "active": true
   }
 ]
