@@ -1257,7 +1257,7 @@
   },
   {
     "role_id": 11,
-    "permission_id": 70,
+    "permission_id": 72,
     "created_at": "2026-03-26 06:55:07.402955",
     "updated_at": "2026-03-26 06:55:07.402958",
     "id": 158,
@@ -1265,7 +1265,7 @@
   },
   {
     "role_id": 3,
-    "permission_id": 70,
+    "permission_id": 72,
     "created_at": "2026-03-26 06:55:07.402955",
     "updated_at": "2026-03-26 06:55:07.402958",
     "id": 159,
@@ -1285,6 +1285,38 @@
     "created_at": "2026-03-26 06:55:07.402955",
     "updated_at": "2026-03-26 06:55:07.402958",
     "id": 161,
+    "active": true
+  },
+  {
+    "role_id": 8,
+    "permission_id": 71,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 162,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 71,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 163,
+    "active": true
+  },
+  {
+    "role_id": 11,
+    "permission_id": 70,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 164,
+    "active": true
+  },
+  {
+    "role_id": 5,
+    "permission_id": 70,
+    "created_at": "2026-03-26 06:55:07.402955",
+    "updated_at": "2026-03-26 06:55:07.402958",
+    "id": 165,
     "active": true
   }
 ]
