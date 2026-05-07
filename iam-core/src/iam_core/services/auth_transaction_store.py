@@ -16,9 +16,10 @@ class AuthTransactionStore(BaseService):
 
     def create(
         self,
-        login_provider_id: int,
+        login_provider_id: int | str,
         redirect_uri: str,
         server_metadata: dict | None = None,
+        context: dict | None = None,
     ) -> AuthTransaction:
         now = datetime.now(tz=timezone.utc)
         auth_transaction: AuthTransaction = AuthTransaction(
@@ -30,6 +31,7 @@ class AuthTransactionStore(BaseService):
             created_at=now,
             expires_at=now + timedelta(seconds=self._ttl),
             server_metadata=server_metadata,
+            context=context,
         )
         self._store[auth_transaction.state] = auth_transaction
         return auth_transaction

@@ -14,7 +14,10 @@ from iam_core.schemas import TokenEndpointAuthMethod
 
 from .config import Settings
 from .helpers import decode_jwt as jwt_decode
-from .helpers import generate_client_assertion
+from .helpers import (
+    generate_keymanager_client_assertion,
+    generate_private_key_client_assertion,
+)
 from .helpers import get_jwks as jwks_get
 from .helpers import pkce_kwargs
 
@@ -126,7 +129,12 @@ class OidcClient:
             params["code_challenge"] = create_s256_code_challenge(code_verifier)
             params["code_challenge_method"] = "S256"
         params.update(extra_authorize_params)
-        return async_oauth2_client.create_authorization_url(auth_endpoint, **params)
+
+        try:
+            result = async_oauth2_client.create_authorization_url(auth_endpoint, **params)
+            return result
+        except Exception as e:
+            raise
 
     async def exchange_code_for_token(
         self,
@@ -163,13 +171,22 @@ class OidcClient:
             client_kwargs["token_endpoint_auth_method"] = method.value
         elif method == TokenEndpointAuthMethod.private_key_jwt_keymanager:
             client_kwargs["token_endpoint_auth_method"] = method.value
-            keymanager_assertion_type, keymanager_token = await generate_client_assertion(
-                login_provider,
+            keymanager_assertion_type, keymanager_token = await generate_keymanager_client_assertion(
+                login_provider=login_provider,
                 keymanager_helper=keymanager_helper,
                 **kw,
             )
             token_kwargs["client_assertion_type"] = keymanager_assertion_type
             token_kwargs["client_assertion"] = keymanager_token
+        elif method == TokenEndpointAuthMethod.private_key_jwt:
+            # Don't set token_endpoint_auth_method for private_key_jwt
+            # The client assertion will be used for authentication
+            assertion_type, assertion_token = generate_private_key_client_assertion(
+                login_provider=login_provider,
+                **kw,
+            )
+            token_kwargs["client_assertion_type"] = assertion_type
+            token_kwargs["client_assertion"] = assertion_token
 
         client = AsyncOAuth2Client(
             client_id=login_provider.client_id,
