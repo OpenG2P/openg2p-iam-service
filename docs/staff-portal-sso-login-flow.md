@@ -153,8 +153,8 @@ All routes are registered with controller prefix `/auth`.
 
 ### 6) Logout
 
-- **Endpoint:** `POST /auth/logout`
-- **Behavior:** Deletes `X-Access-Token` and `X-ID-Token` cookies.
+- **IAM endpoint:** `GET /auth/logout`
+- **Behavior:** Validates session from cookies, deletes `X-Access-Token` and `X-ID-Token`, redirects to IdP `end_session_endpoint` (Keycloak logout) using provider metadata and `default_redirect_uri`.
 
 ---
 
